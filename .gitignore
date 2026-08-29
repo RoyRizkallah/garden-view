@@ -1,0 +1,22 @@
+# Dependencies & build output
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Secrets
+.env
+.env.*
+
+# Logs / caches
+*.log
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+
+# Per-machine Claude Code settings (shared settings.json stays tracked)
+.claude/settings.local.json
+
+# Real owner directory — personal data; imported via the admin tool, never committed
+Garden View - Owner Directory (Cleaned).xlsx

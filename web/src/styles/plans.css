@@ -1,0 +1,1240 @@
+/* ============================================================
+   Floor Plans — as-built plan sheets, one per level
+   Sibling of explorer.css: same shell, same recipes, own names.
+   Owns all page styles; reuses global .container / .btn.
+   ============================================================ */
+
+.plans-page {
+  background: var(--green-dark);
+  min-height: 100vh;
+  padding: 118px 0 72px;
+  color: var(--white);
+  overflow-x: clip;
+}
+
+.plans-page a:focus-visible,
+.plans-page button:focus-visible,
+.plans-page .plans-stage:focus-visible {
+  outline: 2px solid rgba(201, 167, 105, 0.6);
+  outline-offset: 2px;
+}
+
+/* App-like screen: breathe edge to edge (capped for ultra-wide monitors) so the
+   plan stage takes every spare pixel. */
+.plans-page > .container {
+  max-width: 1920px;
+  padding: 0 clamp(24px, 3vw, 56px);
+}
+
+/* ---------- Entrance choreography ---------- */
+
+@keyframes plans-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes plans-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.plans-breadcrumb,
+.plans-head {
+  animation: plans-fade-up 0.55s var(--ease) both;
+}
+.plans-col-rail {
+  animation: plans-fade-up 0.55s var(--ease) 80ms both;
+}
+.plans-col-stage {
+  animation: plans-fade-up 0.55s var(--ease) 140ms both;
+}
+.plans-col-level {
+  animation: plans-fade-up 0.55s var(--ease) 200ms both;
+}
+
+/* ---------- Breadcrumb ---------- */
+
+.plans-breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(205, 191, 158, 0.75);
+}
+.plans-breadcrumb a {
+  transition: color 0.3s var(--ease);
+}
+.plans-breadcrumb a:hover {
+  color: var(--gold);
+}
+.plans-breadcrumb .sep {
+  color: rgba(205, 191, 158, 0.4);
+  letter-spacing: 0;
+}
+.plans-breadcrumb .current {
+  color: var(--stone);
+}
+
+/* ---------- Header row ---------- */
+
+.plans-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 28px 40px;
+  margin-top: 18px;
+}
+.plans-head h1 {
+  font-size: clamp(30px, 3.6vw, 44px);
+  color: var(--white);
+}
+.plans-sub {
+  color: var(--stone);
+  font-size: 15px;
+  margin-top: 10px;
+  max-width: 52ch;
+}
+
+.plans-stats {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.plans-stat {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 2px 28px;
+}
+.plans-stat:first-child {
+  padding-left: 0;
+}
+.plans-stat:last-child {
+  padding-right: 0;
+}
+.plans-stat + .plans-stat {
+  border-left: 1px solid rgba(255, 255, 255, 0.14);
+}
+.plans-stat svg {
+  color: var(--gold);
+  flex-shrink: 0;
+}
+.plans-stat strong {
+  display: block;
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 26px;
+  line-height: 1.05;
+  color: var(--cream);
+}
+.plans-stat span {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--stone);
+  margin-top: 2px;
+}
+
+/* ---------- Main grid ---------- */
+
+.plans-grid {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr) 340px;
+  grid-template-areas: 'rail stage level';
+  gap: 24px;
+  align-items: stretch;
+  margin-top: 36px;
+}
+.plans-col-rail {
+  grid-area: rail;
+}
+.plans-col-stage {
+  grid-area: stage;
+  display: flex;
+  flex-direction: column;
+  /* aligns the stage top with content under the step labels */
+  padding-top: 25px;
+}
+.plans-col-level {
+  grid-area: level;
+  display: flex;
+  flex-direction: column;
+}
+
+.plans-step-label {
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--stone);
+  margin-bottom: 14px;
+}
+
+/* ---------- Level rail ---------- */
+
+.plans-rail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 18px;
+  grid-template-rows: repeat(11, 34px) 14px repeat(3, 30px);
+  row-gap: 6px;
+  column-gap: 8px;
+}
+
+.plans-pill {
+  grid-column: 1;
+  position: relative;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 12.5px;
+  color: var(--cream);
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease), background 0.25s var(--ease), color 0.25s var(--ease),
+    transform 0.2s var(--ease), box-shadow 0.25s var(--ease);
+}
+.plans-pill:hover {
+  border-color: var(--gold-dim);
+  /* a nudge toward the plan stage */
+  transform: translateX(2px);
+}
+.plans-pill.is-selected {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--charcoal);
+  box-shadow: 0 0 16px rgba(201, 167, 105, 0.28);
+}
+/* caret notch pointing right, toward the plan stage */
+.plans-pill.is-selected::before {
+  content: '';
+  position: absolute;
+  right: -7px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 6px solid var(--gold);
+}
+
+.plans-pill.is-basement {
+  font-size: 11px;
+  color: rgba(205, 191, 158, 0.75);
+  background: rgba(255, 255, 255, 0.03);
+}
+.plans-pill.is-basement.is-selected {
+  color: var(--charcoal);
+  background: var(--gold);
+}
+
+.plans-rail-divider {
+  grid-column: 1;
+  align-self: center;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Range annotations — thin gold bracket + vertical label */
+
+.plans-range {
+  grid-column: 2;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.plans-range::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 2px;
+  bottom: 2px;
+  width: 1px;
+  background: rgba(143, 118, 71, 0.55);
+}
+.plans-range span::before,
+.plans-range span::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  width: 4px;
+  height: 1px;
+  background: rgba(143, 118, 71, 0.55);
+}
+.plans-range span::before {
+  top: 2px;
+}
+.plans-range span::after {
+  bottom: 2px;
+}
+.plans-range span {
+  writing-mode: vertical-rl;
+  white-space: nowrap;
+  line-height: 1;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--stone);
+  opacity: 0.85;
+  padding-left: 6px;
+}
+
+.plans-range-penthouse {
+  grid-row: 1 / 3;
+}
+.plans-range-residences {
+  grid-row: 3 / 10;
+}
+.plans-range-garden {
+  grid-row: 10 / 12;
+}
+.plans-range-parking {
+  grid-row: 13 / 16;
+}
+
+/* ---------- Plan stage ---------- */
+
+.plans-stage {
+  position: relative;
+  flex: 1;
+  /* fill the viewport height below the header, never smaller than the design minimum */
+  min-height: max(620px, calc(100vh - 400px));
+  background: #0d130f;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius);
+  overflow: hidden;
+  /* inner top hairline highlight */
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+/* cinematic vignette over the empty stage; clicks pass through */
+.plans-stage::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background: radial-gradient(120% 90% at 50% 42%, transparent 58%, rgba(5, 8, 6, 0.5) 100%);
+}
+
+/* Architectural linework reads best on paper: switch to cream when a sheet is shown,
+   with a soft paper vignette in place of the cinematic one. */
+.plans-stage.has-plan {
+  background: #f5f0e4;
+  border-color: rgba(255, 255, 255, 0.14);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+.plans-stage.has-plan::after {
+  background: radial-gradient(
+    120% 95% at 50% 45%,
+    transparent 62%,
+    rgba(84, 66, 36, 0.16) 100%
+  );
+}
+
+.plans-canvas {
+  position: absolute;
+  inset: 0;
+  padding: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.plans-stage.is-dragging .plans-canvas {
+  cursor: grabbing;
+}
+
+.plans-sheet {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform-origin: center center;
+  will-change: transform;
+  pointer-events: none;
+  -webkit-user-drag: none;
+  transition: transform 0.16s var(--ease);
+}
+.plans-stage.is-dragging .plans-sheet {
+  transition: none;
+}
+
+/* Overlays — dark glass on paper so they read on both stage tones */
+
+/* Stage header: sheet chip + the 2D/3D view toggle */
+.plans-stage-head {
+  position: absolute;
+  left: 18px;
+  top: 18px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.plans-sheet-chip {
+  pointer-events: none;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: var(--cream);
+  background: rgba(24, 41, 32, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  padding: 8px 13px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 10px 30px -14px rgba(0, 0, 0, 0.6);
+}
+
+.plans-controls {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 999px;
+  color: var(--cream);
+  background: rgba(24, 41, 32, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 10px 30px -14px rgba(0, 0, 0, 0.6);
+}
+.plans-ctl {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--cream);
+  transition: background 0.2s var(--ease), color 0.2s var(--ease), opacity 0.2s var(--ease);
+}
+.plans-ctl:hover {
+  background: rgba(201, 167, 105, 0.16);
+  color: var(--gold);
+}
+.plans-ctl:disabled {
+  opacity: 0.35;
+  cursor: default;
+  background: none;
+  color: var(--cream);
+}
+.plans-ctl-reset {
+  width: auto;
+  padding: 0 13px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.plans-zoom-readout {
+  min-width: 46px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--stone);
+  font-variant-numeric: tabular-nums;
+}
+
+.plans-hint {
+  position: absolute;
+  left: 20px;
+  bottom: 24px;
+  z-index: 10;
+  pointer-events: none;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(42, 43, 37, 0.55);
+}
+
+/* Segmented 2D / 3D control — same glass pill as the zoom controls, gold selection */
+
+.plans-mode {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 999px;
+  background: rgba(24, 41, 32, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 10px 30px -14px rgba(0, 0, 0, 0.6);
+}
+.plans-mode-btn {
+  height: 24px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: var(--cream);
+  transition: background 0.2s var(--ease), color 0.2s var(--ease), opacity 0.2s var(--ease),
+    box-shadow 0.25s var(--ease);
+}
+.plans-mode-btn:hover {
+  background: rgba(201, 167, 105, 0.16);
+  color: var(--gold);
+}
+.plans-mode-btn.is-selected {
+  background: var(--gold);
+  color: var(--charcoal);
+  box-shadow: 0 0 12px rgba(201, 167, 105, 0.28);
+}
+.plans-mode-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+  background: none;
+  color: var(--cream);
+}
+
+/* Illustrative-furniture switch — same glass pill as the mode control, a tiny track + knob */
+
+.plans-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 12px 0 10px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: var(--cream);
+  background: rgba(24, 41, 32, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 10px 30px -14px rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+  transition: color 0.2s var(--ease), border-color 0.2s var(--ease);
+}
+.plans-switch:hover {
+  color: var(--gold);
+  border-color: rgba(201, 167, 105, 0.4);
+}
+.plans-switch-track {
+  position: relative;
+  width: 22px;
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  transition: background 0.25s var(--ease);
+}
+.plans-switch-track::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(205, 191, 158, 0.8);
+  transition: transform 0.25s var(--ease), background 0.25s var(--ease);
+}
+.plans-switch.is-on .plans-switch-track {
+  background: rgba(201, 167, 105, 0.32);
+}
+.plans-switch.is-on .plans-switch-track::after {
+  transform: translateX(10px);
+  background: var(--gold);
+}
+
+/* 3D dollhouse stage — the dark museum stage, model floating in it */
+
+.plans-stage.is-3d {
+  background: #0d130f;
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  cursor: grab;
+}
+.plans-stage.is-3d::after {
+  background: radial-gradient(120% 90% at 50% 42%, transparent 60%, rgba(5, 8, 6, 0.55) 100%);
+}
+.plans-stage.is-3d .plans-hint {
+  color: rgba(205, 191, 158, 0.5);
+}
+/* the staging note sits quietly under the hint: a sentence, never a banner */
+.plans-stage.is-3d.has-note .plans-hint {
+  bottom: 36px;
+}
+.plans-note {
+  position: absolute;
+  left: 20px;
+  bottom: 16px;
+  z-index: 10;
+  pointer-events: none;
+  white-space: nowrap;
+  font-size: 10.5px;
+  line-height: 1;
+  color: var(--stone);
+  opacity: 0.7;
+}
+.plans-3d-fallback {
+  position: absolute;
+  inset: 0;
+  background: #0d130f;
+}
+
+/* named-view buttons share the reset button's recipe */
+.plans-ctl-text {
+  width: auto;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* Room labels projected onto the model (CSS2D overlay) — light map pills, uppercase names */
+.fp3d-label {
+  pointer-events: none;
+  white-space: nowrap;
+  font-family: var(--font-sans);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: var(--cream);
+  background: rgba(19, 19, 16, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  padding: 3px 8px;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: opacity 0.15s var(--ease);
+}
+/* service spaces and the like sit back when they do show */
+.fp3d-label.is-minor {
+  opacity: 0.75;
+}
+/* the floor's landmarks — pool, reception, car park — carry the pins' gold hairline */
+.fp3d-label.is-key {
+  border-color: rgba(201, 167, 105, 0.7);
+}
+/* zoomed out on a dense floor the pills would pile up — they fade back in as you zoom;
+   pinned pills (the pool, a hovered bay) never tier away */
+.fp3d-labels.is-far .fp3d-label.is-minor:not(.is-pinned),
+.fp3d-labels.is-veryfar .fp3d-label:not(.is-pinned) {
+  opacity: 0;
+}
+/* a bay names itself only while lit: its code, or "Shared" */
+.fp3d-bay {
+  font-family: var(--font-serif);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  padding: 5px 10px 4px;
+}
+.fp3d-bay.is-owned {
+  border-color: rgba(201, 167, 105, 0.55);
+}
+/* the screen-space declutter: a pill that collides with a higher-ranked one, or outgrows its room
+   on screen, steps aside */
+.fp3d-label.is-occluded,
+.fp3d-label.is-toobig {
+  opacity: 0;
+  pointer-events: none;
+}
+/* a hovered or selected room always names itself, whatever the zoom tier or the declutter says */
+.fp3d-label.is-hover {
+  color: var(--gold);
+  border-color: rgba(201, 167, 105, 0.55);
+  background: rgba(19, 19, 16, 0.86);
+}
+.fp3d-labels .fp3d-label.is-hover,
+.fp3d-labels.is-far .fp3d-label.is-hover,
+.fp3d-labels.is-veryfar .fp3d-label.is-hover {
+  opacity: 1;
+}
+
+/* Apartment pins — the registered code floating above each residence, never tiered away */
+.fp3d-apt {
+  position: relative;
+  pointer-events: auto;
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-user-select: none;
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: var(--cream);
+  background: rgba(19, 19, 16, 0.88);
+  border: 1px solid rgba(201, 167, 105, 0.7);
+  border-radius: 999px;
+  padding: 7px 12px 6px;
+  box-shadow: 0 8px 20px -10px rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: opacity 0.25s var(--ease), border-color 0.2s var(--ease), background 0.2s var(--ease),
+    color 0.2s var(--ease), box-shadow 0.25s var(--ease), transform 0.2s var(--ease);
+}
+/* a hairline stem drops from the pill toward the floor it tags */
+.fp3d-apt::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  width: 1px;
+  height: 12px;
+  background: linear-gradient(rgba(201, 167, 105, 0.7), rgba(201, 167, 105, 0));
+}
+.fp3d-apt:hover,
+.fp3d-apt.is-hover {
+  border-color: var(--gold);
+  color: var(--gold);
+  transform: translateY(-1px);
+}
+.fp3d-apt.is-active {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--charcoal);
+  box-shadow: 0 0 18px rgba(201, 167, 105, 0.38);
+}
+.fp3d-labels.has-selection .fp3d-apt:not(.is-active) {
+  opacity: 0.45;
+}
+/* a pin the declutter set aside hides — unless it is the lit one, which always wins.
+   Basement sheets tag bays and stores with residence codes: the numbers painted on the asphalt
+   are the everyday label there, so those pins stay hidden until a code is focused or highlighted. */
+.fp3d-labels .fp3d-apt.is-occluded:not(.is-active):not(.is-hover),
+.fp3d-labels .fp3d-apt.is-parking:not(.is-active):not(.is-hover) {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Empty state — a sheet not yet converted */
+
+.plans-empty {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 14px;
+  padding: 32px;
+}
+.plans-empty-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 1px solid rgba(201, 167, 105, 0.5);
+  color: var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+.plans-empty-title {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 1.2;
+  color: var(--white);
+}
+.plans-empty-line {
+  font-size: 13.5px;
+  color: var(--stone);
+  line-height: 1.55;
+  max-width: 38ch;
+}
+.plans-empty-sheet {
+  margin-top: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(205, 191, 158, 0.6);
+}
+
+/* ---------- Level card ---------- */
+
+.plans-level {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: var(--radius);
+  padding: 20px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(201, 167, 105, 0.25) transparent;
+}
+.plans-level::-webkit-scrollbar {
+  width: 8px;
+}
+.plans-level::-webkit-scrollbar-thumb {
+  background: rgba(201, 167, 105, 0.25);
+  border-radius: 999px;
+}
+.plans-level::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* swapping region — re-animates when the level changes */
+.plans-level-content {
+  animation: plans-fade-up 0.28s var(--ease) both;
+}
+
+.plans-level-kicker {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.plans-level-title {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 28px;
+  line-height: 1.15;
+  color: var(--white);
+  margin-top: 8px;
+}
+.plans-level-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+.plans-tag {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: var(--gold);
+  border: 1px solid rgba(201, 167, 105, 0.5);
+  border-radius: 999px;
+  padding: 5px 10px;
+}
+.plans-tag.is-muted {
+  color: var(--stone);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.plans-level-count {
+  font-size: 12.5px;
+  color: var(--gold);
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* "On this level" — amenities the sheet's model actually carries, and the bays tagged to residences */
+
+.plans-amenities {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.plans-amenities-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(205, 191, 158, 0.6);
+}
+.plans-amenities-label + .plans-amenities-label,
+.plans-amenity-list + .plans-amenities-label,
+.plans-bay-list + .plans-amenities-label {
+  margin-top: 14px;
+}
+.plans-amenity-list,
+.plans-bay-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+  list-style: none;
+}
+.plans-amenity {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--cream);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  padding: 7px 11px 7px 9px;
+}
+.plans-amenity svg {
+  color: var(--gold);
+  flex-shrink: 0;
+}
+.plans-bay-chip {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 12.5px;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: var(--cream);
+  border: 1px solid rgba(201, 167, 105, 0.4);
+  border-radius: 999px;
+  padding: 6px 11px 5px;
+  transition: border-color 0.2s var(--ease), background 0.2s var(--ease), color 0.2s var(--ease),
+    box-shadow 0.25s var(--ease);
+}
+.plans-bay-chip.is-static {
+  color: rgba(205, 191, 158, 0.85);
+}
+button.plans-bay-chip {
+  cursor: pointer;
+}
+button.plans-bay-chip:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: rgba(201, 167, 105, 0.08);
+}
+.plans-bay-chip.is-selected {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--charcoal);
+  box-shadow: 0 0 12px rgba(201, 167, 105, 0.28);
+}
+
+.plans-block-group + .plans-block-group {
+  margin-top: 6px;
+}
+.plans-block-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 14px;
+}
+.plans-block-badge {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--charcoal);
+  background: var(--gold);
+}
+.plans-block-name {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--stone);
+}
+.plans-block-count {
+  margin-left: auto;
+  font-size: 11px;
+  color: rgba(205, 191, 158, 0.6);
+}
+
+.plans-unit-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  transition: background 0.2s var(--ease), padding-left 0.2s var(--ease);
+}
+.plans-unit-row:hover {
+  background: rgba(255, 255, 255, 0.03);
+  padding-left: 4px;
+}
+.plans-unit-row:hover .plans-unit-stack {
+  border-color: var(--gold);
+}
+.plans-unit-list li:last-child {
+  border-bottom: none;
+}
+
+/* In 3D the rows drive the model: each is a button that lights its residence on hover and
+   flies to it on click. The list item keeps the hairline; the button carries the gold frame. */
+.plans-unit-item {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 2px 0;
+}
+.plans-unit-row.is-interactive {
+  text-align: left;
+  color: inherit;
+  padding: 9px 8px;
+  /* bleed the frame past the list edge so the text column stays aligned with the static rows */
+  margin: 0 -8px;
+  width: calc(100% + 16px);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  transition: background 0.2s var(--ease), border-color 0.2s var(--ease);
+}
+.plans-unit-row.is-interactive:hover {
+  padding-left: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(201, 167, 105, 0.3);
+}
+.plans-unit-row.is-interactive.is-selected {
+  border-color: rgba(201, 167, 105, 0.55);
+  background: rgba(201, 167, 105, 0.07);
+}
+.plans-unit-row.is-interactive.is-selected .plans-unit-stack {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--charcoal);
+}
+/* residences the sheet never tagged: no highlight to give, just say so quietly */
+.plans-unit-row.is-untagged {
+  cursor: default;
+}
+.plans-unit-row.is-untagged:hover {
+  border-color: transparent;
+}
+.plans-unit-row.is-untagged:hover .plans-unit-stack {
+  border-color: rgba(201, 167, 105, 0.5);
+}
+.plans-unit-note {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  margin-top: 0;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 1.4;
+  color: rgba(205, 191, 158, 0.7);
+  transition: max-height 0.25s var(--ease), opacity 0.25s var(--ease), margin-top 0.25s var(--ease);
+}
+.plans-unit-row.is-untagged:hover .plans-unit-note,
+.plans-unit-row.is-untagged:focus-visible .plans-unit-note {
+  max-height: 16px;
+  opacity: 1;
+  margin-top: 4px;
+}
+.plans-unit-number {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 15.5px;
+  line-height: 1.25;
+  color: var(--white);
+}
+.plans-unit-kind {
+  font-size: 11.5px;
+  color: var(--stone);
+  margin-top: 3px;
+  line-height: 1.4;
+}
+.plans-unit-stack {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: var(--gold);
+  border: 1px solid rgba(201, 167, 105, 0.5);
+  border-radius: 999px;
+  padding: 5px 10px;
+  transition: border-color 0.2s var(--ease);
+}
+
+/* Parking levels — fact rows instead of a residence list */
+
+.plans-facts {
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.plans-fact {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  font-size: 12.5px;
+  color: var(--stone);
+  line-height: 1.5;
+}
+.plans-fact + .plans-fact {
+  margin-top: 10px;
+}
+.plans-fact svg {
+  color: var(--gold);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* Card footer */
+
+.plans-level-footer {
+  margin-top: auto;
+  padding-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 1240px) {
+  .plans-grid {
+    grid-template-columns: 92px minmax(0, 1fr);
+    grid-template-areas:
+      'rail stage'
+      'level level';
+  }
+  .plans-stage {
+    min-height: 560px;
+  }
+}
+
+@media (max-width: 900px) {
+  .plans-grid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'rail'
+      'stage'
+      'level';
+  }
+  .plans-col-stage {
+    padding-top: 0;
+  }
+  .plans-stage {
+    min-height: 440px;
+  }
+
+  /* level rail becomes a horizontal wrap of pills, annotations hidden */
+  .plans-rail {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .plans-range,
+  .plans-rail-divider {
+    display: none;
+  }
+  .plans-pill {
+    width: auto;
+    height: 34px;
+    min-width: 46px;
+    padding: 0 12px;
+  }
+  .plans-pill:hover {
+    transform: translateY(-1px);
+  }
+  .plans-pill.is-selected::before {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .plans-page {
+    padding: 104px 0 56px;
+  }
+  .plans-stat {
+    padding: 2px 16px;
+  }
+  .plans-stage {
+    min-height: 380px;
+  }
+  .plans-canvas {
+    padding: 16px;
+  }
+  .plans-hint,
+  .plans-note {
+    display: none;
+  }
+  .plans-stage-head {
+    left: 12px;
+    top: 12px;
+  }
+  .plans-controls {
+    right: 12px;
+    bottom: 12px;
+  }
+  .plans-zoom-readout {
+    display: none;
+  }
+}
+
+/* ---------- Reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .plans-breadcrumb,
+  .plans-head,
+  .plans-col-rail,
+  .plans-col-stage,
+  .plans-col-level,
+  .plans-level-content {
+    animation: none;
+  }
+  .plans-pill:hover {
+    transform: none;
+  }
+  .plans-sheet {
+    transition: none;
+  }
+  .plans-unit-row:hover {
+    padding-left: 0;
+  }
+  .plans-unit-row.is-interactive:hover {
+    padding-left: 8px;
+  }
+  .fp3d-apt:hover,
+  .fp3d-apt.is-hover {
+    transform: none;
+  }
+  .plans-unit-note {
+    transition: none;
+  }
+}

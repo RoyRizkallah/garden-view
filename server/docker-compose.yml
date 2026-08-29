@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: garden-view-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: garden_view
+      POSTGRES_PASSWORD: garden_view_dev
+      POSTGRES_DB: garden_view
+    ports:
+      - '5433:5432'
+    volumes:
+      - garden-view-db-data:/var/lib/postgresql/data
+
+volumes:
+  garden-view-db-data:

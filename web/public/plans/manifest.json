@@ -1,0 +1,31 @@
+[
+  {
+    "level": "g",
+    "source": "A104-Ground floor.dxf",
+    "svg": "level-g.svg",
+    "bytes": 1094512,
+    "extents": [
+      [
+        -90.73648156289727,
+        -48.39260678325815,
+        -2.5047e-12
+      ],
+      [
+        83.28033167204462,
+        106.5934097360295,
+        2.5047e-12
+      ]
+    ],
+    "entities": {
+      "LINE": 3139,
+      "LWPOLYLINE": 587,
+      "HATCH": 205,
+      "DIMENSION": 134,
+      "INSERT": 127,
+      "TEXT": 60,
+      "ARC": 45,
+      "CIRCLE": 21
+    },
+    "layers": 114
+  }
+]

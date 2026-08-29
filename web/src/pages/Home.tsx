@@ -1,0 +1,184 @@
+import { Link } from 'react-router-dom';
+import { BUILDING_FACTS, GALLERY_IMAGES, AMENITY_CATEGORIES } from '../data/building';
+import {
+  IconLeaf,
+  IconDumbbell,
+  IconSofa,
+  IconCar,
+  IconShield,
+  IconLayers,
+  IconMapPin,
+  IconPhone,
+  IconMail,
+  IconWhatsapp,
+  IconArrowRight,
+} from '../components/Icons';
+import LocationMap from '../components/LocationMap';
+
+const AMENITY_ICONS = {
+  leaf: IconLeaf,
+  dumbbell: IconDumbbell,
+  sofa: IconSofa,
+  car: IconCar,
+  shield: IconShield,
+};
+
+export default function Home() {
+  return (
+    <>
+      <section className="hero">
+        <div className="hero-media">
+          <img src="/images/exterior-01.jpg" alt="Garden View building exterior at dusk" />
+          <div className="hero-scrim" />
+        </div>
+        <div className="container hero-inner">
+          <p className="eyebrow" style={{ color: '#e9e1cc' }}>
+            {BUILDING_FACTS.location}
+          </p>
+          <h1 className="hero-title">
+            Home at <span className="accent">Garden View</span>
+          </h1>
+          <p className="hero-sub">
+            One residential building, three blocks, forty-one residences — in the heart of
+            Beirut Central District.
+          </p>
+          <div className="hero-cta">
+            <Link to="/residences" className="btn btn-gold">
+              View Residences
+              <IconArrowRight size={14} />
+            </Link>
+            <Link to="/explorer" className="btn btn-ghost">
+              <IconLayers size={15} />
+              Explore in 3D
+            </Link>
+          </div>
+          <div className="hero-stats">
+            <div className="hero-stat">
+              <strong>{BUILDING_FACTS.units}</strong>
+              <span>Residences</span>
+            </div>
+            <div className="hero-stat">
+              <strong>{BUILDING_FACTS.blocks}</strong>
+              <span>Blocks</span>
+            </div>
+            <div className="hero-stat">
+              <strong>{BUILDING_FACTS.levels}</strong>
+              <span>Levels</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="home-bento">
+        <div className="home-bento-row home-bento-row-3">
+          <div className="home-bento-cell home-bento-amenities">
+            <img src="/images/exterior-07.jpg" alt="Landscaped courtyard at Garden View" />
+            <div className="home-bento-amenities-scrim" />
+            <div className="home-bento-amenities-top">
+              <p className="eyebrow" style={{ color: '#e9e1cc' }}>
+                Curated Amenities
+              </p>
+              <h2>Everyday Spaces, Shared Well</h2>
+            </div>
+            <div className="home-bento-amenities-bottom">
+              <ul className="home-amenity-icons">
+                {AMENITY_CATEGORIES.map((a) => {
+                  const Icon = AMENITY_ICONS[a.icon];
+                  return (
+                    <li key={a.title}>
+                      <Icon size={19} />
+                      <span>{a.title}</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+            <Link to="/amenities" className="home-bento-link home-bento-link-overlay">
+              View All Amenities →
+            </Link>
+          </div>
+
+          <div className="home-bento-cell">
+            <p className="eyebrow">Gallery Preview</p>
+            <h2>A Glimpse of Garden View</h2>
+            <div className="home-bento-thumbs">
+              {GALLERY_IMAGES.slice(0, 3).map((img) => (
+                <img key={img.src} src={img.src} alt={img.caption} />
+              ))}
+            </div>
+            <Link to="/gallery" className="home-bento-link">
+              View Gallery →
+            </Link>
+          </div>
+
+          <div className="home-bento-cell home-bento-explorer">
+            <span className="home-bento-explorer-badge">
+              <IconLayers size={16} />
+            </span>
+            <p className="eyebrow">3D Building Explorer</p>
+            <h2>Coming to Garden View</h2>
+            <p className="home-bento-copy">
+              An interactive 3D view of every block and residence — waiting on real floor plans
+              from building management before it can be built.
+            </p>
+            <Link to="/explorer" className="home-bento-link">
+              See What's Coming →
+            </Link>
+          </div>
+        </div>
+
+        <div className="home-bento-row home-bento-row-2">
+          <div className="home-bento-cell">
+            <p className="eyebrow">
+              <IconMapPin size={12} className="eyebrow-icon" />
+              Prime Location
+            </p>
+            <h2>At the Center of It All</h2>
+            <p className="home-bento-copy">
+              In the heart of Beirut Central District. Walking distances and nearby landmarks
+              will be added once confirmed.
+            </p>
+            <div className="home-bento-map">
+              <LocationMap />
+            </div>
+            <Link to="/location" className="home-bento-link">
+              Explore the Neighborhood →
+            </Link>
+          </div>
+
+          <div className="home-bento-cell home-bento-contact">
+            <p className="eyebrow" style={{ color: '#cdbf9e' }}>
+              Get in Touch
+            </p>
+            <h2>Experience Garden View</h2>
+            <p className="home-bento-copy">
+              Schedule a private tour and discover refined living in Beirut Central District.
+            </p>
+            <Link to="/location" className="btn btn-gold" style={{ marginTop: 10 }}>
+              Request a Tour
+            </Link>
+            <div className="home-bento-contact-list">
+              <div>
+                <IconPhone size={16} />
+                <span>Phone — pending confirmation</span>
+              </div>
+              <div>
+                <IconMail size={16} />
+                <span>Email — pending confirmation</span>
+              </div>
+              <div>
+                <IconWhatsapp size={16} />
+                <span>Chat on WhatsApp — pending</span>
+              </div>
+            </div>
+            <svg className="home-bento-leaf-deco" viewBox="0 0 120 120" fill="none">
+              <path d="M10 110c30 4 55-20 55-55C40 55 8 78 10 110Z" stroke="currentColor" strokeWidth="1" />
+              <path d="M10 110c12-24 25-36 55-50" stroke="currentColor" strokeWidth="1" />
+              <path d="M35 115c22 2 40-14 40-38-18 0-38 16-40 38Z" stroke="currentColor" strokeWidth="1" />
+            </svg>
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}

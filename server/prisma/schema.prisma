@@ -1,0 +1,237 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  RESIDENT
+  ACCOUNTANT
+  ADMIN
+}
+
+enum RequestType {
+  ISSUE
+  RENOVATION
+}
+
+enum RequestStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+}
+
+enum VoteStatus {
+  OPEN
+  CLOSED
+}
+
+enum VoteChoice {
+  YES
+  NO
+  ABSTAIN
+}
+
+enum ChargeStatus {
+  DUE
+  PAID
+  OVERDUE
+}
+
+enum InquiryStatus {
+  NEW
+  CONTACTED
+  CLOSED
+}
+
+enum ListingType {
+  SALE
+  RENT
+}
+
+enum ListingStatus {
+  PENDING
+  REVIEWING
+  APPROVED
+  DECLINED
+}
+
+model Unit {
+  id             String   @id @default(cuid())
+  block          String
+  number         String
+  registrationNo String?
+  sizeSqm        Float?
+  floorPlanUrl   String?
+  ownerName      String?
+  ownerPhone     String?
+  ownerEmail     String?
+  dataNotes      String?
+  createdAt      DateTime @default(now())
+
+  account         Account?
+  charges         Charge[]
+  requests        Request[]
+  bookings        AmenityBooking[]
+  listingRequests ListingRequest[]
+
+  @@unique([block, number])
+}
+
+model BlockImage {
+  id        String   @id @default(cuid())
+  block     String
+  url       String
+  caption   String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model ListingRequest {
+  id            String        @id @default(cuid())
+  unitId        String
+  unit          Unit          @relation(fields: [unitId], references: [id])
+  accountId     String
+  account       Account       @relation(fields: [accountId], references: [id])
+  type          ListingType
+  askingPrice   Float?
+  availableFrom DateTime?
+  leaseDuration String?
+  furnished     String?
+  notes         String?
+  status        ListingStatus @default(PENDING)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model Account {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         Role
+  unitId       String?  @unique
+  unit         Unit?    @relation(fields: [unitId], references: [id])
+  createdAt    DateTime @default(now())
+
+  votesCast       VoteResponse[]
+  requests        Request[]
+  bookings        AmenityBooking[]
+  listingRequests ListingRequest[]
+}
+
+model Charge {
+  id         String       @id @default(cuid())
+  unitId     String
+  unit       Unit         @relation(fields: [unitId], references: [id])
+  period     String
+  amountDue  Float
+  amountPaid Float        @default(0)
+  status     ChargeStatus @default(DUE)
+  dueDate    DateTime
+  createdAt  DateTime     @default(now())
+}
+
+model Project {
+  id          String    @id @default(cuid())
+  title       String
+  category    String
+  description String?
+  progressPct Int       @default(0)
+  startDate   DateTime?
+  eta         DateTime?
+  budget      Float?
+  contractor  String?
+  createdAt   DateTime  @default(now())
+
+  milestones ProjectMilestone[]
+}
+
+model ProjectMilestone {
+  id          String    @id @default(cuid())
+  projectId   String
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  title       String
+  done        Boolean   @default(false)
+  completedAt DateTime?
+  order     Int     @default(0)
+}
+
+model Vote {
+  id          String     @id @default(cuid())
+  title       String
+  description String?
+  status      VoteStatus @default(OPEN)
+  closesAt    DateTime
+  createdAt   DateTime   @default(now())
+
+  responses VoteResponse[]
+}
+
+model VoteResponse {
+  id        String     @id @default(cuid())
+  voteId    String
+  vote      Vote       @relation(fields: [voteId], references: [id])
+  accountId String
+  account   Account    @relation(fields: [accountId], references: [id])
+  unitId    String
+  choice    VoteChoice
+  createdAt DateTime   @default(now())
+
+  @@unique([voteId, unitId])
+}
+
+model Request {
+  id          String        @id @default(cuid())
+  type        RequestType
+  category    String
+  description String
+  status      RequestStatus @default(OPEN)
+  unitId      String
+  unit        Unit          @relation(fields: [unitId], references: [id])
+  accountId   String
+  account     Account       @relation(fields: [accountId], references: [id])
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model Inquiry {
+  id        String        @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  interest  String?
+  message   String
+  status    InquiryStatus @default(NEW)
+  createdAt DateTime      @default(now())
+}
+
+model Document {
+  id        String   @id @default(cuid())
+  title     String
+  category  String
+  fileUrl   String
+  createdAt DateTime @default(now())
+}
+
+model AmenitySpace {
+  id       String           @id @default(cuid())
+  name     String
+  bookings AmenityBooking[]
+}
+
+model AmenityBooking {
+  id        String       @id @default(cuid())
+  spaceId   String
+  space     AmenitySpace @relation(fields: [spaceId], references: [id])
+  unitId    String
+  unit      Unit         @relation(fields: [unitId], references: [id])
+  accountId String
+  account   Account      @relation(fields: [accountId], references: [id])
+  date      DateTime
+  startTime String
+  endTime   String
+  createdAt DateTime     @default(now())
+}

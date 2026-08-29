@@ -1,0 +1,3266 @@
+[
+  {
+    "level": "b3",
+    "bytes": 43995,
+    "counts": {
+      "footprint": 1,
+      "wallPolys": 92,
+      "wallLines": 43,
+      "windows": 0,
+      "doors": 49,
+      "furniture": 0,
+      "stairs": 84,
+      "rooms": 42,
+      "shafts": 12,
+      "trees": 0,
+      "apartments": 28,
+      "zones": 6,
+      "bays": 47,
+      "columns": 13
+    },
+    "bbox": [
+      -0.174,
+      -2.506,
+      42.008,
+      58.553
+    ],
+    "scale": 1.0,
+    "hatch_fallback": false,
+    "door_closers_fallback": 2,
+    "door_closers": 49,
+    "bays": 47,
+    "bays_labelled": 47,
+    "parkingCapacity": 46,
+    "zones": {
+      "ramp": [
+        80.9
+      ],
+      "parking": [
+        142.5,
+        942.0,
+        3.6,
+        314.7,
+        1.9
+      ]
+    },
+    "columns": 13,
+    "columns_round": 0,
+    "dropped": {
+      "wallPolys-to-columns": 13,
+      "wallLines-covered": 659,
+      "windows-water-feature": 0,
+      "furn-in-smb-set": 0,
+      "furn-outside-envelope": 0,
+      "part-neck-split": 4,
+      "room-in-big-part": 4,
+      "room-label-duplicate": 5,
+      "room-part-split": 14,
+      "room-share-too-small": 1,
+      "park-labels-unused": 3
+    },
+    "footprint_area": 2434.9,
+    "wallPolyHoles": 9,
+    "room_parts": 34,
+    "rooms_with_ring": 37,
+    "rooms_with_apartment": 10,
+    "apartments": [
+      "4 A1",
+      "3 A2",
+      "4 A2",
+      "3 A1",
+      "0/1 A2",
+      "2 A1",
+      "2 A2",
+      "4 C1",
+      "3 C1",
+      "5 C2",
+      "3 C2",
+      "2 C2",
+      "3/4 B",
+      "5 A2",
+      "2 C1",
+      "4 C2",
+      "5 C1",
+      "5/6 B",
+      "7 C1",
+      "9/10 C2",
+      "7 A1",
+      "7 A2",
+      "5 A1",
+      "2 B",
+      "9/10 B",
+      "7/8 B",
+      "6 A2",
+      "8 A2"
+    ],
+    "apartments_emitted": [
+      "4 A1",
+      "3 A2",
+      "4 A2",
+      "3 A1",
+      "0/1 A2",
+      "2 A1",
+      "2 A2",
+      "4 C1",
+      "3 C1",
+      "5 C2",
+      "3 C2",
+      "2 C2",
+      "3/4 B",
+      "5 A2",
+      "2 C1",
+      "4 C2",
+      "5 C1",
+      "5/6 B",
+      "7 C1",
+      "9/10 C2",
+      "7 A1",
+      "7 A2",
+      "5 A1",
+      "2 B",
+      "9/10 B",
+      "7/8 B",
+      "6 A2",
+      "8 A2"
+    ],
+    "outlines": [
+      2418.8
+    ],
+    "rooms_split": 14,
+    "registry": {
+      "floor": null,
+      "registered": [],
+      "found": [],
+      "missing": [],
+      "unregistered": [
+        "0/1 A2",
+        "2 A1",
+        "2 A2",
+        "2 B",
+        "2 C1",
+        "2 C2",
+        "3 A1",
+        "3 A2",
+        "3 C1",
+        "3 C2",
+        "3/4 B",
+        "4 A1",
+        "4 A2",
+        "4 C1",
+        "4 C2",
+        "5 A1",
+        "5 A2",
+        "5 C1",
+        "5 C2",
+        "5/6 B",
+        "6 A2",
+        "7 A1",
+        "7 A2",
+        "7 C1",
+        "7/8 B",
+        "8 A2",
+        "9/10 B",
+        "9/10 C2"
+      ]
+    }
+  },
+  {
+    "level": "b2",
+    "bytes": 35659,
+    "counts": {
+      "footprint": 2,
+      "wallPolys": 99,
+      "wallLines": 11,
+      "windows": 0,
+      "doors": 49,
+      "furniture": 8,
+      "stairs": 151,
+      "rooms": 3,
+      "shafts": 14,
+      "trees": 0,
+      "apartments": 24,
+      "zones": 8,
+      "bays": 44,
+      "columns": 15
+    },
+    "bbox": [
+      -0.022,
+      -0.1,
+      42.008,
+      58.553
+    ],
+    "scale": 1.0,
+    "hatch_fallback": false,
+    "door_closers_fallback": 2,
+    "door_closers": 49,
+    "bays": 44,
+    "bays_labelled": 44,
+    "parkingCapacity": 43,
+    "zones": {
+      "ramp": [
+        109.4
+      ],
+      "parking": [
+        163.1,
+        61.7,
+        111.6,
+        3.4,
+        12.6,
+        916.7,
+        131.1
+      ]
+    },
+    "columns": 15,
+    "columns_round": 0,
+    "dropped": {
+      "wallPolys-to-columns": 15,
+      "wallLines-covered": 696,
+      "windows-water-feature": 0,
+      "furn-in-smb-set": 0,
+      "furn-cluster-small": 2,
+      "furn-outside-envelope": 0,
+      "part-neck-split": 2,
+      "room-label-duplicate": 1,
+      "park-labels-unused": 0,
+      "parking-part-unserved": 1
+    },
+    "footprint_area": 2704.8,
+    "wallPolyHoles": 5,
+    "room_parts": 45,
+    "rooms_with_ring": 2,
+    "rooms_with_apartment": 0,
+    "apartments": [
+      "0/1 A1",
+      "5 A1",
+      "6 C1",
+      "7 C1",
+      "6 C2",
+      "2 B",
+      "9/10 B",
+      "5 C1",
+      "6 A1",
+      "6 A2",
+      "7 C2",
+      "4 C1",
+      "8 C2",
+      "3 A1",
+      "8 A1",
+      "9/10 C1",
+      "5 A2",
+      "9/10 A1",
+      "2 C2",
+      "8 C1",
+      "4 C2",
+      "10 A2",
+      "8 A2",
+      "2 A2"
+    ],
+    "apartments_emitted": [
+      "0/1 A1",
+      "5 A1",
+      "6 C1",
+      "7 C1",
+      "6 C2",
+      "2 B",
+      "9/10 B",
+      "5 C1",
+      "6 A1",
+      "6 A2",
+      "7 C2",
+      "4 C1",
+      "8 C2",
+      "3 A1",
+      "8 A1",
+      "9/10 C1",
+      "5 A2",
+      "9/10 A1",
+      "2 C2",
+      "8 C1",
+      "4 C2",
+      "10 A2",
+      "8 A2",
+      "2 A2"
+    ],
+    "outlines": [
+      2418.8
+    ],
+    "rooms_split": 0,
+    "registry": {
+      "floor": null,
+      "registered": [],
+      "found": [],
+      "missing": [],
+      "unregistered": [
+        "0/1 A1",
+        "10 A2",
+        "2 A2",
+        "2 B",
+        "2 C2",
+        "3 A1",
+        "4 C1",
+        "4 C2",
+        "5 A1",
+        "5 A2",
+        "5 C1",
+        "6 A1",
+        "6 A2",
+        "6 C1",
+        "6 C2",
+        "7 C1",
+        "7 C2",
+        "8 A1",
+        "8 A2",
+        "8 C1",
+        "8 C2",
+        "9/10 A1",
+        "9/10 B",
+        "9/10 C1"
+      ]
+    }
+  },
+  {
+    "level": "b1",
+    "bytes": 44602,
+    "counts": {
+      "footprint": 2,
+      "wallPolys": 86,
+      "wallLines": 28,
+      "windows": 18,
+      "doors": 35,
+      "furniture": 2,
+      "stairs": 164,
+      "rooms": 36,
+      "shafts": 19,
+      "trees": 0,
+      "apartments": 10,
+      "zones": 11,
+      "bays": 31,
+      "columns": 15
+    },
+    "bbox": [
+      -0.022,
+      -0.1,
+      44.379,
+      58.553
+    ],
+    "scale": 1.0,
+    "hatch_fallback": false,
+    "door_closers_fallback": 2,
+    "door_closers": 35,
+    "bays": 31,
+    "bays_labelled": 31,
+    "parkingCapacity": 31,
+    "zones": {
+      "ramp": [
+        123.6
+      ],
+      "parking": [
+        29.2,
+        194.5,
+        589.8,
+        111.7,
+        5.8,
+        234.1,
+        35.3,
+        56.3,
+        2.4
+      ],
+      "water": [
+        126.5
+      ]
+    },
+    "columns": 15,
+    "columns_round": 2,
+    "dropped": {
+      "wallPolys-to-columns": 15,
+      "wallLines-covered": 493,
+      "windows-water-feature": 0,
+      "furn-in-smb-set": 0,
+      "furn-cluster-small": 1,
+      "furn-outside-envelope": 0,
+      "part-neck-split": 3,
+      "room-in-big-part": 15,
+      "room-no-part": 2,
+      "room-label-duplicate": 5,
+      "room-part-split": 5,
+      "room-area-open-plan": 1,
+      "park-labels-unused": 0
+    },
+    "footprint_area": 2624.1,
+    "wallPolyHoles": 2,
+    "room_parts": 37,
+    "rooms_with_ring": 24,
+    "rooms_with_apartment": 0,
+    "apartments": [
+      "9/10 A1",
+      "8 A1",
+      "8 C2",
+      "9/10 C1",
+      "9/10 C2",
+      "7/8 B",
+      "5/6 B",
+      "9/10 A2",
+      "7 A1",
+      "8 C1"
+    ],
+    "apartments_emitted": [
+      "9/10 A1",
+      "8 A1",
+      "8 C2",
+      "9/10 C1",
+      "9/10 C2",
+      "7/8 B",
+      "5/6 B",
+      "9/10 A2",
+      "7 A1",
+      "8 C1"
+    ],
+    "outlines": [
+      211.1,
+      2207.7
+    ],
+    "rooms_split": 5,
+    "registry": {
+      "floor": null,
+      "registered": [],
+      "found": [],
+      "missing": [],
+      "unregistered": [
+        "5/6 B",
+        "7 A1",
+        "7/8 B",
+        "8 A1",
+        "8 C1",
+        "8 C2",
+        "9/10 A1",
+        "9/10 A2",
+        "9/10 C1",
+        "9/10 C2"
+      ]
+    }
+  },
+  {
+    "level": "g",
+    "bytes": 53885,
+    "counts": {
+      "footprint": 1,
+      "wallPolys": 119,
+      "wallLines": 145,
+      "windows": 363,
+      "doors": 44,
+      "furniture": 42,
+      "stairs": 143,
+      "rooms": 7,
+      "shafts": 23,
+      "trees": 17,
+      "apartments": 4,
+      "zones": 7,
+      "bays": 0,
+      "columns": 22
+    },
+    "bbox": [
+      -0.022,
+      3.57,
+      42.028,
+      58.032
+    ],
+    "scale": 1.0,
+    "hatch_fallback": false,
+    "door_closers_fallback": 4,
+    "door_closers": 44,
+    "partition": {
+      "transfer": {
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "structuralOverlap": 0.88,
+        "tagsInOwnStack": true,
+        "used": true
+      },
+      "tags": [],
+      "conflicts": [],
+      "unassigned": [
+        {
+          "name": null,
+          "area": 101.9,
+          "x": 8.2,
+          "y": 13.5,
+          "why": "0/1 C1 is unplaceable on this sheet"
+        },
+        {
+          "name": null,
+          "area": 13.3,
+          "x": 2.2,
+          "y": 16.6,
+          "why": "0/1 C1 is unplaceable on this sheet"
+        },
+        {
+          "name": null,
+          "area": 47.0,
+          "x": 17.6,
+          "y": 16.0,
+          "why": "straddles lobbyC (0.31)"
+        },
+        {
+          "name": null,
+          "area": 16.9,
+          "x": 1.2,
+          "y": 52.7,
+          "why": "outside every stack region"
+        },
+        {
+          "name": null,
+          "area": 58.9,
+          "x": 21.1,
+          "y": 13.4,
+          "why": "stack C2 has no registered residence on this level"
+        },
+        {
+          "name": null,
+          "area": 10.0,
+          "x": 25.1,
+          "y": 14.3,
+          "why": "stack C2 has no registered residence on this level"
+        },
+        {
+          "name": null,
+          "area": 47.2,
+          "x": 36.2,
+          "y": 19.4,
+          "why": "0/1 B is unplaceable on this sheet"
+        }
+      ],
+      "unplaceable": {
+        "0/1 B": "sheet A104 draws the Block B stack as the unlabelled RETAIL B / management outlines",
+        "0/1 C1": "sheet A104 draws the Block C stack as the unlabelled RETAIL C outlines"
+      },
+      "codes": {
+        "0/1 A1": {
+          "coverage": 0.997,
+          "unaccountedSqm": 0,
+          "source": "inferred",
+          "pieces": {
+            "tag": 0,
+            "region": 7,
+            "graph": 0,
+            "door": 0,
+            "edge": 0
+          },
+          "rooms": 0,
+          "areaSqm": 158.3,
+          "outdoorSqm": 0.0,
+          "unlabelledSqm": 158.3,
+          "complete": false,
+          "incomplete": [
+            "no labelled indoor room",
+            "unassigned piece(s) opening onto this residence: [('cell 4.3 m2', 4.3, ['0/1 A1'])]",
+            "2 unlabelled cell(s) >= 10 m2 assigned (unnamed rooms)",
+            "unlabelled cells are 100% of the floor"
+          ]
+        },
+        "0/1 A2": {
+          "coverage": 0.204,
+          "unaccountedSqm": 0,
+          "source": "inferred",
+          "pieces": {
+            "tag": 0,
+            "region": 6,
+            "graph": 0,
+            "door": 0,
+            "edge": 0
+          },
+          "rooms": 0,
+          "areaSqm": 41.2,
+          "outdoorSqm": 0.0,
+          "unlabelledSqm": 41.2,
+          "complete": false,
+          "incomplete": [
+            "no labelled indoor room",
+            "coverage 0.20",
+            "unenclosed area (big part) in the stack",
+            "2 unlabelled cell(s) >= 10 m2 assigned (unnamed rooms)",
+            "unlabelled cells are 100% of the floor"
+          ]
+        },
+        "0/1 B": {
+          "coverage": 0.0,
+          "unaccountedSqm": 47.2,
+          "source": "inferred",
+          "pieces": {
+            "tag": 0,
+            "region": 0,
+            "graph": 0,
+            "door": 0,
+            "edge": 0
+          },
+          "rooms": 0,
+          "areaSqm": 0.0,
+          "outdoorSqm": 0.0,
+          "unlabelledSqm": 0,
+          "complete": false,
+          "incomplete": [
+            "unplaceable",
+            "no labelled indoor room",
+            "coverage 0.00",
+            "1 unassigned cell(s) in the stack (47.2 m2): [('cell 47.2 m2', 0.78)]"
+          ]
+        },
+        "0/1 C1": {
+          "coverage": 0.0,
+          "unaccountedSqm": 119.3,
+          "source": "inferred",
+          "pieces": {
+            "tag": 0,
+            "region": 0,
+            "graph": 0,
+            "door": 0,
+            "edge": 0
+          },
+          "rooms": 0,
+          "areaSqm": 0.0,
+          "outdoorSqm": 0.0,
+          "unlabelledSqm": 0,
+          "complete": false,
+          "incomplete": [
+            "unplaceable",
+            "no labelled indoor room",
+            "coverage 0.00",
+            "4 unassigned cell(s) in the stack (119.3 m2): [('cell 101.9 m2', 1.0), ('cell 13.3 m2', 1.0), ('cell 1.3 m2', 1.0), ('cell 2.8 m2', 1.0)]"
+          ]
+        }
+      },
+      "regions": {
+        "A1": 203.1,
+        "lobbyA": 68.7,
+        "A2": 270.2,
+        "lobbyC": 46.3,
+        "C1": 154.0,
+        "C2": 99.8,
+        "lobbyB": 31.1,
+        "B": 56.3,
+        "lobby1": 71.8,
+        "lobby2": 88.6
+      },
+      "regionSource": {
+        "A1": "sheet",
+        "lobbyA": "reference",
+        "A2": "reference",
+        "lobbyC": "reference",
+        "C1": "sheet",
+        "C2": "sheet",
+        "lobbyB": "reference",
+        "B": "sheet",
+        "lobby1": "sheet",
+        "lobby2": "sheet"
+      },
+      "bigParts": [
+        {
+          "area": 159.8,
+          "in": {
+            "A2": 1.0
+          }
+        }
+      ],
+      "coreServedCells": [],
+      "doorEdges": 11,
+      "missing": [],
+      "commonPieces": 8
+    },
+    "bays": 0,
+    "bays_labelled": 0,
+    "parkingCapacity": null,
+    "zones": {
+      "ramp": [
+        64.8
+      ],
+      "garden": [
+        72.1,
+        29.7
+      ],
+      "plant": [
+        14.8,
+        16.8,
+        6.4,
+        0.9
+      ]
+    },
+    "columns": 22,
+    "columns_round": 7,
+    "dropped": {
+      "crop": 737,
+      "wallPolys-to-columns": 22,
+      "wallLines-covered": 900,
+      "windows-water-feature": 0,
+      "furn-in-smb-set": 0,
+      "furn-cluster-small": 12,
+      "furn-outside-envelope": 0,
+      "part-neck-split": 3,
+      "room-label-outside-crop": 4,
+      "room-no-part": 4
+    },
+    "footprint_area": 1214.3,
+    "wallPolyHoles": 12,
+    "room_parts": 35,
+    "rooms_with_ring": 3,
+    "rooms_with_apartment": 0,
+    "apartments": [],
+    "apartments_emitted": [
+      "0/1 A1",
+      "0/1 A2",
+      "0/1 B",
+      "0/1 C1"
+    ],
+    "outlines": [
+      91.0,
+      71.8,
+      56.3,
+      88.6,
+      99.8,
+      97.6,
+      154.0,
+      114.1,
+      203.1
+    ],
+    "rooms_split": 0,
+    "registry": {
+      "floor": 0,
+      "registered": [
+        "0/1 A1",
+        "0/1 A2",
+        "0/1 B",
+        "0/1 C1"
+      ],
+      "found": [],
+      "missing": [
+        "0/1 A1",
+        "0/1 A2",
+        "0/1 B",
+        "0/1 C1"
+      ],
+      "unregistered": []
+    }
+  },
+  {
+    "level": "1",
+    "bytes": 67758,
+    "counts": {
+      "footprint": 1,
+      "wallPolys": 113,
+      "wallLines": 167,
+      "windows": 430,
+      "doors": 22,
+      "furniture": 63,
+      "stairs": 130,
+      "rooms": 45,
+      "shafts": 21,
+      "trees": 0,
+      "apartments": 4,
+      "zones": 0,
+      "bays": 0,
+      "columns": 24
+    },
+    "bbox": [
+      -0.022,
+      3.526,
+      42.028,
+      57.727
+    ],
+    "scale": 1.0,
+    "hatch_fallback": false,
+    "door_closers_fallback": 2,
+    "door_closers": 22,
+    "partition": {
+      "transfer": {
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "structuralOverlap": 0.849,
+        "tagsInOwnStack": true,
+        "used": true
+      },
+      "tags": [],
+      "conflicts": [],
+      "unassigned": [
+        {
+          "name": "SAS",
+          "area": 12.8,
+          "x": 34.4,
+          "y": 18.6,
+          "why": "0/1 B is unplaceable on this sheet"
+        }
+      ],
+      "unplaceable": {
+        "0/1 B": "sheet A105 draws RETAIL B and BUILDING MANAGEMENT in the Block B stack",
+        "0/1 C1": "sheet A105 draws RETAIL C WEST / EAST and the lifts lobby in the Block C stack"
+      },
+      "codes": {
+        "0/1 A1": {
+          "coverage": 0.992,
+          "unaccountedSqm": 0,
+          "source": "inferred",
+          "pieces": {
+            "tag": 0,
+            "region": 13,
+            "graph": 0,
+            "door": 0,
+            "edge": 4
+          },
+          "rooms": 17,
+          "areaSqm": 232.2,
+          "outdoorSqm": 39.3,
+          "unlabelledSqm": 0,
+          "complete": true,
+          "incomplete": []
+        },
+        "0/1 A2": {
+          "coverage": 0.991,
+          "unaccountedSqm": 0,
+          "source": "inferred",
+          "pieces": {
+            "tag": 0,
+            "region": 12,
+            "graph": 0,
+            "door": 0,
+            "edge": 3
+          },
+          "rooms": 13,
+          "areaSqm": 201.6,
+          "outdoorSqm": 24.9,
+          "unlabelledSqm": 18.7,
+          "complete": false,
+          "incomplete": [
+            "1 unlabelled cell(s) >= 10 m2 assigned (unnamed rooms)"
+          ]
+        },
+        "0/1 B": {
+          "coverage": 0.0,
+          "unaccountedSqm": 12.8,
+          "source": "inferred",
+          "pieces": {
+            "tag": 0,
+            "region": 0,
+            "graph": 0,
+            "door": 0,
+            "edge": 0
+          },
+          "rooms": 0,
+          "areaSqm": 0.0,
+          "outdoorSqm": 0.0,
+          "unlabelledSqm": 0,
+          "complete": false,
+          "incomplete": [
+            "unplaceable",
+            "no labelled indoor room",
+            "coverage 0.00",
+            "1 unassigned cell(s) in the stack (12.8 m2): [('SAS', 1.0)]"
+          ]
+        },
+        "0/1 C1": {
+          "coverage": 0.0,
+          "unaccountedSqm": 0,
+          "source": "inferred",
+          "pieces": {
+            "tag": 0,
+            "region": 0,
+            "graph": 0,
+            "door": 0,
+            "edge": 0
+          },
+          "rooms": 0,
+          "areaSqm": 0.0,
+          "outdoorSqm": 0.0,
+          "unlabelledSqm": 0,
+          "complete": false,
+          "incomplete": [
+            "unplaceable",
+            "no labelled indoor room",
+            "coverage 0.00"
+          ]
+        }
+      },
+      "regions": {
+        "A1": 293.3,
+        "lobbyA": 68.7,
+        "A2": 263.6,
+        "lobbyC": 46.3,
+        "C1": 154.0,
+        "C2": 99.8,
+        "lobbyB": 31.1,
+        "B": 359.5,
+        "lobby1": 82.2,
+        "lobby2": 73.7,
+        "lobby3": 88.6
+      },
+      "regionSource": {
+        "A1": "sheet",
+        "lobbyA": "reference",
+        "A2": "sheet",
+        "lobbyC": "reference",
+        "C1": "sheet",
+        "C2": "sheet",
+        "lobbyB": "reference",
+        "B": "sheet",
+        "lobby1": "sheet",
+        "lobby2": "sheet",
+        "lobby3": "sheet"
+      },
+      "bigParts": [],
+      "coreServedCells": [],
+      "doorEdges": 6,
+      "missing": [],
+      "commonPieces": 19
+    },
+    "bays": 0,
+    "bays_labelled": 0,
+    "parkingCapacity": null,
+    "zones": {},
+    "columns": 24,
+    "columns_round": 7,
+    "dropped": {
+      "wallPolys-to-columns": 24,
+      "wallLines-covered": 875,
+      "windows-water-feature": 0,
+      "furn-in-smb-set": 0,
+      "furn-cluster-small": 11,
+      "furn-cluster-dup": 2,
+      "furn-outside-envelope": 0,
+      "part-neck-split": 5,
+      "big-part-clipped": 1,
+      "room-part-split": 22,
+      "room-share-too-small": 1
+    },
+    "footprint_area": 1292.5,
+    "wallPolyHoles": 12,
+    "room_parts": 40,
+    "rooms_with_ring": 44,
+    "rooms_with_apartment": 30,
+    "apartments": [],
+    "apartments_emitted": [
+      "0/1 A1",
+      "0/1 A2",
+      "0/1 B",
+      "0/1 C1"
+    ],
+    "outlines": [
+      82.2,
+      73.7,
+      53.0,
+      88.6,
+      99.8,
+      97.4,
+      154.0,
+      293.3,
+      263.6,
+      260.3
+    ],
+    "rooms_split": 22,
+    "registry": {
+      "floor": 1,
+      "registered": [
+        "0/1 A1",
+        "0/1 A2",
+        "0/1 B",
+        "0/1 C1"
+      ],
+      "found": [],
+      "missing": [
+        "0/1 A1",
+        "0/1 A2",
+        "0/1 B",
+        "0/1 C1"
+      ],
+      "unregistered": []
+    }
+  },
+  {
+    "level": "2",
+    "bytes": 101122,
+    "counts": {
+      "footprint": 1,
+      "wallPolys": 173,
+      "wallLines": 280,
+      "windows": 584,
+      "doors": 87,
+      "furniture": 164,
+      "stairs": 68,
+      "rooms": 84,
+      "shafts": 19,
+      "trees": 8,
+      "apartments": 5,
+      "zones": 1,
+      "bays": 0,
+      "columns": 18
+    },
+    "bbox": [
+      -0.022,
+      3.25,
+      47.001,
+      57.771
+    ],
+    "scale": 1.0,
+    "hatch_fallback": false,
+    "door_closers_fallback": 3,
+    "door_closers": 87,
+    "partition": {
+      "transfer": {
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "structuralOverlap": 1.0,
+        "tagsInOwnStack": true,
+        "used": true
+      },
+      "tags": [
+        "2 A1",
+        "2 A2",
+        "2 C1",
+        "2 C2"
+      ],
+      "conflicts": [],
+      "unassigned": [],
+      "unplaceable": {},
+      "codes": {
+        "2 A1": {
+          "coverage": 0.99,
+          "unaccountedSqm": 0,
+          "source": "tag",
+          "pieces": {
+            "tag": 1,
+            "region": 17,
+            "graph": 0,
+            "door": 0,
+            "edge": 4
+          },
+          "rooms": 20,
+          "areaSqm": 225.7,
+          "outdoorSqm": 36.2,
+          "unlabelledSqm": 15.8,
+          "complete": false,
+          "incomplete": [
+            "1 unlabelled cell(s) >= 10 m2 assigned (unnamed rooms)"
+          ]
+        },
+        "2 A2": {
+          "coverage": 0.991,
+          "unaccountedSqm": 0,
+          "source": "tag",
+          "pieces": {
+            "tag": 1,
+            "region": 16,
+            "graph": 0,
+            "door": 0,
+            "edge": 4
+          },
+          "rooms": 19,
+          "areaSqm": 195.4,
+          "outdoorSqm": 30.2,
+          "unlabelledSqm": 4.6,
+          "complete": false,
+          "incomplete": [
+            "room(s) without ring in the stack: ['Linen']"
+          ]
+        },
+        "2 B": {
+          "coverage": 0.974,
+          "unaccountedSqm": 0,
+          "source": "inferred",
+          "pieces": {
+            "tag": 0,
+            "region": 8,
+            "graph": 0,
+            "door": 0,
+            "edge": 0
+          },
+          "rooms": 6,
+          "areaSqm": 57.9,
+          "outdoorSqm": 36.8,
+          "unlabelledSqm": 29.7,
+          "complete": false,
+          "incomplete": [
+            "2 unlabelled cell(s) >= 10 m2 assigned (unnamed rooms)",
+            "unlabelled cells are 51% of the floor"
+          ]
+        },
+        "2 C1": {
+          "coverage": 0.995,
+          "unaccountedSqm": 0,
+          "source": "tag",
+          "pieces": {
+            "tag": 1,
+            "region": 11,
+            "graph": 0,
+            "door": 0,
+            "edge": 3
+          },
+          "rooms": 14,
+          "areaSqm": 148.7,
+          "outdoorSqm": 24.3,
+          "unlabelledSqm": 2.3,
+          "complete": false,
+          "incomplete": [
+            "room(s) without ring in the stack: [\"Maid's Bath\"]"
+          ]
+        },
+        "2 C2": {
+          "coverage": 0.997,
+          "unaccountedSqm": 0,
+          "source": "tag",
+          "pieces": {
+            "tag": 1,
+            "region": 12,
+            "graph": 0,
+            "door": 0,
+            "edge": 3
+          },
+          "rooms": 16,
+          "areaSqm": 146.5,
+          "outdoorSqm": 23.5,
+          "unlabelledSqm": 0,
+          "complete": true,
+          "incomplete": []
+        }
+      },
+      "regions": {
+        "A1": 303.7,
+        "lobbyA": 65.2,
+        "A2": 268.5,
+        "lobbyC": 43.8,
+        "C1": 193.9,
+        "C2": 192.9,
+        "lobbyB": 31.1,
+        "B": 360.2
+      },
+      "regionSource": {
+        "A1": "sheet",
+        "lobbyA": "sheet",
+        "A2": "sheet",
+        "lobbyC": "sheet",
+        "C1": "sheet",
+        "C2": "sheet",
+        "lobbyB": "reference",
+        "B": "reference"
+      },
+      "bigParts": [],
+      "coreServedCells": [
+        {
+          "area": 10.5,
+          "x": 31.9,
+          "y": 18.4
+        },
+        {
+          "area": 19.6,
+          "x": 38.5,
+          "y": 12.6
+        }
+      ],
+      "doorEdges": 34,
+      "missing": [],
+      "commonPieces": 12
+    },
+    "bays": 0,
+    "bays_labelled": 0,
+    "parkingCapacity": null,
+    "zones": {
+      "plant": [
+        61.5
+      ]
+    },
+    "columns": 18,
+    "columns_round": 1,
+    "dropped": {
+      "furn-insert-small": 4,
+      "wallPolys-to-columns": 18,
+      "wallLines-covered": 1709,
+      "windows-water-feature": 0,
+      "furn-in-smb-set": 0,
+      "furn-cluster-small": 99,
+      "furn-cluster-dup": 8,
+      "furn-outside-envelope": 0,
+      "part-neck-split": 7,
+      "room-no-part": 1,
+      "room-label-duplicate": 1,
+      "room-part-split": 22,
+      "room-share-too-small": 2
+    },
+    "footprint_area": 1517.1,
+    "wallPolyHoles": 18,
+    "room_parts": 81,
+    "rooms_with_ring": 81,
+    "rooms_with_apartment": 75,
+    "apartments": [
+      "2 C1",
+      "2 C2",
+      "2 A2",
+      "2 A1"
+    ],
+    "apartments_emitted": [
+      "2 A1",
+      "2 A2",
+      "2 B",
+      "2 C1",
+      "2 C2"
+    ],
+    "outlines": [
+      65.2,
+      303.7,
+      268.5,
+      193.9,
+      192.9,
+      43.8
+    ],
+    "rooms_split": 22,
+    "registry": {
+      "floor": 2,
+      "registered": [
+        "2 A1",
+        "2 A2",
+        "2 B",
+        "2 C1",
+        "2 C2"
+      ],
+      "found": [
+        "2 A1",
+        "2 A2",
+        "2 C1",
+        "2 C2"
+      ],
+      "missing": [
+        "2 B"
+      ],
+      "unregistered": []
+    }
+  },
+  {
+    "level": "3",
+    "bytes": 96964,
+    "counts": {
+      "footprint": 1,
+      "wallPolys": 150,
+      "wallLines": 288,
+      "windows": 602,
+      "doors": 82,
+      "furniture": 168,
+      "stairs": 90,
+      "rooms": 65,
+      "shafts": 20,
+      "trees": 3,
+      "apartments": 5,
+      "zones": 2,
+      "bays": 0,
+      "columns": 18
+    },
+    "bbox": [
+      -0.022,
+      3.063,
+      43.108,
+      57.771
+    ],
+    "scale": 1.0,
+    "hatch_fallback": false,
+    "smb_extents": null,
+    "door_closers_fallback": 5,
+    "door_closers": 82,
+    "partition": {
+      "transfer": {
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "structuralOverlap": 1.0,
+        "tagsInOwnStack": true,
+        "used": true
+      },
+      "tags": [
+        "3 A1",
+        "3 A2",
+        "3 C1",
+        "3 C2"
+      ],
+      "conflicts": [],
+      "unassigned": [],
+      "unplaceable": {},
+      "codes": {
+        "3 A1": {
+          "coverage": 0.99,
+          "unaccountedSqm": 0,
+          "source": "tag",
+          "pieces": {
+            "tag": 1,
+            "region": 17,
+            "graph": 0,
+            "door": 0,
+            "edge": 4
+          },
+          "rooms": 16,
+          "areaSqm": 226.0,
+          "outdoorSqm": 36.2,
+          "unlabelledSqm": 20.7,
+          "complete": true,
+          "incomplete": []
+        },
+        "3 A2": {
+          "coverage": 0.992,
+          "unaccountedSqm": 0,
+          "source": "tag",
+          "pieces": {
+            "tag": 1,
+            "region": 14,
+            "graph": 0,
+            "door": 0,
+            "edge": 4
+          },
+          "rooms": 16,
+          "areaSqm": 199.5,
+          "outdoorSqm": 27.9,
+          "unlabelledSqm": 7.5,
+          "complete": true,
+          "incomplete": []
+        },
+        "3/4 B": {
+          "coverage": 0.982,
+          "unaccountedSqm": 0,
+          "source": "inferred",
+          "pieces": {
+            "tag": 0,
+            "region": 7,
+            "graph": 0,
+            "door": 0,
+            "edge": 0
+          },
+          "rooms": 3,
+          "areaSqm": 162.4,
+          "outdoorSqm": 30.4,
+          "unlabelledSqm": 27.6,
+          "complete": false,
+          "incomplete": [
+            "unassigned piece(s) opening onto this residence: [('cell 2.5 m2', 2.5, ['3/4 B'])]",
+            "1 unlabelled cell(s) >= 10 m2 assigned (unnamed rooms)",
+            "unlabelled cells are 17% of the floor"
+          ]
+        },
+        "3 C1": {
+          "coverage": 0.994,
+          "unaccountedSqm": 0,
+          "source": "tag",
+          "pieces": {
+            "tag": 1,
+            "region": 10,
+            "graph": 0,
+            "door": 0,
+            "edge": 3
+          },
+          "rooms": 13,
+          "areaSqm": 148.0,
+          "outdoorSqm": 24.1,
+          "unlabelledSqm": 5.6,
+          "complete": true,
+          "incomplete": []
+        },
+        "3 C2": {
+          "coverage": 0.998,
+          "unaccountedSqm": 0,
+          "source": "tag",
+          "pieces": {
+            "tag": 1,
+            "region": 9,
+            "graph": 0,
+            "door": 0,
+            "edge": 3
+          },
+          "rooms": 11,
+          "areaSqm": 148.9,
+          "outdoorSqm": 23.5,
+          "unlabelledSqm": 11.3,
+          "complete": true,
+          "incomplete": []
+        }
+      },
+      "regions": {
+        "A1": 303.2,
+        "lobbyA": 68.7,
+        "A2": 270.2,
+        "lobbyC": 46.3,
+        "C1": 195.0,
+        "C2": 194.1,
+        "lobbyB": 31.1,
+        "B": 360.2
+      },
+      "regionSource": {
+        "A1": "sheet",
+        "lobbyA": "sheet",
+        "A2": "sheet",
+        "lobbyC": "sheet",
+        "C1": "sheet",
+        "C2": "sheet",
+        "lobbyB": "reference",
+        "B": "reference"
+      },
+      "bigParts": [],
+      "coreServedCells": [
+        {
+          "area": 10.5,
+          "x": 31.9,
+          "y": 18.4
+        }
+      ],
+      "doorEdges": 36,
+      "missing": [],
+      "commonPieces": 9
+    },
+    "bays": 0,
+    "bays_labelled": 0,
+    "parkingCapacity": null,
+    "zones": {
+      "plant": [
+        0.9,
+        2.3
+      ]
+    },
+    "columns": 18,
+    "columns_round": 1,
+    "dropped": {
+      "crop": 2125,
+      "wallPolys-to-columns": 18,
+      "wallLines-covered": 1468,
+      "windows-water-feature": 0,
+      "furn-in-smb-set": 0,
+      "furn-cluster-small": 50,
+      "furn-cluster-dup": 2,
+      "furn-outside-envelope": 0,
+      "part-neck-split": 9,
+      "room-no-part": 2,
+      "room-part-split": 17,
+      "room-area-open-plan": 1
+    },
+    "footprint_area": 1518.0,
+    "wallPolyHoles": 13,
+    "room_parts": 73,
+    "rooms_with_ring": 63,
+    "rooms_with_apartment": 59,
+    "apartments": [
+      "3 C2",
+      "3 C1",
+      "3 A1",
+      "3 A2"
+    ],
+    "apartments_emitted": [
+      "3 A1",
+      "3 A2",
+      "3/4 B",
+      "3 C1",
+      "3 C2"
+    ],
+    "outlines": [
+      303.2,
+      68.7,
+      270.2,
+      46.3,
+      195.0,
+      194.1
+    ],
+    "rooms_split": 17,
+    "registry": {
+      "floor": 3,
+      "registered": [
+        "3 A1",
+        "3 A2",
+        "3/4 B",
+        "3 C1",
+        "3 C2"
+      ],
+      "found": [
+        "3 A1",
+        "3 A2",
+        "3 C1",
+        "3 C2"
+      ],
+      "missing": [
+        "3/4 B"
+      ],
+      "unregistered": []
+    }
+  },
+  {
+    "level": "4",
+    "bytes": 109959,
+    "counts": {
+      "footprint": 1,
+      "wallPolys": 103,
+      "wallLines": 770,
+      "windows": 586,
+      "doors": 87,
+      "furniture": 208,
+      "stairs": 101,
+      "rooms": 92,
+      "shafts": 17,
+      "trees": 3,
+      "apartments": 5,
+      "zones": 1,
+      "bays": 0,
+      "columns": 13
+    },
+    "bbox": [
+      -0.022,
+      3.27,
+      41.958,
+      58.028
+    ],
+    "scale": 1.0,
+    "hatch_fallback": false,
+    "door_closers_fallback": 6,
+    "door_closers": 87,
+    "partition": {
+      "transfer": {
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "structuralOverlap": 1.0,
+        "tagsInOwnStack": true,
+        "used": true
+      },
+      "tags": [
+        "4 A1",
+        "4 A2",
+        "4 C1",
+        "4 C2"
+      ],
+      "conflicts": [],
+      "unassigned": [],
+      "unplaceable": {},
+      "codes": {
+        "4 A1": {
+          "coverage": 0.98,
+          "unaccountedSqm": 3.4,
+          "source": "tag",
+          "pieces": {
+            "tag": 1,
+            "region": 16,
+            "graph": 0,
+            "door": 0,
+            "edge": 4
+          },
+          "rooms": 18,
+          "areaSqm": 222.2,
+          "outdoorSqm": 37.0,
+          "unlabelledSqm": 20.6,
+          "complete": false,
+          "incomplete": [
+            "1 unlabelled cell(s) >= 10 m2 assigned (unnamed rooms)"
+          ]
+        },
+        "4 A2": {
+          "coverage": 0.985,
+          "unaccountedSqm": 0,
+          "source": "tag",
+          "pieces": {
+            "tag": 1,
+            "region": 15,
+            "graph": 0,
+            "door": 0,
+            "edge": 4
+          },
+          "rooms": 18,
+          "areaSqm": 195.1,
+          "outdoorSqm": 27.9,
+          "unlabelledSqm": 3.9,
+          "complete": false,
+          "incomplete": [
+            "room(s) without ring in the stack: ['Linen']"
+          ]
+        },
+        "3/4 B": {
+          "coverage": 0.914,
+          "unaccountedSqm": 9.9,
+          "source": "inferred",
+          "pieces": {
+            "tag": 0,
+            "region": 11,
+            "graph": 0,
+            "door": 0,
+            "edge": 0
+          },
+          "rooms": 11,
+          "areaSqm": 137.1,
+          "outdoorSqm": 11.4,
+          "unlabelledSqm": 0,
+          "complete": false,
+          "incomplete": [
+            "coverage 0.91",
+            "1 unassigned cell(s) in the stack (9.9 m2): [('cell 9.9 m2', 0.9)]",
+            "2 cell(s) mix indoor and outdoor labels (glazing not closed)"
+          ]
+        },
+        "4 C1": {
+          "coverage": 0.997,
+          "unaccountedSqm": 0,
+          "source": "tag",
+          "pieces": {
+            "tag": 1,
+            "region": 12,
+            "graph": 0,
+            "door": 0,
+            "edge": 3
+          },
+          "rooms": 16,
+          "areaSqm": 139.1,
+          "outdoorSqm": 24.5,
+          "unlabelledSqm": 0,
+          "complete": false,
+          "incomplete": [
+            "room(s) without ring in the stack: ['SAS']"
+          ]
+        },
+        "4 C2": {
+          "coverage": 0.999,
+          "unaccountedSqm": 0,
+          "source": "tag",
+          "pieces": {
+            "tag": 1,
+            "region": 13,
+            "graph": 0,
+            "door": 0,
+            "edge": 3
+          },
+          "rooms": 17,
+          "areaSqm": 140.8,
+          "outdoorSqm": 24.4,
+          "unlabelledSqm": 0,
+          "complete": true,
+          "incomplete": []
+        }
+      },
+      "regions": {
+        "A1": 303.2,
+        "lobbyA": 68.7,
+        "A2": 270.2,
+        "lobbyC": 46.1,
+        "C1": 195.1,
+        "C2": 194.2,
+        "lobbyB": 31.1,
+        "B": 360.2
+      },
+      "regionSource": {
+        "A1": "sheet",
+        "lobbyA": "sheet",
+        "A2": "sheet",
+        "lobbyC": "sheet",
+        "C1": "sheet",
+        "C2": "sheet",
+        "lobbyB": "reference",
+        "B": "reference"
+      },
+      "bigParts": [],
+      "coreServedCells": [
+        {
+          "area": 3.0,
+          "x": 30.1,
+          "y": 11.6
+        },
+        {
+          "area": 2.2,
+          "x": 33.2,
+          "y": 16.7
+        }
+      ],
+      "doorEdges": 32,
+      "missing": [],
+      "commonPieces": 10
+    },
+    "bays": 0,
+    "bays_labelled": 0,
+    "parkingCapacity": null,
+    "zones": {
+      "plant": [
+        16.8
+      ]
+    },
+    "columns": 13,
+    "columns_round": 0,
+    "dropped": {
+      "wallPolys-to-columns": 13,
+      "wallLines-covered": 1021,
+      "windows-water-feature": 0,
+      "furn-in-smb-set": 0,
+      "furn-cluster-small": 331,
+      "furn-cluster-dup": 5,
+      "furn-outside-envelope": 2,
+      "part-neck-split": 6,
+      "room-no-part": 5,
+      "room-label-outside-crop": 2,
+      "room-label-duplicate": 1,
+      "room-part-split": 37
+    },
+    "footprint_area": 1495.5,
+    "wallPolyHoles": 12,
+    "room_parts": 74,
+    "rooms_with_ring": 87,
+    "rooms_with_apartment": 80,
+    "apartments": [
+      "4 C1",
+      "4 C2",
+      "4 A2",
+      "4 A1"
+    ],
+    "apartments_emitted": [
+      "4 A1",
+      "4 A2",
+      "3/4 B",
+      "4 C1",
+      "4 C2"
+    ],
+    "outlines": [
+      68.7,
+      46.1,
+      195.1,
+      194.2,
+      303.2,
+      270.2
+    ],
+    "rooms_split": 37,
+    "registry": {
+      "floor": 4,
+      "registered": [
+        "4 A1",
+        "4 A2",
+        "3/4 B",
+        "4 C1",
+        "4 C2"
+      ],
+      "found": [
+        "4 A1",
+        "4 A2",
+        "4 C1",
+        "4 C2"
+      ],
+      "missing": [
+        "3/4 B"
+      ],
+      "unregistered": []
+    }
+  },
+  {
+    "level": "5",
+    "bytes": 100215,
+    "counts": {
+      "footprint": 1,
+      "wallPolys": 124,
+      "wallLines": 211,
+      "windows": 585,
+      "doors": 54,
+      "furniture": 212,
+      "stairs": 88,
+      "rooms": 60,
+      "shafts": 17,
+      "trees": 3,
+      "apartments": 5,
+      "zones": 2,
+      "bays": 0,
+      "columns": 16
+    },
+    "bbox": [
+      -0.022,
+      -135.386,
+      43.108,
+      -80.987
+    ],
+    "scale": 1.0,
+    "hatch_fallback": false,
+    "smb_extents": [
+      0.3,
+      -96.9,
+      24.9,
+      -81.8
+    ],
+    "smb_in_place": true,
+    "door_closers_fallback": 4,
+    "door_closers": 54,
+    "partition": {
+      "transfer": {
+        "offset": [
+          0.0,
+          138.736
+        ],
+        "structuralOverlap": 0.94,
+        "tagsInOwnStack": true,
+        "used": true
+      },
+      "tags": [
+        "5 A2",
+        "5 C2",
+        "5/6 B"
+      ],
+      "conflicts": [],
+      "unassigned": [
+        {
+          "name": null,
+          "area": 14.7,
+          "x": 2.6,
+          "y": -84.0,
+          "why": "outside every stack region"
+        }
+      ],
+      "unplaceable": {},
+      "codes": {
+        "5 A1": {
+          "coverage": 0.985,
+          "unaccountedSqm": 0,
+          "source": "inferred",
+          "pieces": {
+            "tag": 0,
+            "region": 10,
+            "graph": 0,
+            "door": 0,
+            "edge": 1
+          },
+          "rooms": 1,
+          "areaSqm": 234.1,
+          "outdoorSqm": 16.0,
+          "unlabelledSqm": 233.8,
+          "complete": false,
+          "incomplete": [
+            "no labelled indoor room",
+            "room(s) without ring in the stack: ['Stor']",
+            "5 unlabelled cell(s) >= 10 m2 assigned (unnamed rooms)",
+            "unlabelled cells are 100% of the floor"
+          ]
+        },
+        "5 A2": {
+          "coverage": 0.991,
+          "unaccountedSqm": 0,
+          "source": "tag",
+          "pieces": {
+            "tag": 1,
+            "region": 13,
+            "graph": 0,
+            "door": 0,
+            "edge": 4
+          },
+          "rooms": 16,
+          "areaSqm": 194.7,
+          "outdoorSqm": 30.7,
+          "unlabelledSqm": 6.8,
+          "complete": true,
+          "incomplete": []
+        },
+        "5/6 B": {
+          "coverage": 0.992,
+          "unaccountedSqm": 0,
+          "source": "tag",
+          "pieces": {
+            "tag": 1,
+            "region": 8,
+            "graph": 0,
+            "door": 0,
+            "edge": 0
+          },
+          "rooms": 8,
+          "areaSqm": 160.3,
+          "outdoorSqm": 33.7,
+          "unlabelledSqm": 1.8,
+          "complete": true,
+          "incomplete": []
+        },
+        "5 C1": {
+          "coverage": 0.976,
+          "unaccountedSqm": 0,
+          "source": "inferred",
+          "pieces": {
+            "tag": 0,
+            "region": 13,
+            "graph": 0,
+            "door": 0,
+            "edge": 0
+          },
+          "rooms": 11,
+          "areaSqm": 140.3,
+          "outdoorSqm": 0.0,
+          "unlabelledSqm": 3.3,
+          "complete": false,
+          "incomplete": [
+            "outdoor label(s) without ring beside the footprint: ['Balcony', 'Balcony', 'Balcony']"
+          ]
+        },
+        "5 C2": {
+          "coverage": 0.995,
+          "unaccountedSqm": 0,
+          "source": "tag",
+          "pieces": {
+            "tag": 1,
+            "region": 10,
+            "graph": 0,
+            "door": 0,
+            "edge": 3
+          },
+          "rooms": 14,
+          "areaSqm": 148.1,
+          "outdoorSqm": 23.1,
+          "unlabelledSqm": 0,
+          "complete": true,
+          "incomplete": []
+        }
+      },
+      "regions": {
+        "A1": 303.2,
+        "lobbyA": 68.7,
+        "A2": 270.2,
+        "lobbyC": 46.3,
+        "C1": 195.0,
+        "C2": 194.1,
+        "lobbyB": 31.1,
+        "B": 360.2
+      },
+      "regionSource": {
+        "A1": "reference",
+        "lobbyA": "reference",
+        "A2": "sheet",
+        "lobbyC": "reference",
+        "C1": "reference",
+        "C2": "sheet",
+        "lobbyB": "reference",
+        "B": "reference"
+      },
+      "bigParts": [],
+      "coreServedCells": [
+        {
+          "area": 11.0,
+          "x": 31.9,
+          "y": -120.4
+        }
+      ],
+      "doorEdges": 21,
+      "missing": [],
+      "commonPieces": 8
+    },
+    "bays": 0,
+    "bays_labelled": 0,
+    "parkingCapacity": null,
+    "zones": {
+      "plant": [
+        0.9,
+        0.8
+      ]
+    },
+    "columns": 16,
+    "columns_round": 1,
+    "dropped": {
+      "wallPolys-to-columns": 16,
+      "wallLines-covered": 1363,
+      "windows-water-feature": 0,
+      "furn-in-smb-set": 0,
+      "furn-cluster-small": 130,
+      "furn-cluster-dup": 2,
+      "furn-outside-envelope": 0,
+      "part-neck-split": 9,
+      "room-no-part": 5,
+      "room-label-duplicate": 1,
+      "room-part-split": 21,
+      "room-share-too-small": 1,
+      "room-label-in-oversized-cell": 1
+    },
+    "footprint_area": 1480.9,
+    "wallPolyHoles": 19,
+    "room_parts": 62,
+    "rooms_with_ring": 53,
+    "rooms_with_apartment": 50,
+    "apartments": [
+      "5/6 B",
+      "5 C2",
+      "5 A2"
+    ],
+    "apartments_emitted": [
+      "5 A1",
+      "5 A2",
+      "5/6 B",
+      "5 C1",
+      "5 C2"
+    ],
+    "outlines": [
+      270.2,
+      194.1
+    ],
+    "rooms_split": 21,
+    "registry": {
+      "floor": 5,
+      "registered": [
+        "5 A1",
+        "5 A2",
+        "5/6 B",
+        "5 C1",
+        "5 C2"
+      ],
+      "found": [
+        "5 A2",
+        "5/6 B",
+        "5 C2"
+      ],
+      "missing": [
+        "5 A1",
+        "5 C1"
+      ],
+      "unregistered": []
+    }
+  },
+  {
+    "level": "6",
+    "bytes": 123728,
+    "counts": {
+      "footprint": 1,
+      "wallPolys": 97,
+      "wallLines": 811,
+      "windows": 576,
+      "doors": 71,
+      "furniture": 188,
+      "stairs": 70,
+      "rooms": 84,
+      "shafts": 21,
+      "trees": 3,
+      "apartments": 5,
+      "zones": 1,
+      "bays": 0,
+      "columns": 13
+    },
+    "bbox": [
+      -0.022,
+      -159.08,
+      42.138,
+      -104.322
+    ],
+    "scale": 1.0,
+    "hatch_fallback": false,
+    "door_closers_fallback": 3,
+    "door_closers": 71,
+    "partition": {
+      "transfer": {
+        "offset": [
+          0.0,
+          162.35
+        ],
+        "structuralOverlap": 0.994,
+        "tagsInOwnStack": true,
+        "used": true
+      },
+      "tags": [
+        "6 A1",
+        "6 C1",
+        "6 C2"
+      ],
+      "conflicts": [],
+      "unassigned": [],
+      "unplaceable": {},
+      "codes": {
+        "6 A1": {
+          "coverage": 0.993,
+          "unaccountedSqm": 0,
+          "source": "tag",
+          "pieces": {
+            "tag": 1,
+            "region": 13,
+            "graph": 0,
+            "door": 0,
+            "edge": 4
+          },
+          "rooms": 17,
+          "areaSqm": 228.6,
+          "outdoorSqm": 36.3,
+          "unlabelledSqm": 2.6,
+          "complete": true,
+          "incomplete": []
+        },
+        "6 A2": {
+          "coverage": 0.994,
+          "unaccountedSqm": 0,
+          "source": "inferred",
+          "pieces": {
+            "tag": 0,
+            "region": 13,
+            "graph": 0,
+            "door": 0,
+            "edge": 3
+          },
+          "rooms": 12,
+          "areaSqm": 193.2,
+          "outdoorSqm": 26.6,
+          "unlabelledSqm": 14.7,
+          "complete": true,
+          "incomplete": []
+        },
+        "5/6 B": {
+          "coverage": 0.977,
+          "unaccountedSqm": 2.6,
+          "source": "inferred",
+          "pieces": {
+            "tag": 0,
+            "region": 14,
+            "graph": 0,
+            "door": 0,
+            "edge": 0
+          },
+          "rooms": 12,
+          "areaSqm": 160.6,
+          "outdoorSqm": 9.2,
+          "unlabelledSqm": 14.7,
+          "complete": false,
+          "incomplete": [
+            "1 unlabelled cell(s) >= 10 m2 assigned (unnamed rooms)"
+          ]
+        },
+        "6 C1": {
+          "coverage": 0.996,
+          "unaccountedSqm": 0,
+          "source": "tag",
+          "pieces": {
+            "tag": 1,
+            "region": 13,
+            "graph": 0,
+            "door": 0,
+            "edge": 3
+          },
+          "rooms": 17,
+          "areaSqm": 136.6,
+          "outdoorSqm": 25.6,
+          "unlabelledSqm": 0,
+          "complete": true,
+          "incomplete": []
+        },
+        "6 C2": {
+          "coverage": 0.998,
+          "unaccountedSqm": 0,
+          "source": "tag",
+          "pieces": {
+            "tag": 1,
+            "region": 13,
+            "graph": 0,
+            "door": 0,
+            "edge": 3
+          },
+          "rooms": 17,
+          "areaSqm": 136.3,
+          "outdoorSqm": 23.3,
+          "unlabelledSqm": 0,
+          "complete": true,
+          "incomplete": []
+        }
+      },
+      "regions": {
+        "A1": 303.2,
+        "lobbyA": 68.7,
+        "A2": 270.2,
+        "lobbyC": 46.1,
+        "C1": 195.1,
+        "C2": 194.2,
+        "lobbyB": 31.1,
+        "B": 360.2
+      },
+      "regionSource": {
+        "A1": "sheet",
+        "lobbyA": "sheet",
+        "A2": "reference",
+        "lobbyC": "sheet",
+        "C1": "sheet",
+        "C2": "sheet",
+        "lobbyB": "reference",
+        "B": "reference"
+      },
+      "bigParts": [],
+      "coreServedCells": [],
+      "doorEdges": 34,
+      "missing": [],
+      "commonPieces": 8
+    },
+    "bays": 0,
+    "bays_labelled": 0,
+    "parkingCapacity": null,
+    "zones": {
+      "plant": [
+        16.8
+      ]
+    },
+    "columns": 13,
+    "columns_round": 1,
+    "dropped": {
+      "furn-insert-small": 1,
+      "wallPolys-to-columns": 13,
+      "wallLines-covered": 1062,
+      "windows-water-feature": 0,
+      "furn-in-smb-set": 0,
+      "furn-cluster-dup": 2,
+      "furn-cluster-small": 182,
+      "furn-outside-envelope": 0,
+      "part-neck-split": 4,
+      "room-no-part": 3,
+      "room-part-split": 27
+    },
+    "footprint_area": 1499.4,
+    "wallPolyHoles": 10,
+    "room_parts": 75,
+    "rooms_with_ring": 81,
+    "rooms_with_apartment": 75,
+    "apartments": [
+      "6 C1",
+      "6 C2",
+      "6 A1"
+    ],
+    "apartments_emitted": [
+      "6 A1",
+      "6 A2",
+      "5/6 B",
+      "6 C1",
+      "6 C2"
+    ],
+    "outlines": [
+      68.7,
+      46.1,
+      195.1,
+      194.2,
+      303.2
+    ],
+    "rooms_split": 27,
+    "registry": {
+      "floor": 6,
+      "registered": [
+        "6 A1",
+        "6 A2",
+        "5/6 B",
+        "6 C1",
+        "6 C2"
+      ],
+      "found": [
+        "6 A1",
+        "6 C1",
+        "6 C2"
+      ],
+      "missing": [
+        "6 A2",
+        "5/6 B"
+      ],
+      "unregistered": []
+    }
+  },
+  {
+    "level": "7",
+    "bytes": 79114,
+    "counts": {
+      "footprint": 1,
+      "wallPolys": 132,
+      "wallLines": 165,
+      "windows": 602,
+      "doors": 55,
+      "furniture": 43,
+      "stairs": 90,
+      "rooms": 58,
+      "shafts": 17,
+      "trees": 1,
+      "apartments": 5,
+      "zones": 1,
+      "bays": 0,
+      "columns": 18
+    },
+    "bbox": [
+      -0.022,
+      3.063,
+      43.108,
+      57.771
+    ],
+    "scale": 1.0,
+    "hatch_fallback": false,
+    "door_closers_fallback": 2,
+    "door_closers": 55,
+    "partition": {
+      "transfer": {
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "structuralOverlap": 0.999,
+        "tagsInOwnStack": true,
+        "used": true
+      },
+      "tags": [
+        "7 C1",
+        "7 C2"
+      ],
+      "conflicts": [],
+      "unassigned": [
+        {
+          "name": null,
+          "area": 12.1,
+          "x": 7.9,
+          "y": 4.9,
+          "why": "straddles C1 (0.11)"
+        }
+      ],
+      "unplaceable": {},
+      "codes": {
+        "7 A1": {
+          "coverage": 0.993,
+          "unaccountedSqm": 0,
+          "source": "inferred",
+          "pieces": {
+            "tag": 0,
+            "region": 13,
+            "graph": 0,
+            "door": 0,
+            "edge": 4
+          },
+          "rooms": 7,
+          "areaSqm": 230.6,
+          "outdoorSqm": 37.8,
+          "unlabelledSqm": 153.2,
+          "complete": false,
+          "incomplete": [
+            "room(s) without ring in the stack: ['Bathroom Guest', 'Pantry']",
+            "5 unlabelled cell(s) >= 10 m2 assigned (unnamed rooms)",
+            "unlabelled cells are 66% of the floor"
+          ]
+        },
+        "7 A2": {
+          "coverage": 0.981,
+          "unaccountedSqm": 0,
+          "source": "inferred",
+          "pieces": {
+            "tag": 0,
+            "region": 11,
+            "graph": 0,
+            "door": 0,
+            "edge": 4
+          },
+          "rooms": 12,
+          "areaSqm": 201.6,
+          "outdoorSqm": 30.5,
+          "unlabelledSqm": 14.6,
+          "complete": false,
+          "incomplete": [
+            "room(s) without ring in the stack: ['Bathroom Guest']"
+          ]
+        },
+        "7/8 B": {
+          "coverage": 0.979,
+          "unaccountedSqm": 0,
+          "source": "inferred",
+          "pieces": {
+            "tag": 0,
+            "region": 9,
+            "graph": 0,
+            "door": 0,
+            "edge": 0
+          },
+          "rooms": 5,
+          "areaSqm": 161.7,
+          "outdoorSqm": 31.8,
+          "unlabelledSqm": 27.4,
+          "complete": false,
+          "incomplete": [
+            "unassigned piece(s) opening onto this residence: [('cell 2.5 m2', 2.5, ['7/8 B'])]",
+            "1 unlabelled cell(s) >= 10 m2 assigned (unnamed rooms)",
+            "unlabelled cells are 17% of the floor"
+          ]
+        },
+        "7 C1": {
+          "coverage": 0.987,
+          "unaccountedSqm": 0,
+          "source": "tag",
+          "pieces": {
+            "tag": 1,
+            "region": 12,
+            "graph": 0,
+            "door": 0,
+            "edge": 2
+          },
+          "rooms": 15,
+          "areaSqm": 145.2,
+          "outdoorSqm": 13.2,
+          "unlabelledSqm": 0,
+          "complete": true,
+          "incomplete": []
+        },
+        "7 C2": {
+          "coverage": 0.995,
+          "unaccountedSqm": 0,
+          "source": "tag",
+          "pieces": {
+            "tag": 1,
+            "region": 8,
+            "graph": 0,
+            "door": 0,
+            "edge": 3
+          },
+          "rooms": 12,
+          "areaSqm": 154.1,
+          "outdoorSqm": 26.4,
+          "unlabelledSqm": 0,
+          "complete": true,
+          "incomplete": []
+        }
+      },
+      "regions": {
+        "A1": 303.2,
+        "lobbyA": 68.7,
+        "A2": 270.2,
+        "lobbyC": 46.3,
+        "C1": 195.0,
+        "C2": 194.1,
+        "lobbyB": 31.1,
+        "B": 360.2
+      },
+      "regionSource": {
+        "A1": "reference",
+        "lobbyA": "reference",
+        "A2": "reference",
+        "lobbyC": "reference",
+        "C1": "reference",
+        "C2": "reference",
+        "lobbyB": "reference",
+        "B": "reference"
+      },
+      "bigParts": [],
+      "coreServedCells": [
+        {
+          "area": 10.5,
+          "x": 31.9,
+          "y": 18.4
+        }
+      ],
+      "doorEdges": 21,
+      "missing": [],
+      "commonPieces": 7
+    },
+    "bays": 0,
+    "bays_labelled": 0,
+    "parkingCapacity": null,
+    "zones": {
+      "plant": [
+        0.8
+      ]
+    },
+    "columns": 18,
+    "columns_round": 1,
+    "dropped": {
+      "wallPolys-to-columns": 18,
+      "wallLines-covered": 1159,
+      "windows-water-feature": 0,
+      "furn-in-smb-set": 0,
+      "furn-cluster-small": 3,
+      "furn-outside-envelope": 0,
+      "part-neck-split": 7,
+      "big-part-as-residence-cell": 1,
+      "room-no-part": 2,
+      "room-part-split": 22,
+      "room-share-too-small": 1,
+      "room-label-in-oversized-cell": 1
+    },
+    "footprint_area": 1517.4,
+    "wallPolyHoles": 18,
+    "room_parts": 62,
+    "rooms_with_ring": 54,
+    "rooms_with_apartment": 51,
+    "apartments": [
+      "7 C2",
+      "7 C1"
+    ],
+    "apartments_emitted": [
+      "7 A1",
+      "7 A2",
+      "7/8 B",
+      "7 C1",
+      "7 C2"
+    ],
+    "outlines": [],
+    "rooms_split": 22,
+    "registry": {
+      "floor": 7,
+      "registered": [
+        "7 A1",
+        "7 A2",
+        "7/8 B",
+        "7 C1",
+        "7 C2"
+      ],
+      "found": [
+        "7 C1",
+        "7 C2"
+      ],
+      "missing": [
+        "7 A1",
+        "7 A2",
+        "7/8 B"
+      ],
+      "unregistered": []
+    }
+  },
+  {
+    "level": "8",
+    "bytes": 107468,
+    "counts": {
+      "footprint": 1,
+      "wallPolys": 165,
+      "wallLines": 327,
+      "windows": 602,
+      "doors": 63,
+      "furniture": 120,
+      "stairs": 97,
+      "rooms": 88,
+      "shafts": 20,
+      "trees": 0,
+      "apartments": 5,
+      "zones": 2,
+      "bays": 0,
+      "columns": 17
+    },
+    "bbox": [
+      91.628,
+      3.35,
+      133.608,
+      57.984
+    ],
+    "scale": 1.0,
+    "hatch_fallback": false,
+    "door_closers_fallback": 3,
+    "door_closers": 63,
+    "partition": {
+      "transfer": {
+        "offset": [
+          -91.65,
+          0.0
+        ],
+        "structuralOverlap": 0.99,
+        "tagsInOwnStack": true,
+        "used": true
+      },
+      "tags": [
+        "7/8 B",
+        "8 A1",
+        "8 A2",
+        "8 C1",
+        "8 C2"
+      ],
+      "conflicts": [],
+      "unassigned": [
+        {
+          "name": "Liwan",
+          "area": 14.1,
+          "x": 116.9,
+          "y": 43.3,
+          "why": "no unambiguous evidence"
+        },
+        {
+          "name": null,
+          "area": 11.0,
+          "x": 120.0,
+          "y": 18.4,
+          "why": "straddles B (0.88)"
+        }
+      ],
+      "unplaceable": {},
+      "codes": {
+        "8 A1": {
+          "coverage": 0.984,
+          "unaccountedSqm": 0,
+          "source": "tag",
+          "pieces": {
+            "tag": 1,
+            "region": 11,
+            "graph": 0,
+            "door": 0,
+            "edge": 4
+          },
+          "rooms": 14,
+          "areaSqm": 247.1,
+          "outdoorSqm": 36.3,
+          "unlabelledSqm": 5.3,
+          "complete": false,
+          "incomplete": [
+            "an open cell was cut along the transferred outline (no outline on this sheet)"
+          ]
+        },
+        "8 A2": {
+          "coverage": 0.996,
+          "unaccountedSqm": 0,
+          "source": "tag",
+          "pieces": {
+            "tag": 1,
+            "region": 17,
+            "graph": 0,
+            "door": 0,
+            "edge": 4
+          },
+          "rooms": 19,
+          "areaSqm": 200.6,
+          "outdoorSqm": 30.4,
+          "unlabelledSqm": 10.5,
+          "complete": false,
+          "incomplete": [
+            "an open cell was cut along the transferred outline (no outline on this sheet)"
+          ]
+        },
+        "7/8 B": {
+          "coverage": 0.922,
+          "unaccountedSqm": 11.0,
+          "source": "tag",
+          "pieces": {
+            "tag": 1,
+            "region": 13,
+            "graph": 0,
+            "door": 0,
+            "edge": 0
+          },
+          "rooms": 13,
+          "areaSqm": 144.4,
+          "outdoorSqm": 8.8,
+          "unlabelledSqm": 2.3,
+          "complete": false,
+          "incomplete": [
+            "1 unassigned cell(s) in the stack (11.0 m2): [('cell 11.0 m2', 0.88)]"
+          ]
+        },
+        "8 C1": {
+          "coverage": 0.997,
+          "unaccountedSqm": 0,
+          "source": "tag",
+          "pieces": {
+            "tag": 1,
+            "region": 13,
+            "graph": 0,
+            "door": 0,
+            "edge": 3
+          },
+          "rooms": 17,
+          "areaSqm": 143.8,
+          "outdoorSqm": 23.8,
+          "unlabelledSqm": 0,
+          "complete": true,
+          "incomplete": []
+        },
+        "8 C2": {
+          "coverage": 0.99,
+          "unaccountedSqm": 0,
+          "source": "tag",
+          "pieces": {
+            "tag": 1,
+            "region": 12,
+            "graph": 0,
+            "door": 0,
+            "edge": 3
+          },
+          "rooms": 16,
+          "areaSqm": 139.1,
+          "outdoorSqm": 23.4,
+          "unlabelledSqm": 0,
+          "complete": false,
+          "incomplete": [
+            "room(s) without ring in the stack: ['SAS']"
+          ]
+        }
+      },
+      "regions": {
+        "A1": 303.2,
+        "lobbyA": 68.7,
+        "A2": 270.2,
+        "lobbyC": 46.3,
+        "C1": 195.0,
+        "C2": 194.1,
+        "lobbyB": 31.1,
+        "B": 360.2
+      },
+      "regionSource": {
+        "A1": "reference",
+        "lobbyA": "reference",
+        "A2": "reference",
+        "lobbyC": "reference",
+        "C1": "reference",
+        "C2": "reference",
+        "lobbyB": "reference",
+        "B": "reference"
+      },
+      "bigParts": [],
+      "coreServedCells": [],
+      "doorEdges": 23,
+      "missing": [],
+      "commonPieces": 6
+    },
+    "bays": 0,
+    "bays_labelled": 0,
+    "parkingCapacity": null,
+    "zones": {
+      "plant": [
+        4.4,
+        2.6
+      ]
+    },
+    "columns": 17,
+    "columns_round": 1,
+    "dropped": {
+      "wallPolys-to-columns": 17,
+      "column-dup": 3,
+      "wallLines-covered": 1527,
+      "windows-water-feature": 0,
+      "furn-in-smb-set": 0,
+      "furn-cluster-small": 4,
+      "furn-cluster-dup": 1,
+      "furn-outside-envelope": 0,
+      "part-neck-split": 5,
+      "big-part-clipped": 1,
+      "room-no-part": 3,
+      "room-label-duplicate": 2,
+      "room-part-split": 39,
+      "planter-disc": 1
+    },
+    "footprint_area": 1494.1,
+    "wallPolyHoles": 13,
+    "room_parts": 67,
+    "rooms_with_ring": 85,
+    "rooms_with_apartment": 79,
+    "apartments": [
+      "8 A1",
+      "8 C1",
+      "8 C2",
+      "7/8 B",
+      "8 A2"
+    ],
+    "apartments_emitted": [
+      "8 A1",
+      "8 A2",
+      "7/8 B",
+      "8 C1",
+      "8 C2"
+    ],
+    "outlines": [],
+    "rooms_split": 39,
+    "registry": {
+      "floor": 8,
+      "registered": [
+        "8 A1",
+        "8 A2",
+        "7/8 B",
+        "8 C1",
+        "8 C2"
+      ],
+      "found": [
+        "8 A1",
+        "8 A2",
+        "7/8 B",
+        "8 C1",
+        "8 C2"
+      ],
+      "missing": [],
+      "unregistered": []
+    }
+  },
+  {
+    "level": "9",
+    "bytes": 79419,
+    "counts": {
+      "footprint": 1,
+      "wallPolys": 63,
+      "wallLines": 590,
+      "windows": 434,
+      "doors": 36,
+      "furniture": 69,
+      "stairs": 128,
+      "rooms": 53,
+      "shafts": 16,
+      "trees": 0,
+      "apartments": 5,
+      "zones": 9,
+      "bays": 0,
+      "columns": 3
+    },
+    "bbox": [
+      463.716,
+      3.45,
+      506.746,
+      57.771
+    ],
+    "scale": 1.0,
+    "hatch_fallback": false,
+    "door_closers_fallback": 5,
+    "door_closers": 34,
+    "partition": {
+      "transfer": {
+        "offset": [
+          -463.738,
+          0.0
+        ],
+        "structuralOverlap": 0.882,
+        "tagsInOwnStack": true,
+        "used": true
+      },
+      "tags": [
+        "9/10 A1",
+        "9/10 A2",
+        "9/10 B",
+        "9/10 C1",
+        "9/10 C2"
+      ],
+      "conflicts": [],
+      "unassigned": [
+        {
+          "name": null,
+          "area": 10.9,
+          "x": 471.6,
+          "y": 5.0,
+          "why": "outside every stack region"
+        }
+      ],
+      "unplaceable": {},
+      "codes": {
+        "9/10 A1": {
+          "coverage": 0.99,
+          "unaccountedSqm": 0,
+          "source": "tag",
+          "pieces": {
+            "tag": 1,
+            "region": 10,
+            "graph": 0,
+            "door": 0,
+            "edge": 2
+          },
+          "rooms": 9,
+          "areaSqm": 180.6,
+          "outdoorSqm": 86.8,
+          "unlabelledSqm": 11.3,
+          "complete": false,
+          "incomplete": [
+            "room(s) without ring in the stack: ['Guest']",
+            "outdoor cell of 83.0 m2 inside the stack (glazing not closed)"
+          ]
+        },
+        "9/10 A2": {
+          "coverage": 0.99,
+          "unaccountedSqm": 0,
+          "source": "tag",
+          "pieces": {
+            "tag": 1,
+            "region": 5,
+            "graph": 0,
+            "door": 0,
+            "edge": 3
+          },
+          "rooms": 9,
+          "areaSqm": 145.4,
+          "outdoorSqm": 90.7,
+          "unlabelledSqm": 0,
+          "complete": false,
+          "incomplete": [
+            "outdoor cell of 77.8 m2 inside the stack (glazing not closed)"
+          ]
+        },
+        "9/10 B": {
+          "coverage": 0.0,
+          "unaccountedSqm": 0,
+          "source": "tag",
+          "pieces": {
+            "tag": 0,
+            "region": 0,
+            "graph": 0,
+            "door": 0,
+            "edge": 0
+          },
+          "rooms": 0,
+          "areaSqm": 0.0,
+          "outdoorSqm": 0.0,
+          "unlabelledSqm": 0,
+          "complete": false,
+          "incomplete": [
+            "no labelled indoor room",
+            "coverage 0.00"
+          ]
+        },
+        "9/10 C1": {
+          "coverage": 0.99,
+          "unaccountedSqm": 0,
+          "source": "tag",
+          "pieces": {
+            "tag": 1,
+            "region": 7,
+            "graph": 0,
+            "door": 0,
+            "edge": 2
+          },
+          "rooms": 10,
+          "areaSqm": 133.5,
+          "outdoorSqm": 33.2,
+          "unlabelledSqm": 0,
+          "complete": false,
+          "incomplete": [
+            "an open cell was cut along the transferred outline (no outline on this sheet)",
+            "room(s) without ring in the stack: [\"Maid's Bathroom\"]"
+          ]
+        },
+        "9/10 C2": {
+          "coverage": 0.981,
+          "unaccountedSqm": 0,
+          "source": "tag",
+          "pieces": {
+            "tag": 1,
+            "region": 7,
+            "graph": 0,
+            "door": 0,
+            "edge": 2
+          },
+          "rooms": 9,
+          "areaSqm": 138.5,
+          "outdoorSqm": 14.2,
+          "unlabelledSqm": 2.8,
+          "complete": false,
+          "incomplete": [
+            "outdoor label(s) without ring beside the footprint: ['Terrace']",
+            "an open cell was cut along the transferred outline (no outline on this sheet)"
+          ]
+        }
+      },
+      "regions": {
+        "A1": 303.2,
+        "lobbyA": 68.7,
+        "A2": 270.2,
+        "lobbyC": 46.3,
+        "C1": 195.0,
+        "C2": 194.1,
+        "lobbyB": 31.1,
+        "B": 360.2
+      },
+      "regionSource": {
+        "A1": "reference",
+        "lobbyA": "reference",
+        "A2": "reference",
+        "lobbyC": "reference",
+        "C1": "reference",
+        "C2": "reference",
+        "lobbyB": "reference",
+        "B": "reference"
+      },
+      "bigParts": [],
+      "coreServedCells": [
+        {
+          "area": 1.3,
+          "x": 475.4,
+          "y": 15.8
+        }
+      ],
+      "doorEdges": 9,
+      "missing": [],
+      "commonPieces": 6
+    },
+    "bays": 0,
+    "bays_labelled": 0,
+    "parkingCapacity": null,
+    "zones": {
+      "water": [
+        22.1
+      ],
+      "terrace": [
+        3.8,
+        10.4,
+        3.5,
+        10.5,
+        19.6,
+        8.7,
+        77.8,
+        83.0
+      ]
+    },
+    "columns": 3,
+    "columns_round": 0,
+    "dropped": {
+      "wallPolys-to-columns": 3,
+      "wallLines-covered": 452,
+      "windows-water-feature": 19,
+      "furn-in-smb-set": 0,
+      "furn-cluster-small": 37,
+      "furn-outside-envelope": 2,
+      "part-neck-split": 2,
+      "big-part-clipped": 1,
+      "big-part-as-residence-cell": 1,
+      "room-no-part": 12,
+      "room-label-duplicate": 2,
+      "room-part-split": 25
+    },
+    "footprint_area": 1230.0,
+    "wallPolyHoles": 11,
+    "room_parts": 33,
+    "rooms_with_ring": 41,
+    "rooms_with_apartment": 37,
+    "apartments": [
+      "9/10 A2",
+      "9/10 A1",
+      "9/10 C1",
+      "9/10 C2",
+      "9/10 B"
+    ],
+    "apartments_emitted": [
+      "9/10 A1",
+      "9/10 A2",
+      "9/10 B",
+      "9/10 C1",
+      "9/10 C2"
+    ],
+    "outlines": [],
+    "rooms_split": 25,
+    "registry": {
+      "floor": 9,
+      "registered": [
+        "9/10 A1",
+        "9/10 A2",
+        "9/10 B",
+        "9/10 C1",
+        "9/10 C2"
+      ],
+      "found": [
+        "9/10 A1",
+        "9/10 A2",
+        "9/10 B",
+        "9/10 C1",
+        "9/10 C2"
+      ],
+      "missing": [],
+      "unregistered": []
+    }
+  },
+  {
+    "level": "10",
+    "bytes": 80744,
+    "counts": {
+      "footprint": 1,
+      "wallPolys": 117,
+      "wallLines": 206,
+      "windows": 503,
+      "doors": 55,
+      "furniture": 124,
+      "stairs": 235,
+      "rooms": 52,
+      "shafts": 19,
+      "trees": 0,
+      "apartments": 5,
+      "zones": 0,
+      "bays": 0,
+      "columns": 18
+    },
+    "bbox": [
+      195.366,
+      6.2,
+      234.539,
+      55.506
+    ],
+    "scale": 1.0,
+    "hatch_fallback": false,
+    "door_closers_fallback": 4,
+    "door_closers": 55,
+    "partition": {
+      "transfer": {
+        "offset": [
+          -195.388,
+          0.0
+        ],
+        "structuralOverlap": 0.872,
+        "tagsInOwnStack": true,
+        "used": true
+      },
+      "tags": [
+        "9/10 C1",
+        "9/10 C2"
+      ],
+      "conflicts": [],
+      "unassigned": [
+        {
+          "name": null,
+          "area": 11.0,
+          "x": 223.7,
+          "y": 18.4,
+          "why": "straddles B (0.88)"
+        }
+      ],
+      "unplaceable": {},
+      "codes": {
+        "9/10 A1": {
+          "coverage": 0.984,
+          "unaccountedSqm": 0,
+          "source": "inferred",
+          "pieces": {
+            "tag": 0,
+            "region": 12,
+            "graph": 0,
+            "door": 0,
+            "edge": 0
+          },
+          "rooms": 9,
+          "areaSqm": 189.7,
+          "outdoorSqm": 0.0,
+          "unlabelledSqm": 6.1,
+          "complete": true,
+          "incomplete": []
+        },
+        "9/10 A2": {
+          "coverage": 0.985,
+          "unaccountedSqm": 0,
+          "source": "inferred",
+          "pieces": {
+            "tag": 0,
+            "region": 9,
+            "graph": 0,
+            "door": 0,
+            "edge": 1
+          },
+          "rooms": 10,
+          "areaSqm": 151.5,
+          "outdoorSqm": 3.6,
+          "unlabelledSqm": 0,
+          "complete": true,
+          "incomplete": []
+        },
+        "9/10 B": {
+          "coverage": 0.887,
+          "unaccountedSqm": 11.0,
+          "source": "inferred",
+          "pieces": {
+            "tag": 0,
+            "region": 4,
+            "graph": 1,
+            "door": 0,
+            "edge": 0
+          },
+          "rooms": 0,
+          "areaSqm": 98.6,
+          "outdoorSqm": 0.0,
+          "unlabelledSqm": 98.5,
+          "complete": false,
+          "incomplete": [
+            "no labelled indoor room",
+            "coverage 0.89",
+            "1 unassigned cell(s) in the stack (11.0 m2): [('cell 11.0 m2', 0.88)]",
+            "1 piece(s) straddle the stack region: [('cell 33.8 m2', 0.79)]",
+            "3 unlabelled cell(s) >= 10 m2 assigned (unnamed rooms)",
+            "unlabelled cells are 100% of the floor"
+          ]
+        },
+        "9/10 C1": {
+          "coverage": 0.992,
+          "unaccountedSqm": 0,
+          "source": "tag",
+          "pieces": {
+            "tag": 1,
+            "region": 10,
+            "graph": 0,
+            "door": 0,
+            "edge": 0
+          },
+          "rooms": 10,
+          "areaSqm": 122.1,
+          "outdoorSqm": 0.0,
+          "unlabelledSqm": 4.1,
+          "complete": true,
+          "incomplete": []
+        },
+        "9/10 C2": {
+          "coverage": 0.958,
+          "unaccountedSqm": 5.8,
+          "source": "tag",
+          "pieces": {
+            "tag": 1,
+            "region": 9,
+            "graph": 0,
+            "door": 0,
+            "edge": 0
+          },
+          "rooms": 10,
+          "areaSqm": 126.4,
+          "outdoorSqm": 0.0,
+          "unlabelledSqm": 0,
+          "complete": false,
+          "incomplete": [
+            "1 unassigned cell(s) in the stack (5.8 m2): [('cell 5.8 m2', 0.86)]"
+          ]
+        }
+      },
+      "regions": {
+        "A1": 303.2,
+        "lobbyA": 68.7,
+        "A2": 270.2,
+        "lobbyC": 46.3,
+        "C1": 195.0,
+        "C2": 194.1,
+        "lobbyB": 31.1,
+        "B": 360.2
+      },
+      "regionSource": {
+        "A1": "reference",
+        "lobbyA": "reference",
+        "A2": "reference",
+        "lobbyC": "reference",
+        "C1": "reference",
+        "C2": "reference",
+        "lobbyB": "reference",
+        "B": "reference"
+      },
+      "bigParts": [],
+      "coreServedCells": [
+        {
+          "area": 18.3,
+          "x": 225.4,
+          "y": 8.6
+        }
+      ],
+      "doorEdges": 26,
+      "missing": [],
+      "commonPieces": 8
+    },
+    "bays": 0,
+    "bays_labelled": 0,
+    "parkingCapacity": null,
+    "zones": {},
+    "columns": 18,
+    "columns_round": 0,
+    "dropped": {
+      "wallPolys-to-columns": 18,
+      "wallLines-covered": 1208,
+      "windows-water-feature": 0,
+      "furn-in-smb-set": 0,
+      "furn-cluster-small": 94,
+      "furn-cluster-dup": 3,
+      "furn-outside-envelope": 0,
+      "part-neck-split": 3,
+      "room-no-part": 11,
+      "room-part-split": 17
+    },
+    "footprint_area": 1084.5,
+    "wallPolyHoles": 18,
+    "room_parts": 49,
+    "rooms_with_ring": 41,
+    "rooms_with_apartment": 39,
+    "apartments": [
+      "9/10 C1",
+      "9/10 C2"
+    ],
+    "apartments_emitted": [
+      "9/10 A1",
+      "9/10 A2",
+      "9/10 B",
+      "9/10 C1",
+      "9/10 C2"
+    ],
+    "outlines": [],
+    "rooms_split": 17,
+    "registry": {
+      "floor": 10,
+      "registered": [
+        "9/10 A1",
+        "9/10 A2",
+        "9/10 B",
+        "9/10 C1",
+        "9/10 C2"
+      ],
+      "found": [
+        "9/10 C1",
+        "9/10 C2"
+      ],
+      "missing": [
+        "9/10 A1",
+        "9/10 A2",
+        "9/10 B"
+      ],
+      "unregistered": []
+    }
+  }
+]
