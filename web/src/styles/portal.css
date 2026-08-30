@@ -2852,6 +2852,22 @@
   opacity: 0.6;
   margin-top: 4px;
 }
+/* measured area — present only once every level of the residence is complete on the sheets */
+.portal-plan-area {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--cream);
+  margin-top: 8px;
+}
+.portal-plan-area strong {
+  font-weight: 600;
+  color: var(--white);
+}
+.portal-plan-area small {
+  font-size: 11px;
+  color: var(--stone);
+  opacity: 0.85;
+}
 
 /* Level toggle — one pill per floor the residence occupies; a basement pill appears while a bay is framed */
 .portal-plan-levels {
@@ -3165,6 +3181,17 @@ button.portal-plan-level:hover {
 }
 .portal-plan-stage .fp3d-label.is-minor {
   opacity: 0.75;
+}
+/* a room's measured area inside its pill — the unit keeps its case ("m²", not "M²") */
+.portal-plan-stage .fp3d-label .fp3d-label-area {
+  text-transform: none;
+  letter-spacing: 0.04em;
+  margin-left: 5px;
+  opacity: 0.75;
+  font-weight: 500;
+}
+.portal-plan-stage .fp3d-label.is-hover .fp3d-label-area {
+  opacity: 1;
 }
 .portal-plan-stage .fp3d-label.is-key {
   border-color: rgba(201, 167, 105, 0.7);

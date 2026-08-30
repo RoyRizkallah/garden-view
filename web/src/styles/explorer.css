@@ -605,18 +605,29 @@
 .explorer-unit-list {
   margin-top: 8px;
 }
+.explorer-unit-list li {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+/* each row is a link into the residence's sheet on the floor-plans page */
 .explorer-unit-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   padding: 13px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  color: inherit;
+  text-decoration: none;
+  border-radius: 8px;
   transition: background 0.2s var(--ease), padding-left 0.2s var(--ease);
 }
-.explorer-unit-row:hover {
+.explorer-unit-row:hover,
+.explorer-unit-row:focus-visible {
   background: rgba(255, 255, 255, 0.03);
   padding-left: 4px;
+}
+.explorer-unit-row:focus-visible {
+  outline: 2px solid rgba(201, 167, 105, 0.6);
+  outline-offset: 2px;
 }
 .explorer-unit-row:hover .explorer-unit-stack {
   border-color: var(--gold);
@@ -624,18 +635,57 @@
 .explorer-unit-list li:last-child {
   border-bottom: none;
 }
+.explorer-unit-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1 1 auto;
+}
 .explorer-unit-number {
   font-family: var(--font-serif);
   font-weight: 500;
   font-size: 16px;
   line-height: 1.25;
   color: var(--white);
+  transition: color 0.2s var(--ease);
+}
+.explorer-unit-row:hover .explorer-unit-number {
+  color: var(--gold);
 }
 .explorer-unit-kind {
   font-size: 11.5px;
   color: var(--stone);
   margin-top: 3px;
   line-height: 1.4;
+}
+/* measured net internal area — rendered only once every level of the residence is complete */
+.explorer-unit-area {
+  font-size: 12px;
+  color: var(--stone);
+  margin-top: 4px;
+  line-height: 1.4;
+}
+.explorer-unit-area strong {
+  font-weight: 600;
+  color: var(--cream);
+}
+/* the arrow affordance: hidden until hover, then slides in beside the stack pill */
+.explorer-unit-arrow {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  width: 0;
+  overflow: hidden;
+  color: var(--gold);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: width 0.2s var(--ease), opacity 0.2s var(--ease), transform 0.2s var(--ease);
+}
+.explorer-unit-row:hover .explorer-unit-arrow,
+.explorer-unit-row:focus-visible .explorer-unit-arrow {
+  width: 14px;
+  opacity: 1;
+  transform: translateX(0);
 }
 .explorer-unit-stack {
   flex-shrink: 0;

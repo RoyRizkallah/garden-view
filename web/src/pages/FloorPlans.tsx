@@ -3,11 +3,10 @@ import type {
   KeyboardEvent as ReactKeyboardEvent,
   PointerEvent as ReactPointerEvent,
   ReactNode,
-  RefObject,
 } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import type { PlanLevel } from '../data/floorPlans';
-import { PLAN_LEVELS, planLevelById } from '../data/floorPlans';
+import type { PlanLevel, PlanLevelId } from '../data/floorPlans';
+import { PLAN_LEVELS, planIdForFloor, planLevelById } from '../data/floorPlans';
 import type { Plan3D } from '../data/floorPlan3d';
 import { bayResidenceCode, loadPlan3D, PLANT_ROOM } from '../data/floorPlan3d';
 import type { UnitRecord } from '../data/buildingExplorer';
@@ -16,6 +15,7 @@ import {
   TOTAL_BLOCKS,
   TOTAL_UNITS,
   UNIT_KIND_LABEL,
+  UNITS,
   unitsOnFloor,
 } from '../data/buildingExplorer';
 import type { FloorPlan3DHandle } from '../components/FloorPlan3D';
@@ -56,6 +56,131 @@ function unitSubLabel(unit: UnitRecord): string {
     return `${label} · Floors ${lo}–${hi}`;
   }
   return label;
+}
+
+/* ---------- `?unit=` deep links ---------- */
+
+/** Comparison form of a residence code: case- and separator-blind ("3 A1", "3a1", "3-A1"). */
+function canonicalCode(code: string): string {
+  return code.toUpperCase().replace(/[\s\-_.]+/g, '');
+}
+
+/** The registry record a `?unit=` value names, or null for anything the registry doesn't list. */
+function unitByCode(code: string | null | undefined): UnitRecord | null {
+  if (!code) return null;
+  const wanted = canonicalCode(code);
+  if (!wanted) return null;
+  return UNITS.find((u) => canonicalCode(u.apartment) === wanted) ?? null;
+}
+
+/** The plan level a residence's lowest floor is drawn on. */
+function lowestLevelOf(unit: UnitRecord): PlanLevel | undefined {
+  return planLevelById(planIdForFloor(Math.min(...unit.floors)));
+}
+
+/** "Ground", "Level 1" — the level's name as it reads inside a sentence. */
+function levelName(level: PlanLevel): string {
+  return level.id === 'g' ? 'Ground' : level.label;
+}
+
+/* ---------- Selected residence: what the as-built rooms measure to ---------- */
+
+type AptEntry = NonNullable<Plan3D['apartments']>[number];
+
+/** The residence's entry on a sheet, matched like the URL is (case- and separator-blind). */
+function aptEntry(plan: Plan3D | null | undefined, code: string): AptEntry | null {
+  if (!plan?.apartments) return null;
+  const wanted = canonicalCode(code);
+  return plan.apartments.find((a) => canonicalCode(a.code) === wanted) ?? null;
+}
+
+/** A number is shown only when the sheet closed every room of the residence on that level. */
+function measuredNet(entry: AptEntry | null): number | null {
+  return entry?.complete === true && typeof entry.areaSqm === 'number' ? entry.areaSqm : null;
+}
+
+/** How far a level's outline has come, when it is not yet measurable. */
+function pendingText(entry: AptEntry | null): string {
+  const rooms = entry?.rooms ?? 0;
+  if (rooms > 0) return `${rooms} ${rooms === 1 ? 'room' : 'rooms'} outlined · area being measured`;
+  return 'Pinned on this sheet · rooms being outlined';
+}
+
+const fmtSqm = (sqm: number) => `≈ ${Math.round(sqm)} m²`;
+
+type ResidenceSummaryProps = {
+  unit: UnitRecord;
+  level: PlanLevel;
+  /** This level's own model (undefined while it loads or when the level has none). */
+  levelPlan: Plan3D | undefined;
+  /** A duplex's other level; undefined for a simplex. */
+  partnerLevel: PlanLevel | undefined;
+  /** The partner sheet's model: undefined while loading, null when the level has none. */
+  partnerPlan: Plan3D | null | undefined;
+};
+
+/**
+ * Net internal areas come straight from the level models and only when a level's footprint is
+ * complete; a duplex total needs both of its sheets complete. Anything short of that is said as
+ * progress on the outline — never a number.
+ */
+function ResidenceSummary({ unit, level, levelPlan, partnerLevel, partnerPlan }: ResidenceSummaryProps) {
+  const code = unit.apartment;
+  const here = aptEntry(levelPlan, code);
+  const hereNet = measuredNet(here);
+  const there = partnerLevel && partnerPlan !== undefined ? aptEntry(partnerPlan, code) : null;
+  const thereNet = partnerLevel && partnerPlan !== undefined ? measuredNet(there) : null;
+
+  let scope: string | null = null;
+  let value: number | null = null;
+  let valueUnit = 'net';
+  const lines: string[] = [];
+  let pending: string | null = null;
+
+  if (partnerLevel && hereNet !== null && thereNet !== null) {
+    const [lo, hi] = [level, partnerLevel].sort((a, b) => (a.floor ?? 0) - (b.floor ?? 0));
+    scope = `${levelName(lo)} + ${levelName(hi)}`;
+    value = hereNet + thereNet;
+    lines.push(`${fmtSqm(hereNet)} net on this level`);
+    const outdoor = (here?.outdoorSqm ?? 0) + (there?.outdoorSqm ?? 0);
+    if (outdoor > 0) lines.push(`${fmtSqm(outdoor)} terraces / balconies`);
+  } else if (hereNet !== null) {
+    value = hereNet;
+    valueUnit = partnerLevel ? 'net on this level' : 'net';
+    const outdoor = here?.outdoorSqm ?? 0;
+    if (outdoor > 0) lines.push(`${fmtSqm(outdoor)} terraces / balconies${partnerLevel ? ' on this level' : ''}`);
+    if (partnerLevel && partnerPlan !== undefined) {
+      lines.push(`${levelName(partnerLevel)} · ${pendingText(there)}`);
+    }
+  } else {
+    // this level is not measurable: progress on its outline, and no partial number at all
+    pending = pendingText(here);
+  }
+
+  return (
+    <aside className="plans-selected" aria-live="polite">
+      <div className="plans-selected-head">
+        <span className="plans-selected-kicker">Selected residence</span>
+        <span className="plans-selected-code">{code}</span>
+      </div>
+      {scope ? <p className="plans-selected-scope">{scope}</p> : null}
+      {value !== null ? (
+        <p className="plans-selected-value">
+          {fmtSqm(value)} <small>{valueUnit}</small>
+        </p>
+      ) : (
+        <p className="plans-selected-pending">{pending}</p>
+      )}
+      {lines.map((line) => (
+        <p key={line} className="plans-selected-line">
+          {line}
+        </p>
+      ))}
+      {value !== null ? (
+        <p className="plans-selected-caption">Areas are net internal, measured from the as-built plans.</p>
+      ) : null}
+    </aside>
+  );
 }
 
 /* ---------- 2D / 3D view mode ---------- */
@@ -369,20 +494,22 @@ type Plan3DStageProps = {
   /** The model to show; undefined while the first model for this session is still loading. */
   plan: Plan3D | undefined;
   toolbar: ReactNode;
-  /** Owned by the page so the level card's residence rows can drive the model. */
-  viewerRef: RefObject<FloorPlan3DHandle | null>;
+  /** Owned by the page (as state, so a deep link can wait for the lazy viewer to mount) so the
+   *  level card's residence rows can drive the model. */
+  viewer: FloorPlan3DHandle | null;
+  onViewer: (handle: FloorPlan3DHandle | null) => void;
   onApartmentSelect: (code: string) => void;
   showFurniture: boolean;
 };
 
 /** Not keyed by level: the viewer keeps its renderer alive and rebuilds the model in place. */
-function Plan3DStage({ level, plan, toolbar, viewerRef, onApartmentSelect, showFurniture }: Plan3DStageProps) {
+function Plan3DStage({ level, plan, toolbar, viewer, onViewer, onApartmentSelect, showFurniture }: Plan3DStageProps) {
   return (
     <div className={`plans-stage is-3d${showFurniture ? ' has-note' : ''}`} aria-busy={!plan}>
       {plan ? (
         <Suspense fallback={<div className="plans-3d-fallback" />}>
           <FloorPlan3D
-            ref={viewerRef}
+            ref={onViewer}
             plan={plan}
             levelLabel={level.label}
             levelKind={level.kind}
@@ -404,7 +531,7 @@ function Plan3DStage({ level, plan, toolbar, viewerRef, onApartmentSelect, showF
           type="button"
           className="plans-ctl plans-ctl-text"
           disabled={!plan}
-          onClick={() => viewerRef.current?.setView('top')}
+          onClick={() => viewer?.setView('top')}
         >
           Top
         </button>
@@ -412,7 +539,7 @@ function Plan3DStage({ level, plan, toolbar, viewerRef, onApartmentSelect, showF
           type="button"
           className="plans-ctl plans-ctl-text"
           disabled={!plan}
-          onClick={() => viewerRef.current?.setView('iso')}
+          onClick={() => viewer?.setView('iso')}
         >
           Perspective
         </button>
@@ -420,7 +547,7 @@ function Plan3DStage({ level, plan, toolbar, viewerRef, onApartmentSelect, showF
           type="button"
           className="plans-ctl plans-ctl-reset"
           disabled={!plan}
-          onClick={() => viewerRef.current?.reset()}
+          onClick={() => viewer?.reset()}
         >
           Reset
         </button>
@@ -441,11 +568,13 @@ type UnitRowProps = {
   /** static: the plain 2D-mode row; tagged/untagged: 3D mode, by whether the sheet carries this code. */
   mode: 'static' | 'tagged' | 'untagged';
   selected: boolean;
+  /** The row a `?unit=` link asked for that the sheet cannot light: its note stays open. */
+  noted?: boolean;
   onHover: (code: string | null) => void;
   onToggle: (code: string) => void;
 };
 
-function UnitRow({ unit, mode, selected, onHover, onToggle }: UnitRowProps) {
+function UnitRow({ unit, mode, selected, noted = false, onHover, onToggle }: UnitRowProps) {
   const body = (
     <>
       <div>
@@ -462,7 +591,7 @@ function UnitRow({ unit, mode, selected, onHover, onToggle }: UnitRowProps) {
     <li className="plans-unit-item">
       <button
         type="button"
-        className={`plans-unit-row is-interactive${tagged ? '' : ' is-untagged'}${selected ? ' is-selected' : ''}`}
+        className={`plans-unit-row is-interactive${tagged ? '' : ' is-untagged'}${selected ? ' is-selected' : ''}${noted && !tagged ? ' is-noted' : ''}`}
         aria-pressed={tagged ? selected : undefined}
         aria-disabled={tagged ? undefined : true}
         onPointerEnter={tagged ? () => onHover(unit.apartment) : undefined}
@@ -601,16 +730,32 @@ type Plan3DLoad = { key: string; status: 'ready'; plan: Plan3D } | { key: string
 export default function FloorPlans() {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // The URL is the source of truth so a picked level is always shareable.
-  const level = useMemo(() => {
-    return planLevelById(searchParams.get('level')) ?? planLevelById(DEFAULT_LEVEL_ID) ?? PLAN_LEVELS[0];
-  }, [searchParams]);
+  // `?unit=` names a residence to land on; it is matched to the registry, and only ever written
+  // back in the registry's own form.
+  const unitParam = searchParams.get('unit');
+  const linkedUnit = useMemo(() => unitByCode(unitParam), [unitParam]);
 
-  const selectLevel = (id: PlanLevel['id']) => {
+  // The URL is the source of truth so a picked level is always shareable. Without an explicit
+  // level, a linked residence opens on its lowest floor.
+  const level = useMemo(() => {
+    return (
+      planLevelById(searchParams.get('level')) ??
+      (linkedUnit ? lowestLevelOf(linkedUnit) : undefined) ??
+      planLevelById(DEFAULT_LEVEL_ID) ??
+      PLAN_LEVELS[0]
+    );
+  }, [searchParams, linkedUnit]);
+
+  // Moving level keeps the linked residence only where it spans the target (a duplex's partner sheet).
+  const selectLevel = (id: PlanLevelId) => {
+    const target = planLevelById(id);
     setSearchParams(
       (prev) => {
         const next = new URLSearchParams(prev);
         next.set('level', id);
+        const unit = unitByCode(next.get('unit'));
+        const spans = unit !== null && typeof target?.floor === 'number' && unit.floors.includes(target.floor);
+        if (!spans) next.delete('unit');
         return next;
       },
       { replace: true },
@@ -665,36 +810,68 @@ export default function FloorPlans() {
   };
 
   /* ---- apartment selection (3D mode) ---- */
-  const viewerRef = useRef<FloorPlan3DHandle>(null);
+  // The handle is state, not a ref: the viewer chunk mounts lazily, often after the level's model
+  // has resolved, and a deep-linked residence must be focused once it is actually there.
+  const [viewer, setViewer] = useState<FloorPlan3DHandle | null>(null);
   const [selectedApt, setSelectedApt] = useState<string | null>(null);
   const selectedRef = useRef<string | null>(null);
-  const setSelection = useCallback((next: string | null) => {
-    selectedRef.current = next;
-    setSelectedApt(next);
-    viewerRef.current?.focusApartment(next);
-  }, []);
-  const toggleApartment = useCallback(
-    (code: string) => setSelection(selectedRef.current === code ? null : code),
-    [setSelection],
+  const setSelection = useCallback(
+    (next: string | null) => {
+      selectedRef.current = next;
+      setSelectedApt(next);
+      viewer?.focusApartment(next);
+    },
+    [viewer],
   );
-  const hoverApartment = useCallback((code: string | null) => {
-    viewerRef.current?.highlightApartment(code);
-  }, []);
-  // A selection belongs to one sheet: moving level (or leaving 3D) clears it, model included.
-  // `level.id` matters on its own because the fixture keeps one model key across every level.
-  useEffect(() => {
-    setSelection(null);
-  }, [plan3dKey, level.id, show3d, setSelection]);
+  // A chip or pin click owns the URL's `unit` too, so the selection is shareable.
+  const toggleApartment = useCallback(
+    (code: string) => {
+      const next = selectedRef.current === code ? null : code;
+      setSelection(next);
+      setSearchParams(
+        (prev) => {
+          const params = new URLSearchParams(prev);
+          if (next) params.set('unit', next);
+          else params.delete('unit');
+          return params;
+        },
+        { replace: true },
+      );
+    },
+    [setSelection, setSearchParams],
+  );
+  const hoverApartment = useCallback(
+    (code: string | null) => {
+      viewer?.highlightApartment(code);
+    },
+    [viewer],
+  );
 
   /** Codes the sheet actually tags; null when this model predates apartment tagging. */
   const taggedCodes = useMemo(
-    () => (shownPlan?.apartments ? new Set(shownPlan.apartments.map((a) => a.code.trim())) : null),
-    [shownPlan],
+    () => (levelPlan?.apartments ? new Set(levelPlan.apartments.map((a) => a.code.trim())) : null),
+    [levelPlan],
   );
   const rowsInteractive = show3d && has3d && taggedCodes !== null;
 
   const amenities = useMemo(() => levelAmenities(levelPlan, level.kind), [levelPlan, level.kind]);
   const bayCodes = useMemo(() => residenceBays(levelPlan), [levelPlan]);
+
+  /** Everything the viewer can frame on this sheet: tagged residences and the residences' bays. */
+  const selectableCodes = useMemo(() => {
+    const codes = new Set(taggedCodes ?? []);
+    for (const code of bayCodes) codes.add(code);
+    return codes;
+  }, [taggedCodes, bayCodes]);
+
+  // One reconciliation for the selection: it belongs to a sheet, so a level or mode change clears
+  // it (model included), and a `?unit=` link applies once this level's model and the viewer are
+  // both there. `level.id` matters on its own because the fixture keeps one model key everywhere.
+  useEffect(() => {
+    const code =
+      show3d && has3d && linkedUnit && selectableCodes.has(linkedUnit.apartment) ? linkedUnit.apartment : null;
+    setSelection(code);
+  }, [viewer, plan3dKey, level.id, show3d, has3d, linkedUnit, selectableCodes, setSelection]);
 
   const toolbar = (
     <>
@@ -718,6 +895,70 @@ export default function FloorPlans() {
   }, [level]);
 
   const residenceCount = blockGroups.reduce((sum, g) => sum + g.units.length, 0);
+
+  /* ---- the residence the card speaks for: the lit one, else the linked one on this floor ---- */
+  const onThisFloor = (unit: UnitRecord) =>
+    useFixture || (typeof level.floor === 'number' && unit.floors.includes(level.floor));
+  const panelUnit: UnitRecord | null = !isResidential
+    ? null
+    : selectedApt
+      ? unitByCode(selectedApt)
+      : linkedUnit && onThisFloor(linkedUnit)
+        ? linkedUnit
+        : null;
+
+  // A duplex's other sheet, fetched once so both levels can be read together. (PLAN_LEVELS entries
+  // are stable objects, so this is a safe effect dependency.)
+  const partnerFloor =
+    panelUnit && !useFixture && typeof level.floor === 'number'
+      ? panelUnit.floors.find((f) => f !== level.floor)
+      : undefined;
+  const partnerLevel = partnerFloor === undefined ? undefined : planLevelById(planIdForFloor(partnerFloor));
+  const partnerCache = useRef(new Map<PlanLevelId, Plan3D | null>());
+  const [partnerLoad, setPartnerLoad] = useState<{ id: PlanLevelId; plan: Plan3D | null } | null>(null);
+  useEffect(() => {
+    if (!partnerLevel) return;
+    const id = partnerLevel.id;
+    const cached = partnerCache.current.get(id);
+    if (cached !== undefined) {
+      setPartnerLoad({ id, plan: cached });
+      return;
+    }
+    const ac = new AbortController();
+    loadPlan3D(id, ac.signal)
+      .then((plan) => {
+        if (ac.signal.aborted) return;
+        partnerCache.current.set(id, plan);
+        setPartnerLoad({ id, plan });
+      })
+      .catch(() => {
+        if (!ac.signal.aborted) setPartnerLoad({ id, plan: null });
+      });
+    return () => ac.abort();
+  }, [partnerLevel]);
+  const partnerPlan = partnerLevel && partnerLoad?.id === partnerLevel.id ? partnerLoad.plan : undefined;
+
+  /* ---- a `?unit=` link the sheet cannot answer: one quiet line, never a banner ---- */
+  let linkNote: ReactNode = null;
+  if (unitParam && !linkedUnit) {
+    linkNote = <>No registered residence matches “{unitParam.trim()}”.</>;
+  } else if (linkedUnit && !loading3d && !selectableCodes.has(linkedUnit.apartment)) {
+    const home = lowestLevelOf(linkedUnit);
+    if (isResidential && !onThisFloor(linkedUnit) && home) {
+      linkNote = (
+        <>
+          {linkedUnit.apartment} is on {levelName(home)}.{' '}
+          <Link to={`/floor-plans?level=${home.id}&unit=${encodeURIComponent(linkedUnit.apartment)}`}>
+            View it there
+          </Link>
+        </>
+      );
+    } else if (isResidential) {
+      linkNote = <>{linkedUnit.apartment} isn’t outlined on this sheet yet.</>;
+    } else if (has3d) {
+      linkNote = <>No bays are tagged to {linkedUnit.apartment} on this sheet.</>;
+    }
+  }
 
   return (
     <div className="plans-page">
@@ -824,7 +1065,8 @@ export default function FloorPlans() {
                 level={level}
                 plan={shownPlan}
                 toolbar={toolbar}
-                viewerRef={viewerRef}
+                viewer={viewer}
+                onViewer={setViewer}
                 onApartmentSelect={toggleApartment}
                 showFurniture={showFurniture}
               />
@@ -865,12 +1107,25 @@ export default function FloorPlans() {
                   onToggle={toggleApartment}
                 />
 
+                {!isResidential && linkNote ? <p className="plans-level-note">{linkNote}</p> : null}
+
                 {isResidential ? (
                   <>
                     <p className="plans-level-count">
                       {residenceCount} {residenceCount === 1 ? 'residence' : 'residences'} on this
                       level
                     </p>
+                    {linkNote ? <p className="plans-level-note">{linkNote}</p> : null}
+                    {panelUnit ? (
+                      <ResidenceSummary
+                        key={panelUnit.apartment}
+                        unit={panelUnit}
+                        level={level}
+                        levelPlan={levelPlan}
+                        partnerLevel={partnerLevel}
+                        partnerPlan={partnerPlan}
+                      />
+                    ) : null}
                     {blockGroups.map(({ block, units }) => (
                       <section key={block.id} className="plans-block-group">
                         <header className="plans-block-head">
@@ -895,6 +1150,7 @@ export default function FloorPlans() {
                                     : 'untagged'
                               }
                               selected={selectedApt === unit.apartment}
+                              noted={linkedUnit?.apartment === unit.apartment}
                               onHover={hoverApartment}
                               onToggle={toggleApartment}
                             />

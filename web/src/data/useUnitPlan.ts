@@ -79,6 +79,16 @@ export function parkingCountOn(plan: Plan3D, code: string): ParkingCount {
   return { bays: ownBays.length, storage };
 }
 
+/**
+ * Whether a sheet outlines the residence's rooms — at least one room carries the code, drawn as a
+ * tag or inferred from the wall/door network. A sheet that lists the code only as a pin (no rooms)
+ * can frame the residence but has nothing of it to light.
+ */
+export function planOutlinesResidence(plan: Plan3D, code: string): boolean {
+  const wanted = canonicalCode(code);
+  return plan.rooms.some((room) => room.apartment !== undefined && canonicalCode(room.apartment) === wanted);
+}
+
 /** Whether a sheet carries the code anywhere the viewer can frame: an apartment tag, a tagged room, or an own bay. */
 export function planTagsResidence(plan: Plan3D, code: string): boolean {
   const wanted = canonicalCode(code);

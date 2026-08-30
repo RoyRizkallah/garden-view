@@ -14,6 +14,7 @@ import {
   unitsOnFloor,
 } from '../data/buildingExplorer';
 import { planIdForFloor } from '../data/floorPlans';
+import { formatSqm, levelSpanShort, useResidenceAreas } from '../data/planAreas';
 import {
   IconArrowRight,
   IconBuilding,
@@ -60,6 +61,21 @@ export default function Explorer() {
     }
     return partners;
   }, [floorUnits, selectedFloor]);
+
+  /** The plan sheet the residence rows open — the selected floor, which every listed residence occupies. */
+  const levelId = typeof selectedFloor === 'number' ? planIdForFloor(selectedFloor) : null;
+
+  // Measured areas for the listed residences, from the as-built plan models (one fetch per sheet).
+  const areas = useResidenceAreas(floorUnits);
+  const measuredCount = floorUnits.filter((u) => areas.byCode.get(u.apartment)?.complete).length;
+  const areaNote =
+    areas.status !== 'ready' || floorUnits.length === 0
+      ? null
+      : measuredCount === floorUnits.length
+        ? 'Areas are net internal, measured from the as-built plans.'
+        : measuredCount > 0
+          ? 'Areas shown are net internal, measured from the as-built plans; the remaining residences are still being outlined.'
+          : 'These residences are still being outlined from the as-built plans; net internal areas follow once every room is enclosed.';
 
   return (
     <div className="explorer-page">
@@ -253,20 +269,36 @@ export default function Explorer() {
                       this level
                     </p>
                     <ul className="explorer-unit-list">
-                      {floorUnits.map((unit) => (
-                        <li key={unit.apartment} className="explorer-unit-row">
-                          <div>
-                            <p className="explorer-unit-number">{unit.apartment}</p>
-                            <p className="explorer-unit-kind">{unitSubLabel(unit)}</p>
-                          </div>
-                          <span className="explorer-unit-stack">{unit.stack}</span>
-                        </li>
-                      ))}
+                      {floorUnits.map((unit) => {
+                        const area = areas.byCode.get(unit.apartment);
+                        const measured = area?.complete === true && area.netSqm !== undefined;
+                        return (
+                          <li key={unit.apartment}>
+                            <Link
+                              className="explorer-unit-row"
+                              to={`/floor-plans?level=${levelId ?? 'g'}&unit=${encodeURIComponent(unit.apartment)}`}
+                              aria-label={`Open the floor plan of Residence ${unit.apartment}`}
+                            >
+                              <span className="explorer-unit-main">
+                                <span className="explorer-unit-number">{unit.apartment}</span>
+                                <span className="explorer-unit-kind">{unitSubLabel(unit)}</span>
+                                {measured && area && (
+                                  <span className="explorer-unit-area">
+                                    <strong>{formatSqm(area.netSqm as number)}</strong> net
+                                    {area.levels.length > 1 && ` across ${levelSpanShort(area.levels)}`}
+                                  </span>
+                                )}
+                              </span>
+                              <span className="explorer-unit-stack">{unit.stack}</span>
+                              <span className="explorer-unit-arrow" aria-hidden="true">
+                                <IconArrowRight size={13} />
+                              </span>
+                            </Link>
+                          </li>
+                        );
+                      })}
                     </ul>
-                    <div className="note-card">
-                      Unit layouts and sizes are being digitized from the original architectural
-                      plans.
-                    </div>
+                    {areaNote && <div className="note-card">{areaNote}</div>}
                   </>
                 )}
 

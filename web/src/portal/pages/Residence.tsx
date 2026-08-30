@@ -6,11 +6,13 @@ import type { PlanLevelId } from '../../data/floorPlans';
 import { floorLabel, UNIT_KIND_LABEL } from '../../data/buildingExplorer';
 import {
   matchResidence,
+  planOutlinesResidence,
   planTagsResidence,
   residenceLevels,
   useUnitPlan,
   type ParkingTag,
 } from '../../data/useUnitPlan';
+import { AREA_SOURCE_NOTE, formatSqm, useUnitArea } from '../../data/planAreas';
 import {
   IconLayers,
   IconImage,
@@ -90,6 +92,13 @@ function ResidencePlan({ unit }: ResidencePlanProps) {
   const stagePlan = missing ? undefined : plan;
   /** Does the sheet on the stage carry this residence anywhere the viewer can frame? */
   const tagged = useMemo(() => (stagePlan && code ? planTagsResidence(stagePlan, code) : false), [stagePlan, code]);
+  /** Does the sheet outline the residence's rooms (so the viewer lights its footprint), or list it as a pin only? */
+  const outlined = useMemo(
+    () => (stagePlan && code ? planOutlinesResidence(stagePlan, code) : false),
+    [stagePlan, code],
+  );
+  // Measured from the as-built plan models; a total exists only when every level the residence spans is complete.
+  const area = useUnitArea(residence);
 
   // Once a model is on the stage, fly to the residence when the sheet tags it; otherwise just
   // clear any selection carried over from the previous level. The viewer rebuilds the model in
@@ -126,6 +135,21 @@ function ResidencePlan({ unit }: ResidencePlanProps) {
             Block {residence.block} ·{' '}
             {levels.map((l) => (typeof l.floor === 'number' ? floorLabel(l.floor) : l.label)).join(' & ')}
           </p>
+          {area?.complete && area.netSqm !== undefined && (
+            <p className="portal-plan-area">
+              <strong>{formatSqm(area.netSqm)}</strong> net
+              {levels.length > 1 &&
+                ` across ${levels.map((l) => (typeof l.floor === 'number' ? floorLabel(l.floor) : l.label)).join(' & ')}`}
+              {area.outdoorSqm !== undefined && area.outdoorSqm > 0 && (
+                <>
+                  {' · '}
+                  <strong>{formatSqm(area.outdoorSqm)}</strong>{' '}
+                  {residence.kind === 'garden-duplex' ? 'terraces & gardens' : 'terraces & balconies'}
+                </>
+              )}
+              <small> · {AREA_SOURCE_NOTE}</small>
+            </p>
+          )}
         </div>
         {showLevelToggle && (
           <div className="portal-plan-levels" role="group" aria-label="Level">
@@ -212,7 +236,7 @@ function ResidencePlan({ unit }: ResidencePlanProps) {
         <p className="portal-plan-hint">Drag to orbit · Scroll to zoom</p>
       </div>
 
-      {stagePlan && !tagged && !onBasement && (
+      {stagePlan && !outlined && !onBasement && (
         <p className="portal-plan-caption">
           Your residence is on this level; the sheet does not tag its rooms individually.
         </p>
@@ -256,7 +280,10 @@ function ResidencePlan({ unit }: ResidencePlanProps) {
       </div>
 
       <div className="portal-plan-links">
-        <Link to={`/floor-plans?level=${level.id}`} className="btn btn-outline-gold btn-sm">
+        <Link
+          to={`/floor-plans?level=${level.id}&unit=${encodeURIComponent(residence.apartment)}`}
+          className="btn btn-outline-gold btn-sm"
+        >
           Open full floor plan <IconArrowRight size={13} />
         </Link>
         {unit.floorPlanUrl && (

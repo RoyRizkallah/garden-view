@@ -1442,6 +1442,14 @@ function buildLevel(plan: Plan3D, mats: Mats, ui: LevelUi, parking: boolean, sho
     // lake's name on a map, never tier away or hide for outgrowing their room
     if (key) el.classList.add('is-key', 'is-pinned');
     el.textContent = name;
+    // The measured net area rides in the pill from the build, so the declutter's one-time measure
+    // already accounts for it (a hover-time widening would invalidate every measured rect).
+    if (typeof room.area === 'number' && room.area > 0) {
+      const area = document.createElement('span');
+      area.className = 'fp3d-label-area';
+      area.textContent = `· ${Math.round(room.area)} m²`;
+      el.appendChild(area);
+    }
     const obj = new CSS2DObject(el);
     obj.position.set(room.x, 0.02, -room.y);
     group.add(obj);
