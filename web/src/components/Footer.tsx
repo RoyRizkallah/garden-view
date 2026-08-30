@@ -61,7 +61,15 @@ export default function Footer() {
         <span>&copy; {year} Garden View. All rights reserved.</span>
         <span>Beirut Central District, Lebanon</span>
         <span className="footer-credit" title="Site built by BMV AI">
-          <img src="/images/bmv-ai-logo.png" alt="BMV AI" />
+          <img
+            src="/images/bmv-ai-logo-32.png"
+            srcSet="/images/bmv-ai-logo-32.png 1x, /images/bmv-ai-logo-64.png 2x"
+            width={16}
+            height={16}
+            alt="BMV AI"
+            loading="lazy"
+            decoding="async"
+          />
           Built by BMV AI
         </span>
       </div>

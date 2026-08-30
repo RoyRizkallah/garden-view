@@ -38,7 +38,18 @@ export default function PortalLayout() {
     <div className="portal-shell portal-shell-resident">
       <aside className="portal-sidebar">
         <div className="portal-sidebar-brand-block">
-          <img src="/images/logo-full.png" alt="Garden View" className="portal-sidebar-logo-full" />
+          <picture>
+            <source type="image/webp" srcSet="/images/logo-full-192.webp 1x, /images/logo-full-384.webp 2x" />
+            <img
+              src="/images/logo-full-192.png"
+              srcSet="/images/logo-full-192.png 1x, /images/logo-full-384.png 2x"
+              width={176}
+              height={152}
+              alt="Garden View"
+              className="portal-sidebar-logo-full"
+              decoding="async"
+            />
+          </picture>
           <span>Beirut Central District</span>
         </div>
 
