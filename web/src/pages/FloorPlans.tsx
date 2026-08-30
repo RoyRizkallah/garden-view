@@ -136,19 +136,24 @@ function ResidenceSummary({ unit, level, levelPlan, partnerLevel, partnerPlan }:
   let valueUnit = 'net';
   const lines: string[] = [];
   let pending: string | null = null;
+  // outdoorSqm covers terraces, balconies and — for the ground-floor duplexes — private gardens
+  const outdoorLabel = unit.kind === 'garden-duplex' ? 'terraces / gardens' : 'terraces / balconies';
 
-  if (partnerLevel && hereNet !== null && thereNet !== null) {
+  if (levelPlan === undefined) {
+    // the sheet is still loading: say nothing about its outline yet
+    pending = 'Reading the sheet…';
+  } else if (partnerLevel && hereNet !== null && thereNet !== null) {
     const [lo, hi] = [level, partnerLevel].sort((a, b) => (a.floor ?? 0) - (b.floor ?? 0));
     scope = `${levelName(lo)} + ${levelName(hi)}`;
     value = hereNet + thereNet;
     lines.push(`${fmtSqm(hereNet)} net on this level`);
     const outdoor = (here?.outdoorSqm ?? 0) + (there?.outdoorSqm ?? 0);
-    if (outdoor > 0) lines.push(`${fmtSqm(outdoor)} terraces / balconies`);
+    if (outdoor > 0) lines.push(`${fmtSqm(outdoor)} ${outdoorLabel}`);
   } else if (hereNet !== null) {
     value = hereNet;
     valueUnit = partnerLevel ? 'net on this level' : 'net';
     const outdoor = here?.outdoorSqm ?? 0;
-    if (outdoor > 0) lines.push(`${fmtSqm(outdoor)} terraces / balconies${partnerLevel ? ' on this level' : ''}`);
+    if (outdoor > 0) lines.push(`${fmtSqm(outdoor)} ${outdoorLabel}${partnerLevel ? ' on this level' : ''}`);
     if (partnerLevel && partnerPlan !== undefined) {
       lines.push(`${levelName(partnerLevel)} · ${pendingText(there)}`);
     }
@@ -795,7 +800,9 @@ export default function FloorPlans() {
   /** This level's own model — never the previous level's while loading — for the card's facts. */
   const levelPlan = has3d ? plan3dLoad.plan : undefined;
 
-  const [viewMode, setViewMode] = useState<ViewMode>(readStoredViewMode);
+  // A link to a residence is a request to see it lit, which only the 3D view can do — open in 3D
+  // for that visit without overriding the visitor's stored preference.
+  const [viewMode, setViewMode] = useState<ViewMode>(() => (unitParam ? '3d' : readStoredViewMode()));
   const changeViewMode = (mode: ViewMode) => {
     setViewMode(mode);
     storeViewMode(mode);
