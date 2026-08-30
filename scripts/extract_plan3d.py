@@ -19,10 +19,11 @@ for rooms that own their whole cell; a Voronoi share of an open-plan cell gets n
 `apartment` (the registered residence code the room belongs to). `apartments` lists the
 residences the registry (buildingExplorer.ts) places on the level: found by their tag text
 ("3 A1", "APT 5/6 B1", source "tag") or inferred from the A-AREAS stack outlines and the door
-graph (source "inferred"), with per-level room count, measured indoor / outdoor area and a
-`complete` flag that is true only when the whole footprint is enclosed, labelled and
-assigned (see the "Apartment footprints" section). Levels without registered residences
-(basements) keep the plain tag reading: storage / bay tags become pins and tag their room.
+graph (source "inferred"), with per-level room count, a `complete` flag that is true only when
+the whole footprint is enclosed, labelled and assigned, and - for complete footprints only -
+the measured indoor / outdoor area (see the "Apartment footprints" section). Levels without
+registered residences (basements) keep the plain tag reading: storage / bay tags become pins
+and tag their room; a drawn code is normalised to its registered form ("10 A2" -> "9/10 A2").
 
 Realism fields (all derived from what the sheets actually draw, nothing is invented):
   bays      basement parking bays: the car-sized outlines on the furniture layers become
@@ -233,6 +234,39 @@ def ring_out(coords) -> list[list[float]]:
     return pts
 
 
+def emit_rings(poly, tol: float = 0.0, min_area: float = 0.0) -> list:
+    """Every hole-free piece of `poly` as a rounded, valid ring.
+
+    Like emit_ring, but when simplification / rounding pinches the ring into a self-touching
+    shape ALL repaired pieces above `min_area` are emitted, not only the largest: a car-park
+    apron pinched to zero width by a duct room must not lose the half beyond the pinch.
+    """
+    out = []
+    stack = [(poly, tol, 0)]
+    while stack:
+        g, t, depth = stack.pop()
+        if g is None or g.is_empty:
+            continue
+        if g.geom_type != "Polygon":
+            stack.extend((q, t, depth) for q in iter_polygons(g))
+            continue
+        p = g.simplify(t, preserve_topology=True) if t else g
+        ring = ring_out(p.exterior.coords)
+        if len(ring) < 3:
+            continue
+        test = Polygon(ring)
+        if test.is_valid:
+            if test.area >= min_area:
+                out.append(ring)
+            continue
+        if depth >= 4:
+            continue
+        for q in iter_polygons(shapely.make_valid(test)):
+            if q.area >= max(min_area, 1e-6):
+                stack.append((Polygon(q.exterior.coords), 0.0, depth + 1))
+    return out
+
+
 def emit_ring(poly, tol: float = 0.0, min_area: float = 0.0):
     """Exterior ring of `poly` as rounded coordinates that still form a valid polygon.
 
@@ -276,10 +310,37 @@ def apt_code(num: str, block: str, digit: str) -> str:
     if not all(0 <= f <= 10 for f in floors) or (len(floors) == 2 and floors[1] != floors[0] + 1):
         return ""
     if block == "B":
-        return f"{num} B"
+        return canonical_code(f"{num} B")
     if not digit:
         return ""
-    return f"{num} {block}{digit}"
+    return canonical_code(f"{num} {block}{digit}")
+
+
+_REGISTRY_CODES: set[str] | None = None
+CODE_NORMALISED: dict[str, str] = {}   # drawn code -> registered code (reported in the notes)
+
+
+def registered_codes() -> set[str]:
+    global _REGISTRY_CODES
+    if _REGISTRY_CODES is None:
+        _REGISTRY_CODES = {c for codes in load_registry().values() for c in codes}
+    return _REGISTRY_CODES
+
+
+def canonical_code(code: str) -> str:
+    """The registered form of a drawn code: a basement storage / bay tag "10 A2" names the only
+    registered A2 residence that occupies floor 10 ("9/10 A2"). Ambiguous or unknown codes are
+    returned unchanged (and surface as unregistered tags)."""
+    codes = registered_codes()
+    if not codes or code in codes:
+        return code
+    num, stack = code.split(" ", 1)
+    floors = set(num.split("/"))
+    cands = [c for c in codes if c.split(" ", 1)[1] == stack and floors <= set(c.split(" ", 1)[0].split("/"))]
+    if len(cands) == 1:
+        CODE_NORMALISED[code] = cands[0]
+        return cands[0]
+    return code
 
 
 def floor_for(name: str) -> str:
@@ -385,6 +446,28 @@ def block_extents(doc, name: str, cache: dict):
         ext = None
     cache[name] = ext
     return ext
+
+
+def attribs_in_reading_order(doc, ins, scale: float, cache: dict) -> list:
+    """The INSERT's attributes sorted top line first, then left to right.
+
+    Uses the block definition's ATTDEF positions (the attribute list follows the ATTDEF order)
+    so squashed or rotated copies read the same as the definition; falls back to the drawn
+    attribute positions when the tag sequences disagree.
+    """
+    attribs = list(ins.attribs)
+    key = ("__attdefs__", ins.dxf.name)
+    if key not in cache:
+        try:
+            blk = doc.blocks.get(ins.dxf.name)
+            cache[key] = [(a.dxf.tag, float(a.dxf.insert.x), float(a.dxf.insert.y)) for a in blk if a.dxftype() == "ATTDEF"]
+        except Exception:
+            cache[key] = []
+    defs = cache[key]
+    if len(defs) == len(attribs) and all(d[0] == a.dxf.tag for d, a in zip(defs, attribs)):
+        order = sorted(range(len(attribs)), key=lambda i: (-round(defs[i][2], 3), defs[i][1]))
+        return [attribs[i] for i in order]
+    return sorted(attribs, key=lambda a: (-round(a.dxf.insert.y * scale, 2), a.dxf.insert.x))
 
 
 def insert_box(ins, ext, scale: float):
@@ -911,10 +994,14 @@ def load_registry() -> dict[int, list[str]]:
 #            belong to one residence.
 # Common areas (lobbies, lifts, technical, voids, retail, unlabelled core cells inside a lobby
 # outline, unlabelled cells whose doors all open from common pieces) are never assigned.
-# Anything else stays unassigned and is reported in the notes. A residence's areaSqm /
-# outdoorSqm is the area of the UNION of its pieces (never a sum, so nothing counts twice),
-# and `complete` is false while any enclosed cell mostly inside its stack, or any outdoor piece
-# it opens onto, is unassigned.
+# Anything else stays unassigned and is reported in the notes - including unlabelled GLAZED
+# cells outside every outline (a balcony the sheet does not label): their floor kind is
+# unknown, so they are never assigned, but every residence whose rooms open onto them through
+# the glazing stays incomplete. A residence's areaSqm / outdoorSqm is the area of the UNION of
+# its pieces (never a sum, so nothing counts twice) and is PUBLISHED ONLY when `complete` is
+# true (a partial footprint keeps its measured totals in the manifest notes); `complete` is
+# false while any enclosed cell mostly inside its stack, or any piece it opens onto, is
+# unassigned, or a room label in the stack has no enclosed ring.
 # ---------------------------------------------------------------------------------------
 OUTLINE_MIN_AREA = 40.0      # m² - A-AREAS outlines this large are whole-residence / lobby outlines
 OUTLINE_CLOSE_TOL = 0.05     # m - an open A-AREAS polyline whose ends are this close is closed
@@ -933,6 +1020,11 @@ DOOR_PROBE_SNAP = 0.40       # m - nearest piece within this distance when a pro
 OUTDOOR_EDGE_MIN = 1.0       # m - shared edge (through glazing) for a balcony to follow a room's residence
 OUTDOOR_EDGE_REACH = 0.80    # m - glazing + sill / parapet thickness bridged by that adjacency test
 OUTDOOR_NEAR = 1.5           # m - an unassigned balcony piece / ringless balcony label this close to a footprint keeps it incomplete
+GLAZED_CELL_SHARE = 0.25     # an unlabelled cell with this share of its boundary on glazing / balustrade lines is a
+                             # glazed cell (an unlabelled balcony, a winter garden): its floor kind is unknown, so it
+                             # is never assigned, but every residence it opens onto stays incomplete
+GLAZING_TOUCH = 0.12         # m - a cell edge this close to a window / balustrade segment lies on it
+SHAFT_HULL_MAX = 6.0         # m² - a shaft hatch whose hull is this small is a duct box (drawn as an X)
 # Block B core lobby (lifts + stair landing) in the reference frame: the "Lobby Building B" ring as
 # drawn on sheet A108-Floor4 (the level-8 ring lies 93 % inside it). The other sheets leave this
 # core unlabelled, so without it the B wing's open cells would swallow the lobby.
@@ -1248,7 +1340,8 @@ def polylabel_of(geom):
 
 def partition_apartments(level: str, rooms: list[dict], ring_polys: dict, part_of_room: dict, room_parts: list,
                          clipped_parts: set, big_parts: list, plates: list, network, closer_pairs: list, apt_raw: list,
-                         regions: dict, region_source: dict, transfer: dict | None, registry: dict, notes: dict) -> list[dict]:
+                         regions: dict, region_source: dict, transfer: dict | None, registry: dict, notes: dict,
+                         window_segs: list | None = None) -> list[dict]:
     """Assign residence codes to rooms (rooms[].apartment) and build the apartments[] entries.
 
     See the section comment above for the rules. `rooms` are mutated in place; the returned
@@ -1288,12 +1381,19 @@ def partition_apartments(level: str, rooms: list[dict], ring_polys: dict, part_o
         if j in labelled_parts:
             continue
         pieces.append({"poly": part, "name": None, "room": None, "part": j, "area": round(part.area, 1), "outdoor": False})
+    glazing = segs_buffer(window_segs, GLAZING_TOUCH) if window_segs else None
     for p in pieces:
         p["code"] = None
         p["how"] = None
         p["clipped"] = p["part"] in clipped_parts
         fr = {k: p["poly"].intersection(g).area / p["poly"].area for k, g in regions.items()} if p["poly"].area > 0 else {}
         p["fr"] = fr
+        # share of an unlabelled cell's boundary that runs along glazing / balustrade lines
+        p["glazed"] = 0.0
+        if p["name"] is None and glazing is not None:
+            ext = p["poly"].exterior
+            if ext.length > 0:
+                p["glazed"] = ext.intersection(glazing).length / ext.length
         res_fr = {k: v for k, v in fr.items() if k in res_regions}
         name = p["name"]
         # fit per stack: a labelled room may extend over its block's core-lobby outline (the
@@ -1452,6 +1552,21 @@ def partition_apartments(level: str, rooms: list[dict], ring_polys: dict, part_o
             p["code"], p["how"] = next(iter(doors)), "door"
         elif not doors and len(glazed) == 1:
             p["code"], p["how"] = glazed.pop(), "edge"
+    # an unlabelled glazed cell outside every residence outline (a balcony the sheet does not
+    # label, a winter garden) has no floor kind, so it is never assigned - but the residences
+    # whose rooms open onto it through the glazing cannot be complete while it is unaccounted for
+    for idx, p in enumerate(pieces):
+        if p["code"] or p["common"] or p["name"] is not None or p["glazed"] < GLAZED_CELL_SHARE:
+            continue
+        if max((v for k, v in p["fr"].items() if k in res_regions), default=0.0) >= 0.5:
+            continue   # inside a stack: reported through that residence's unaccounted cells
+        reach = p["poly"].buffer(OUTDOOR_EDGE_REACH)
+        contact: dict[str, float] = defaultdict(float)
+        for _i, q in indoor_assigned:
+            if reach.intersects(q["poly"]):
+                contact[q["code"]] += reach.intersection(q["poly"]).area / OUTDOOR_EDGE_REACH
+        p["glazedCell"] = True
+        p["adjacent"] = sorted({c for c, L in contact.items() if L >= OUTDOOR_EDGE_MIN})
 
     # every unassigned piece remembers which residences open onto it (doors; glazing for
     # outdoor pieces): those residences cannot be complete while the piece is unaccounted for
@@ -1473,7 +1588,7 @@ def partition_apartments(level: str, rooms: list[dict], ring_polys: dict, part_o
     for p in pieces:
         if p["code"] or p["common"]:
             continue
-        if p["name"] is None and p["area"] < UNNAMED_CELL_MAX:
+        if p["name"] is None and p["area"] < UNNAMED_CELL_MAX and not p.get("adjacent") and not p.get("glazedCell"):
             continue
         c = p["poly"].representative_point()
         best = max(p["fr"], key=p["fr"].get) if p["fr"] else None
@@ -1488,6 +1603,8 @@ def partition_apartments(level: str, rooms: list[dict], ring_polys: dict, part_o
             why = "no unambiguous evidence"
         if p.get("adjacent"):
             why = f"opens onto {p['adjacent']}"
+        if p.get("glazedCell"):
+            why = f"glazed unlabelled cell ({p['glazed']:.0%} glazing, floor kind unknown), " + (f"opens onto {p['adjacent']}" if p.get("adjacent") else "no residence opens onto it")
         report["unassigned"].append({"name": p["name"], "area": p["area"], "x": round(c.x, 1), "y": round(c.y, 1), "why": why})
 
     plate_union = unary_union([pl.buffer(-PLATE_INSET) for pl in plates]) if plates else None
@@ -1527,10 +1644,6 @@ def partition_apartments(level: str, rooms: list[dict], ring_polys: dict, part_o
         overlap = round(sum(p["poly"].area for p in indoor) - area, 1) if indoor else 0.0
         if overlap > 0.5:
             report["conflicts"].append({"kind": "overlapping-pieces", "code": code, "overlapSqm": overlap})
-        if area > 0:
-            entry["areaSqm"] = area
-        if out_area > 0:
-            entry["outdoorSqm"] = out_area
         # ---- completeness
         reasons = []
         if code in unplaceable:
@@ -1617,6 +1730,13 @@ def partition_apartments(level: str, rooms: list[dict], ring_polys: dict, part_o
             reasons.append("door graph merges this residence with another code")
         entry["complete"] = not reasons
         entry["source"] = code_source[code]
+        # the measured totals are published only for a complete footprint (contract: "given only
+        # when the footprint is complete"); a partial footprint's totals stay in the manifest notes
+        if entry["complete"]:
+            if area > 0:
+                entry["areaSqm"] = area
+            if out_area > 0:
+                entry["outdoorSqm"] = out_area
         apartments.append(entry)
         report["codes"].setdefault(code, {}).update({
             "source": entry["source"], "pieces": {h: sum(1 for p in mine if p["how"] == h) for h in ("tag", "region", "graph", "door", "edge")},
@@ -1770,7 +1890,9 @@ def extract(dxf_path: Path, level: str) -> tuple[dict, dict]:
             return
         is_room_layer = any(tok in layer for tok in ROOM_LAYER_TOKENS)
         if is_room_layer:
-            if ROOM_CODE.fullmatch(txt) or len(txt) < 3:
+            # short texts on the room layer are grid / detail codes ("L.", "C 13") - except the
+            # room acronyms the sheets use as names ("WC", "SAS")
+            if ROOM_CODE.fullmatch(txt) or (len(txt) < 3 and txt.upper() not in ACRONYMS):
                 return
             rooms_raw.append((title_case(txt), x, y, 2, outside, h))
         elif ROOM_WORDS.search(txt) and len(txt) <= 40:
@@ -1859,9 +1981,13 @@ def extract(dxf_path: Path, level: str) -> tuple[dict, dict]:
                 # room-name tags carried as block attributes (Floor 7 IDTAG_2: NAME=...)
                 p = e.dxf.insert
                 px, py = p.x * scale, p.y * scale
-                names = [a.dxf.text.strip() for a in e.attribs if a.dxf.tag.upper() in ("NAME", "ROOM_NAME", "TITLE") and a.dxf.text.strip()]
+                # a two-line tag (IDTAG_2: "LIVING /" over "DINING ROOM") carries one NAME attribute
+                # per line, stored bottom line first: read them top to bottom, left to right in
+                # the block's own frame (the A-wing copies squash both lines onto one y)
+                attribs = attribs_in_reading_order(doc, e, scale, blk_cache)
+                names = [a.dxf.text.strip() for a in attribs if a.dxf.tag.upper() in ("NAME", "ROOM_NAME", "TITLE") and a.dxf.text.strip()]
                 if not names:
-                    names = [a.dxf.text.strip() for a in e.attribs if ROOM_WORDS.search(a.dxf.text or "") or APT_TAG.match(a.dxf.text or "")]
+                    names = [a.dxf.text.strip() for a in attribs if ROOM_WORDS.search(a.dxf.text or "") or APT_TAG.match(a.dxf.text or "")]
                 names = [re.sub(r"\s+", " ", n) for n in names]
                 tags = [n for n in names if APT_TAG.match(n)]
                 for n in tags:
@@ -2419,17 +2545,43 @@ def extract(dxf_path: Path, level: str) -> tuple[dict, dict]:
                 return int(near[0])
         return None
 
+    # a label drawn inside a shaft ("EXHAUST FOR PARKING" on the duct itself) names that shaft,
+    # not the cell beside it: it stays a point label and never snaps to a neighbouring room.
+    # (A duct is hatched as a box with an X; its hull is the duct, the label sits between the arms.)
+    shaft_polys = [g.convex_hull if g.convex_hull.area <= SHAFT_HULL_MAX else Polygon(g.exterior.coords)
+                   for g in iter_polygons(shaft_union)] if shaft_union is not None and not shaft_union.is_empty else []
+    shaft_tree = shapely.STRtree(shaft_polys) if shaft_polys else None
+
+    def shaft_at(x: float, y: float) -> int | None:
+        if shaft_tree is None:
+            return None
+        hits = shaft_tree.query(Point(x, y), predicate="intersects")
+        return int(hits[0]) if len(hits) else None
+
     kept_rooms = []
     for r in rooms:
-        idx = find_part(r["x"], r["y"])
+        sh = shaft_at(r["x"], r["y"])
+        idx = None if sh is not None else find_part(r["x"], r["y"])
         if r.pop("_outside") and (idx is None or idx < 0):
             dropped["room-label-outside-crop"] += 1
             continue
-        if idx is not None and idx >= 0:
+        if sh is not None:
+            r["_shaft"] = sh
+            dropped["room-label-in-shaft"] += 1
+        elif idx is not None and idx >= 0:
             r["_part"] = idx
         elif idx == -1:
             dropped["room-in-big-part"] += 1
         else:
+            # an indoor room name with no cell within reach that sits outside every plate AND
+            # outside every stack outline is a note pasted beside the plan (a neighbouring level's
+            # "BATH"), not a room of this level (labels of an unenclosed wing stay: they sit in
+            # their stack region and are reported as rooms without ring)
+            if plates and floor_for(r["name"]) != "outdoor" and not COMMON_NAME.search(r["name"]) \
+                    and min(pl.distance(Point(r["x"], r["y"])) for pl in plates) > LABEL_SNAP \
+                    and not any(g.contains(Point(r["x"], r["y"])) for g in regions.values()):
+                dropped["room-label-outside-footprint"] += 1
+                continue
             dropped["room-no-part"] += 1
         kept_rooms.append(r)
     rooms = kept_rooms
@@ -2456,7 +2608,10 @@ def extract(dxf_path: Path, level: str) -> tuple[dict, dict]:
                     len(names_in_part[r["_part"]]) == 1
                     or Point(m["x"], m["y"]).distance(Point(r["x"], r["y"])) <= DUP_LABEL_DIST)
             elif "_part" not in r and "_part" not in m:
-                dup = Point(m["x"], m["y"]).distance(Point(r["x"], r["y"])) <= 5.0
+                if "_shaft" in r or "_shaft" in m:
+                    dup = r.get("_shaft") == m.get("_shaft")   # one label per shaft
+                else:
+                    dup = Point(m["x"], m["y"]).distance(Point(r["x"], r["y"])) <= 5.0
             if dup:
                 break
         if dup:
@@ -2537,6 +2692,7 @@ def extract(dxf_path: Path, level: str) -> tuple[dict, dict]:
     for i, r in enumerate(rooms):
         part = r.pop("_part", None)
         r.pop("_h", None)
+        r.pop("_shaft", None)
         if part is not None and i in room_polys:
             part_of_room[i] = part
         r["x"], r["y"] = r3(r["x"]), r3(r["y"])
@@ -2581,7 +2737,8 @@ def extract(dxf_path: Path, level: str) -> tuple[dict, dict]:
     # the room it sits in.
     if level in FLOOR_OF_LEVEL:
         apartments = partition_apartments(level, rooms, ring_polys, part_of_room, room_parts, clipped_parts, big_parts, plates,
-                                          network, closer_pairs, uniq_tags, regions, region_source, transfer, load_registry(), notes)
+                                          network, closer_pairs, uniq_tags, regions, region_source, transfer, load_registry(), notes,
+                                          window_segs + envelope_segs)
     else:
         apartments = [{"code": code, "block": block, "x": r3(x), "y": r3(y)} for code, block, x, y in uniq_tags]
         for r in rooms:
@@ -2676,10 +2833,10 @@ def extract(dxf_path: Path, level: str) -> tuple[dict, dict]:
                 dropped["parking-part-unserved"] += 1
                 continue
             # islands inside the apron (storage cages, lobbies, plant rooms) are holes; the
-            # contract's rings carry none, so the apron is cut into hole-free pieces
+            # contract's rings carry none, so the apron is cut into hole-free pieces (every
+            # piece a pinch splits off is kept - none of the served apron may vanish)
             for piece in split_holes(part):
-                ring = emit_ring(piece, ZONE_SIMPLIFY, 0.5)
-                if ring is not None:
+                for ring in emit_rings(piece, ZONE_SIMPLIFY, 0.5):
                     zones.append({"kind": "parking", "ring": ring, "label": "Car park"})
     # water: pool rooms (nomenclature / IDTAG labels only) and the reflecting-pool linework
     for r in rooms:
@@ -2811,6 +2968,8 @@ def extract(dxf_path: Path, level: str) -> tuple[dict, dict]:
     notes["apartments_emitted"] = [a["code"] for a in apartments]
     notes["outlines"] = [round(g.area, 1) for g in outlines]
     notes["rooms_split"] = len(split_rooms)
+    drawn = {code for code, _b, _x, _y in apt_raw} | {b["label"] for b in bays if "label" in b}
+    notes["codes_normalised"] = {k: v for k, v in CODE_NORMALISED.items() if v in drawn}
     return plan, notes
 
 

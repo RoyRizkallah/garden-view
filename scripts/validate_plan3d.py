@@ -2,11 +2,13 @@
 
 Besides the geometry checks, the residence footprints are checked against the registry in
 web/src/data/buildingExplorer.ts: every apartments[] code (and every rooms[].apartment) must be
-registered on that level, no code may be split into two detached footprints, measured areas
-must be positive and consistent (rooms[].area matches its ring, a residence's rings never
-overlap or nest, areaSqm / outdoorSqm cover the union of its rings, a complete residence adds
-at most 15% of unlabelled floor), and a `complete` footprint must have a plausible area. A
-coverage table (expected vs assigned codes, complete flags, unassigned rooms) is printed.
+registered on that level (basement tags and bay labels anywhere in the registry), no code may
+be split into two detached footprints, measured areas must be positive and consistent
+(rooms[].area matches its ring, a residence's rings never overlap or nest, areaSqm /
+outdoorSqm cover the union of its rings, a complete residence adds at most 15% of unlabelled
+floor), a `complete` footprint must have a plausible area and a partial one publishes no
+totals. A coverage table (expected vs assigned codes, complete flags, unassigned rooms) is
+printed.
 
 Usage:  python scripts/validate_plan3d.py [<plans_dir>] [levels]
 Exit code 1 when any problem is found. Needs shapely (pip install shapely).
@@ -212,6 +214,13 @@ def validate(path: Path, registry: dict[int, list[str]] | None = None) -> tuple[
             area = a.get("areaSqm")
             if not is_num(area) or not (COMPLETE_AREA[0] <= area <= COMPLETE_AREA[1]):
                 problems.append(f"apartments[{i}] {code}: complete but areaSqm {area!r} outside {COMPLETE_AREA}")
+        elif floor is not None:
+            # the contract publishes measured totals only for a complete footprint
+            for key in ("areaSqm", "outdoorSqm"):
+                if key in a:
+                    problems.append(f"apartments[{i}] {code}: {key} {a[key]} published although the footprint is not complete")
+        if floor is None and isinstance(code, str) and APT_CODE.match(code) and code not in all_codes:
+            problems.append(f"apartments[{i}]: basement tag {code!r} is not a registered residence")
 
     rings = 0
     seen_labels = set()
@@ -287,6 +296,8 @@ def validate(path: Path, registry: dict[int, list[str]] | None = None) -> tuple[
             if overlap > RING_OVERLAP_TOL:
                 problems.append(f"apartment {code}: {floor_kind} rings overlap / nest by {overlap:.1f} m2 (sum {sum(p.area for p in polys_k):.1f}, union {union_k.area:.1f})")
             value = a.get(key)
+            if not a.get("complete"):
+                continue   # a partial footprint publishes no totals (checked above)
             # the rings are exteriors; the totals exclude the wall islands (columns, planters,
             # enclosed closets) inside them, so the total may fall short of the union by that share
             if not is_num(value) or value + 0.1 < union_k.area * (1 - AREA_HOLE_SHARE):
@@ -369,6 +380,9 @@ def validate(path: Path, registry: dict[int, list[str]] | None = None) -> tuple[
                 problems.append(f"bays[{i}]: empty label")
             else:
                 labelled += 1
+                base = b["label"].removesuffix(" (extra)")
+                if APT_CODE.match(base) and base not in all_codes:
+                    problems.append(f"bays[{i}]: label {b['label']!r} is not a registered residence")
         if bx is not None and not bx.contains(Polygon([(box[0], box[1]), (box[2], box[1]), (box[2], box[3]), (box[0], box[3])])):
             problems.append(f"bays[{i}]: box exceeds bbox")
     if basement:
