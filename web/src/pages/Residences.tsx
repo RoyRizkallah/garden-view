@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { BUILDING_FACTS, BLOCKS, GALLERY_IMAGES } from '../data/building';
 import PageHero from '../components/PageHero';
 import HighlightStrip from '../components/HighlightStrip';
+import Photo from '../components/Photo';
 import {
   IconBuilding,
   IconArrowRight,
@@ -12,6 +13,19 @@ import {
 } from '../components/Icons';
 
 const GALLERY = GALLERY_IMAGES.slice(0, 6);
+
+// Slot widths for `sizes` (1240 px container, 32 px side padding):
+// block tiles — 3 equal columns, 20 px gaps, stacked ≤ 900 px.
+const BLOCK_TILE_SIZES = '(max-width: 900px) calc(100vw - 64px), (max-width: 1240px) calc((100vw - 104px) / 3), 379px';
+// gallery bento — 1.1fr + 3 × 1fr columns, 18 px gaps; 2 columns ≤ 900 px with the featured
+// and 5th items spanning both. The tiles are object-fit: cover in fixed-height rows, so the
+// width a 16:9 / 3:2 source needs is the row height × its aspect once the slot is narrower
+// than that (featured: 378 px tall on desktop → 566 px; tiles: 160 px tall ≤ 900 px → 285 px).
+const GALLERY_SIZES = {
+  featured: '(max-width: 900px) calc(100vw - 64px), 566px',
+  wide: '(max-width: 900px) calc(100vw - 64px), (max-width: 1240px) 46vw, 565px',
+  tile: '(max-width: 652px) 285px, (max-width: 900px) calc(50vw - 41px), (max-width: 1240px) 22vw, 274px',
+};
 
 export default function Residences() {
   return (
@@ -49,7 +63,7 @@ export default function Residences() {
             {BLOCKS.map((block) => (
               <div key={block.name} className="block-tile">
                 <div className="block-tile-media">
-                  <img src={block.image} alt="" />
+                  <Photo src={block.image} alt="" sizes={BLOCK_TILE_SIZES} eager />
                   <div className="block-tile-scrim" />
                   <span className="block-tile-icon">
                     <IconBuilding size={16} />
@@ -80,7 +94,11 @@ export default function Residences() {
           <div className="residence-gallery-bento">
             {GALLERY.map((img, i) => (
               <div key={img.src} className={`residence-gallery-item${i === 0 ? ' is-featured' : ''}`}>
-                <img src={img.src} alt={img.caption} />
+                <Photo
+                  src={img.src}
+                  alt={img.caption}
+                  sizes={i === 0 ? GALLERY_SIZES.featured : i === 4 ? GALLERY_SIZES.wide : GALLERY_SIZES.tile}
+                />
               </div>
             ))}
           </div>

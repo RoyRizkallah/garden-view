@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { api, type Overview as OverviewData } from '../api';
 import { useAuth } from '../AuthContext';
 import CircularProgress from '../CircularProgress';
+import Photo from '../../components/Photo';
 import {
   IconWallet,
   IconBallot,
@@ -11,6 +12,9 @@ import {
   IconArrowRight,
   IconCalendar,
 } from '../../components/Icons';
+
+// portal main column: viewport minus the 264 px sidebar and 56 px padding per side (sidebar hidden ≤ 960 px)
+const HERO_SIZES = '(max-width: 960px) calc(100vw - 48px), calc(100vw - 376px)';
 
 function greeting() {
   const hour = new Date().getHours();
@@ -43,7 +47,7 @@ export default function Overview() {
   return (
     <div className="portal-page">
       <section className="portal-hero">
-        <img src="/images/exterior-07.jpg" alt="" />
+        <Photo src="/images/exterior-07.jpg" alt="" sizes={HERO_SIZES} priority />
         <div className="portal-hero-scrim" />
         <div className="portal-hero-content">
           <p className="eyebrow" style={{ color: '#e9e1cc' }}>
@@ -109,7 +113,7 @@ export default function Overview() {
                     </div>
                   </div>
                   <div className="portal-feature-media">
-                    <img src="/images/exterior-09.jpg" alt="" />
+                    <Photo src="/images/exterior-09.jpg" alt="" sizes="108px" />
                     <span className="portal-feature-ring">
                       <CircularProgress percent={featured.progressPct} size={54} stroke={4} />
                     </span>

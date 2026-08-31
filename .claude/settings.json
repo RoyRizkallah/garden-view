@@ -2,7 +2,10 @@
   "permissions": {
     "allow": [
       "PowerShell(pip install ezdxf 2>&1)",
-      "PowerShell(Read-Host \"Press Enter to continue checking server status\")"
+      "PowerShell(Read-Host \"Press Enter to continue checking server status\")",
+      "Bash(node cs-explorer-check.js http://localhost:5174 cs-dev)",
+      "Bash(node shot-declutter-lit.js 3 \"3 A1\" lit-before)",
+      "Bash(ISO=1 node shot-declutter-lit.js 3 \"3 A1\" lit-before)"
     ]
   }
 }

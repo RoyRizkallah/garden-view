@@ -1,9 +1,102 @@
 [
   {
+    "level": "b3",
+    "source": "A101-BASEMENT-3.dxf",
+    "svg": "level-b3.svg",
+    "bytes": 611482,
+    "extents": [
+      [
+        -0.8714355507674164,
+        -5.989177414315764,
+        0.0
+      ],
+      [
+        42.971038205052515,
+        58.47743380600572,
+        0.0
+      ]
+    ],
+    "entities": {
+      "LINE": 667,
+      "LWPOLYLINE": 437,
+      "DIMENSION": 288,
+      "HATCH": 158,
+      "TEXT": 126,
+      "INSERT": 76,
+      "ARC": 18,
+      "MTEXT": 9
+    },
+    "layers": 56,
+    "flat_hatches": 138,
+    "line_hatches": 20
+  },
+  {
+    "level": "b2",
+    "source": "A102-BASEMENT-2.dxf",
+    "svg": "level-b2.svg",
+    "bytes": 667284,
+    "extents": [
+      [
+        -1.0795667501882438,
+        -10.638841999645814,
+        0.0
+      ],
+      [
+        43.179169404459536,
+        58.68154890285023,
+        0.0
+      ]
+    ],
+    "entities": {
+      "LINE": 692,
+      "LWPOLYLINE": 335,
+      "DIMENSION": 252,
+      "HATCH": 168,
+      "TEXT": 113,
+      "INSERT": 82,
+      "MTEXT": 17,
+      "ARC": 12
+    },
+    "layers": 69,
+    "flat_hatches": 148,
+    "line_hatches": 20
+  },
+  {
+    "level": "b1",
+    "source": "A103-BASEMENT-1.dxf",
+    "svg": "level-b1.svg",
+    "bytes": 964965,
+    "extents": [
+      [
+        8.84484e-11,
+        -7.696898717106906,
+        -3.8e-15
+      ],
+      [
+        44.55276839859488,
+        59.368382729546425,
+        7.11e-14
+      ]
+    ],
+    "entities": {
+      "LINE": 833,
+      "LWPOLYLINE": 464,
+      "DIMENSION": 180,
+      "HATCH": 156,
+      "TEXT": 76,
+      "INSERT": 68,
+      "MTEXT": 57,
+      "ARC": 17
+    },
+    "layers": 103,
+    "flat_hatches": 141,
+    "line_hatches": 15
+  },
+  {
     "level": "g",
     "source": "A104-Ground floor.dxf",
     "svg": "level-g.svg",
-    "bytes": 1094512,
+    "bytes": 883405,
     "extents": [
       [
         -90.73648156289727,
@@ -26,6 +119,318 @@
       "ARC": 45,
       "CIRCLE": 21
     },
-    "layers": 114
+    "layers": 114,
+    "flat_hatches": 178,
+    "line_hatches": 13
+  },
+  {
+    "level": "1",
+    "source": "A105-floor1.dxf",
+    "svg": "level-1.svg",
+    "bytes": 918844,
+    "extents": [
+      [
+        -1.5876869450065043,
+        -4.3929274650089045,
+        -6.5e-14
+      ],
+      [
+        45.5711626639682,
+        61.50126629361621,
+        7.11e-14
+      ]
+    ],
+    "entities": {
+      "LINE": 1210,
+      "LWPOLYLINE": 428,
+      "HATCH": 182,
+      "DIMENSION": 173,
+      "INSERT": 96,
+      "TEXT": 80,
+      "CIRCLE": 23,
+      "ARC": 13
+    },
+    "layers": 99,
+    "flat_hatches": 167,
+    "line_hatches": 15
+  },
+  {
+    "level": "2",
+    "source": "A106-Floor2.dxf",
+    "svg": "level-2.svg",
+    "bytes": 1841410,
+    "extents": [
+      [
+        -0.021631641101811316,
+        -4.622521755555136,
+        0.0
+      ],
+      [
+        47.00051992695757,
+        58.477433805961276,
+        1.267e-13
+      ]
+    ],
+    "entities": {
+      "LINE": 4714,
+      "LWPOLYLINE": 993,
+      "HATCH": 283,
+      "INSERT": 239,
+      "DIMENSION": 186,
+      "TEXT": 160,
+      "ARC": 76,
+      "ELLIPSE": 64
+    },
+    "layers": 91,
+    "flat_hatches": 248,
+    "line_hatches": 31
+  },
+  {
+    "level": "3",
+    "source": "A107-Floor3.dxf",
+    "svg": "level-3.svg",
+    "bytes": 2063264,
+    "extents": [
+      [
+        -337.3977191173794,
+        -135.2356757990602,
+        0.0
+      ],
+      [
+        45.57116266414509,
+        61.54513454834215,
+        7.209999999999999e-14
+      ]
+    ],
+    "entities": {
+      "LINE": 6516,
+      "LWPOLYLINE": 892,
+      "TEXT": 389,
+      "DIMENSION": 297,
+      "INSERT": 249,
+      "HATCH": 231,
+      "ARC": 110,
+      "CIRCLE": 96
+    },
+    "layers": 162,
+    "flat_hatches": 195,
+    "line_hatches": 32
+  },
+  {
+    "level": "4",
+    "source": "A108-Floor4.dxf",
+    "svg": "level-4.svg",
+    "bytes": 2702409,
+    "extents": [
+      [
+        -1.7610121408250026,
+        -22.533802779503905,
+        0.0
+      ],
+      [
+        45.571162664353395,
+        61.54513454834147,
+        1.267e-13
+      ]
+    ],
+    "entities": {
+      "LINE": 11651,
+      "LWPOLYLINE": 1283,
+      "INSERT": 441,
+      "ARC": 338,
+      "DIMENSION": 234,
+      "POLYLINE": 192,
+      "TEXT": 188,
+      "HATCH": 185
+    },
+    "layers": 76,
+    "flat_hatches": 161,
+    "line_hatches": 19
+  },
+  {
+    "level": "6",
+    "source": "A108-Floor6.dxf",
+    "svg": "level-6.svg",
+    "bytes": 1855380,
+    "extents": [
+      [
+        -1.6988881682081,
+        -166.27013728245456,
+        -1.877280916983823e-05
+      ],
+      [
+        44.82122849693741,
+        -101.07086208948414,
+        2.965636988205489e-07
+      ]
+    ],
+    "entities": {
+      "LINE": 4466,
+      "LWPOLYLINE": 1674,
+      "ARC": 506,
+      "HATCH": 248,
+      "INSERT": 231,
+      "DIMENSION": 172,
+      "TEXT": 136,
+      "CIRCLE": 94
+    },
+    "layers": 95,
+    "flat_hatches": 163,
+    "line_hatches": 18
+  },
+  {
+    "level": "5",
+    "source": "A109-Floor5.dxf",
+    "svg": "level-5.svg",
+    "bytes": 2285900,
+    "extents": [
+      [
+        -9.397120082171163,
+        -162.4460904857976,
+        0.0
+      ],
+      [
+        46.34595647526439,
+        -77.1905412496834,
+        1.267e-13
+      ]
+    ],
+    "entities": {
+      "LINE": 5614,
+      "LWPOLYLINE": 1470,
+      "CIRCLE": 858,
+      "HATCH": 543,
+      "INSERT": 242,
+      "TEXT": 223,
+      "ARC": 213,
+      "DIMENSION": 195
+    },
+    "layers": 140,
+    "flat_hatches": 221,
+    "line_hatches": 16
+  },
+  {
+    "level": "8",
+    "source": "A112-Floor8.dxf",
+    "svg": "level-8.svg",
+    "bytes": 1831152,
+    "extents": [
+      [
+        83.0189408650485,
+        -2.63459526571188,
+        -1.003969125282864
+      ],
+      [
+        143.18060797064388,
+        70.8142366835215,
+        0.0034014129326115
+      ]
+    ],
+    "entities": {
+      "LINE": 4198,
+      "LWPOLYLINE": 914,
+      "HATCH": 359,
+      "INSERT": 215,
+      "ARC": 186,
+      "DIMENSION": 181,
+      "TEXT": 101,
+      "CIRCLE": 101
+    },
+    "layers": 72,
+    "flat_hatches": 271,
+    "line_hatches": 66
+  },
+  {
+    "level": "9",
+    "source": "A113-Floor9.dxf",
+    "svg": "level-9.svg",
+    "bytes": 839453,
+    "extents": [
+      [
+        453.8349571857865,
+        -2.6345952655942853,
+        -1.8e-15
+      ],
+      [
+        513.9966242913819,
+        70.81423668363911,
+        7.11e-14
+      ]
+    ],
+    "entities": {
+      "LINE": 1863,
+      "LWPOLYLINE": 505,
+      "HATCH": 82,
+      "INSERT": 81,
+      "TEXT": 74,
+      "CIRCLE": 74,
+      "DIMENSION": 73,
+      "ELLIPSE": 49
+    },
+    "layers": 71,
+    "flat_hatches": 72,
+    "line_hatches": 10
+  },
+  {
+    "level": "10",
+    "source": "A114-Floor10.dxf",
+    "svg": "level-10.svg",
+    "bytes": 1243251,
+    "extents": [
+      [
+        186.75669190526202,
+        -2.634595265693003,
+        -1.8e-15
+      ],
+      [
+        246.9183590108574,
+        70.81423668354039,
+        7.11e-14
+      ]
+    ],
+    "entities": {
+      "LINE": 2208,
+      "LWPOLYLINE": 599,
+      "HATCH": 204,
+      "DIMENSION": 155,
+      "INSERT": 146,
+      "TEXT": 101,
+      "CIRCLE": 62,
+      "ARC": 25
+    },
+    "layers": 65,
+    "flat_hatches": 198,
+    "line_hatches": 6
+  },
+  {
+    "level": "7",
+    "source": "A209-Floor7.dxf",
+    "svg": "level-7.svg",
+    "bytes": 1600602,
+    "extents": [
+      [
+        0.0,
+        -6.4130025318729205,
+        -5e-16
+      ],
+      [
+        44.41183827249272,
+        58.477433806008676,
+        1.267e-13
+      ]
+    ],
+    "entities": {
+      "LINE": 3158,
+      "DIMENSION": 1007,
+      "LWPOLYLINE": 624,
+      "HATCH": 174,
+      "INSERT": 163,
+      "TEXT": 24,
+      "ARC": 17,
+      "ELLIPSE": 16
+    },
+    "layers": 83,
+    "flat_hatches": 143,
+    "line_hatches": 31
   }
 ]

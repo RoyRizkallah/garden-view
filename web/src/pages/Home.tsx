@@ -14,6 +14,11 @@ import {
   IconArrowRight,
 } from '../components/Icons';
 import LocationMap from '../components/LocationMap';
+import Photo, { COVER_HERO_SIZES } from '../components/Photo';
+
+// Slot widths for `sizes`: the bento sits in the 1240 px container (32 px side padding); the
+// amenities cell is the 1.7fr column of a 1.7fr/1fr/1.15fr row and stacks full-width ≤ 960 px.
+const AMENITIES_CELL_SIZES = '(max-width: 960px) calc(100vw - 64px), (max-width: 1240px) 49vw, 610px';
 
 const AMENITY_ICONS = {
   leaf: IconLeaf,
@@ -28,7 +33,12 @@ export default function Home() {
     <>
       <section className="hero">
         <div className="hero-media">
-          <img src="/images/exterior-01.jpg" alt="Garden View building exterior at dusk" />
+          <Photo
+            src="/images/exterior-01.jpg"
+            alt="Garden View building exterior at dusk"
+            sizes={COVER_HERO_SIZES}
+            priority
+          />
           <div className="hero-scrim" />
         </div>
         <div className="container hero-inner">
@@ -72,7 +82,11 @@ export default function Home() {
       <section className="home-bento">
         <div className="home-bento-row home-bento-row-3">
           <div className="home-bento-cell home-bento-amenities">
-            <img src="/images/exterior-07.jpg" alt="Landscaped courtyard at Garden View" />
+            <Photo
+              src="/images/exterior-07.jpg"
+              alt="Landscaped courtyard at Garden View"
+              sizes={AMENITIES_CELL_SIZES}
+            />
             <div className="home-bento-amenities-scrim" />
             <div className="home-bento-amenities-top">
               <p className="eyebrow" style={{ color: '#e9e1cc' }}>
@@ -103,7 +117,7 @@ export default function Home() {
             <h2>A Glimpse of Garden View</h2>
             <div className="home-bento-thumbs">
               {GALLERY_IMAGES.slice(0, 3).map((img) => (
-                <img key={img.src} src={img.src} alt={img.caption} />
+                <Photo key={img.src} src={img.src} alt={img.caption} sizes="100px" />
               ))}
             </div>
             <Link to="/gallery" className="home-bento-link">

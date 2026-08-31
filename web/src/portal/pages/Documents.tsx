@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api, type GvDocument } from '../api';
+import Photo from '../../components/Photo';
 import {
   IconDocument,
   IconClipboard,
@@ -8,6 +9,9 @@ import {
   IconPieChart,
   IconChevronRight,
 } from '../../components/Icons';
+
+// the fade image is 58% of the portal main column (viewport − 264 px sidebar − 2 × 56 px padding)
+const FADE_IMAGE_SIZES = '(max-width: 960px) calc(58vw - 28px), calc(58vw - 218px)';
 
 const CATEGORY_ICON: Record<string, typeof IconBuilding> = {
   Governance: IconBuilding,
@@ -39,7 +43,7 @@ export default function Documents() {
   return (
     <div className="portal-page">
       <div className="portal-page-hero-fade">
-        <img src="/images/exterior-08.jpg" alt="" />
+        <Photo src="/images/exterior-08.jpg" alt="" sizes={FADE_IMAGE_SIZES} priority />
         <div className="portal-page-hero-fade-content">
           <p className="eyebrow">
             <IconClipboard size={14} />

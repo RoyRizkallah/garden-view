@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
+import Photo from '../components/Photo';
 import {
   IconHome,
   IconWallet,
@@ -40,7 +41,8 @@ export default function AdminLayout() {
     <div className="portal-shell">
       <aside className="portal-sidebar">
         <div className="portal-sidebar-photo">
-          <img src="/images/exterior-01.jpg" alt="" />
+          {/* the sidebar is a fixed 264 px column */}
+          <Photo src="/images/exterior-01.jpg" alt="" sizes="264px" eager />
           <div className="portal-sidebar-photo-scrim" />
           <div className="portal-sidebar-brand">
             <strong>Garden View</strong>

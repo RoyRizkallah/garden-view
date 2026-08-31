@@ -140,7 +140,22 @@ export default function Explorer() {
                     onClick={() => setSelectedBlock(block.id)}
                   >
                     <span className="explorer-block-thumb-wrap">
-                      <img className="explorer-block-thumb" src={block.image} alt="" />
+                      {/* 56px box: the 480 webp is plenty; the full jpg is only the no-webp fallback */}
+                      <picture>
+                        <source
+                          type="image/webp"
+                          srcSet={block.image.replace(/\.jpg$/, '-480.webp')}
+                        />
+                        <img
+                          className="explorer-block-thumb"
+                          src={block.image}
+                          alt=""
+                          width={56}
+                          height={56}
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      </picture>
                     </span>
                     <span className="explorer-block-card-body">
                       <span className="explorer-block-name">{block.name}</span>

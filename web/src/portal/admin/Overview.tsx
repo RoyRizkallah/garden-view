@@ -3,6 +3,10 @@ import { Link } from 'react-router-dom';
 import { api, type AdminOverview } from '../api';
 import { useAuth } from '../AuthContext';
 import { IconUsers, IconChart, IconBallot, IconClipboard, IconMail } from '../../components/Icons';
+import Photo from '../../components/Photo';
+
+// portal main column: viewport minus the 264 px sidebar and 56 px padding per side (sidebar hidden ≤ 960 px)
+const HERO_SIZES = '(max-width: 960px) calc(100vw - 48px), calc(100vw - 376px)';
 
 export default function AdminOverviewPage() {
   const { account } = useAuth();
@@ -25,7 +29,7 @@ export default function AdminOverviewPage() {
   return (
     <div className="portal-page">
       <section className="portal-hero">
-        <img src="/images/exterior-09.jpg" alt="" />
+        <Photo src="/images/exterior-09.jpg" alt="" sizes={HERO_SIZES} priority />
         <div className="portal-hero-scrim" />
         <div className="portal-hero-content">
           <p className="eyebrow" style={{ color: '#e9e1cc' }}>

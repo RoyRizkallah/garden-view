@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { AMENITY_CATEGORIES, LIFESTYLE_HIGHLIGHTS, BUILDING_FACTS } from '../data/building';
 import PageHero from '../components/PageHero';
+import Photo from '../components/Photo';
 import {
   IconLeaf,
   IconDumbbell,
@@ -23,6 +24,19 @@ const AMENITY_ICONS = {
   sofa: IconSofa,
   car: IconCar,
   shield: IconShield,
+};
+
+// Slot widths for `sizes` (1240 px container, 32 px side padding). The showcase grid is
+// 1.3fr/0.85fr/0.85fr/1fr with 20 px gaps; it drops to 2 columns ≤ 900 px (featured and wide
+// tiles spanning both) and to 1 column ≤ 560 px. Photos are object-fit: cover, so a slot
+// taller than the source's aspect is height-bound: the featured tile spans two rows (~531 px
+// tall on desktop → a 3:2 source needs ~800 px), and the 16:11 tiles need 1.22× their width
+// for a 16:9 source.
+const SIZES = {
+  featured: '(max-width: 900px) calc(100vw - 64px), 800px',
+  tile: '(max-width: 560px) calc(122vw - 78px), (max-width: 900px) calc(61vw - 51px), (max-width: 1240px) 24vw, 290px',
+  wide: '(max-width: 560px) calc(100vw - 64px), 130px',
+  cta: '(max-width: 900px) calc(100vw - 64px), 280px',
 };
 
 export default function Amenities() {
@@ -48,7 +62,7 @@ export default function Amenities() {
 
           <div className="amenity-showcase">
             <Link to="/location" className="amenity-tile amenity-tile-featured">
-              <img src={featured.image} alt="" />
+              <Photo src={featured.image} alt="" sizes={SIZES.featured} eager />
               <div className="amenity-tile-featured-scrim" />
               <span className="amenity-tile-featured-tag">Featured</span>
               <span className="amenity-tile-expand">
@@ -68,7 +82,7 @@ export default function Amenities() {
               return (
                 <div key={a.title} className="amenity-tile">
                   <div className="amenity-tile-media">
-                    <img src={a.image} alt="" />
+                    <Photo src={a.image} alt="" sizes={SIZES.tile} />
                     <span className="amenity-tile-badge">
                       <Icon size={16} />
                     </span>
@@ -84,7 +98,7 @@ export default function Amenities() {
             {wide && (
               <div className="amenity-tile amenity-tile-wide">
                 <div className="amenity-tile-wide-media">
-                  <img src={wide.image} alt="" />
+                  <Photo src={wide.image} alt="" sizes={SIZES.wide} />
                   <span className="amenity-tile-badge">
                     {(() => {
                       const Icon = AMENITY_ICONS[wide.icon];
@@ -165,7 +179,7 @@ export default function Amenities() {
 
           <div className="amenities-cta-card">
             <div className="amenities-cta-image">
-              <img src="/images/exterior-02.jpg" alt="" />
+              <Photo src="/images/exterior-02.jpg" alt="" sizes={SIZES.cta} />
             </div>
             <div className="services-band-inner">
               <div>

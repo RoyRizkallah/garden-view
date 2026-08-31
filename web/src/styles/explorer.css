@@ -231,6 +231,10 @@
   overflow: hidden;
   flex-shrink: 0;
 }
+/* the <picture> is only a source switch — let the img size against the wrap as before */
+.explorer-block-thumb-wrap > picture {
+  display: contents;
+}
 .explorer-block-thumb {
   display: block;
   width: 100%;

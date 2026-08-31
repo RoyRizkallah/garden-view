@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, type ComponentType, type LazyExoticComponent } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import Home from './pages/Home';
@@ -8,31 +8,45 @@ import Gallery from './pages/Gallery';
 import Location from './pages/Location';
 import About from './pages/About';
 import ComingSoon from './pages/ComingSoon';
-import Login from './pages/Login';
+import ProtectedRoute from './portal/ProtectedRoute';
 
 // Loaded on demand so three.js never weighs down the rest of the site.
 const Explorer = lazy(() => import('./pages/Explorer'));
 const FloorPlans = lazy(() => import('./pages/FloorPlans'));
-import ProtectedRoute from './portal/ProtectedRoute';
-import PortalLayout from './portal/PortalLayout';
-import PortalOverview from './portal/pages/Overview';
-import PortalCharges from './portal/pages/Charges';
-import PortalProjects from './portal/pages/Projects';
-import PortalVoting from './portal/pages/Voting';
-import PortalRequests from './portal/pages/Requests';
-import PortalDocuments from './portal/pages/Documents';
-import PortalResidence from './portal/pages/Residence';
-import PortalProfile from './portal/pages/Profile';
-import AdminLayout from './portal/AdminLayout';
-import AdminOverview from './portal/admin/Overview';
-import AdminCharges from './portal/admin/Charges';
-import AdminProjects from './portal/admin/Projects';
-import AdminVotes from './portal/admin/Votes';
-import AdminRequests from './portal/admin/Requests';
-import AdminResidents from './portal/admin/Residents';
-import AdminInquiries from './portal/admin/Inquiries';
-import AdminListings from './portal/admin/Listings';
-import AdminPhotos from './portal/admin/Photos';
+
+// Sign-in, the resident portal and the admin portal are only reached by
+// authenticated users, so none of their code ships to public visitors.
+// vite.config.ts groups these into a single `portal` and `admin` chunk.
+const Login = lazy(() => import('./pages/Login'));
+const PortalLayout = lazy(() => import('./portal/PortalLayout'));
+const PortalOverview = lazy(() => import('./portal/pages/Overview'));
+const PortalCharges = lazy(() => import('./portal/pages/Charges'));
+const PortalProjects = lazy(() => import('./portal/pages/Projects'));
+const PortalVoting = lazy(() => import('./portal/pages/Voting'));
+const PortalRequests = lazy(() => import('./portal/pages/Requests'));
+const PortalDocuments = lazy(() => import('./portal/pages/Documents'));
+const PortalResidence = lazy(() => import('./portal/pages/Residence'));
+const PortalProfile = lazy(() => import('./portal/pages/Profile'));
+const AdminLayout = lazy(() => import('./portal/AdminLayout'));
+const AdminOverview = lazy(() => import('./portal/admin/Overview'));
+const AdminCharges = lazy(() => import('./portal/admin/Charges'));
+const AdminProjects = lazy(() => import('./portal/admin/Projects'));
+const AdminVotes = lazy(() => import('./portal/admin/Votes'));
+const AdminRequests = lazy(() => import('./portal/admin/Requests'));
+const AdminResidents = lazy(() => import('./portal/admin/Residents'));
+const AdminInquiries = lazy(() => import('./portal/admin/Inquiries'));
+const AdminListings = lazy(() => import('./portal/admin/Listings'));
+const AdminPhotos = lazy(() => import('./portal/admin/Photos'));
+
+const fallback = <div style={{ minHeight: '100vh', background: 'var(--green-dark)' }} />;
+
+function deferred(Component: LazyExoticComponent<ComponentType>) {
+  return (
+    <Suspense fallback={fallback}>
+      <Component />
+    </Suspense>
+  );
+}
 
 function App() {
   return (
@@ -44,22 +58,8 @@ function App() {
         <Route path="/gallery" element={<Gallery />} />
         <Route path="/location" element={<Location />} />
         <Route path="/about" element={<About />} />
-        <Route
-          path="/explorer"
-          element={
-            <Suspense fallback={<div style={{ minHeight: '100vh', background: 'var(--green-dark)' }} />}>
-              <Explorer />
-            </Suspense>
-          }
-        />
-        <Route
-          path="/floor-plans"
-          element={
-            <Suspense fallback={<div style={{ minHeight: '100vh', background: 'var(--green-dark)' }} />}>
-              <FloorPlans />
-            </Suspense>
-          }
-        />
+        <Route path="/explorer" element={deferred(Explorer)} />
+        <Route path="/floor-plans" element={deferred(FloorPlans)} />
         <Route
           path="/virtual-tour"
           element={
@@ -72,32 +72,32 @@ function App() {
         />
       </Route>
 
-      <Route path="/login" element={<Login />} />
+      <Route path="/login" element={deferred(Login)} />
 
       <Route element={<ProtectedRoute roles={['RESIDENT']} />}>
-        <Route path="/portal" element={<PortalLayout />}>
-          <Route index element={<PortalOverview />} />
-          <Route path="charges" element={<PortalCharges />} />
-          <Route path="projects" element={<PortalProjects />} />
-          <Route path="voting" element={<PortalVoting />} />
-          <Route path="requests" element={<PortalRequests />} />
-          <Route path="residence" element={<PortalResidence />} />
-          <Route path="documents" element={<PortalDocuments />} />
-          <Route path="profile" element={<PortalProfile />} />
+        <Route path="/portal" element={deferred(PortalLayout)}>
+          <Route index element={deferred(PortalOverview)} />
+          <Route path="charges" element={deferred(PortalCharges)} />
+          <Route path="projects" element={deferred(PortalProjects)} />
+          <Route path="voting" element={deferred(PortalVoting)} />
+          <Route path="requests" element={deferred(PortalRequests)} />
+          <Route path="residence" element={deferred(PortalResidence)} />
+          <Route path="documents" element={deferred(PortalDocuments)} />
+          <Route path="profile" element={deferred(PortalProfile)} />
         </Route>
       </Route>
 
       <Route element={<ProtectedRoute roles={['ADMIN']} />}>
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<AdminOverview />} />
-          <Route path="charges" element={<AdminCharges />} />
-          <Route path="projects" element={<AdminProjects />} />
-          <Route path="votes" element={<AdminVotes />} />
-          <Route path="requests" element={<AdminRequests />} />
-          <Route path="residents" element={<AdminResidents />} />
-          <Route path="listings" element={<AdminListings />} />
-          <Route path="photos" element={<AdminPhotos />} />
-          <Route path="inquiries" element={<AdminInquiries />} />
+        <Route path="/admin" element={deferred(AdminLayout)}>
+          <Route index element={deferred(AdminOverview)} />
+          <Route path="charges" element={deferred(AdminCharges)} />
+          <Route path="projects" element={deferred(AdminProjects)} />
+          <Route path="votes" element={deferred(AdminVotes)} />
+          <Route path="requests" element={deferred(AdminRequests)} />
+          <Route path="residents" element={deferred(AdminResidents)} />
+          <Route path="listings" element={deferred(AdminListings)} />
+          <Route path="photos" element={deferred(AdminPhotos)} />
+          <Route path="inquiries" element={deferred(AdminInquiries)} />
         </Route>
       </Route>
     </Routes>

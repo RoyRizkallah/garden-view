@@ -2,7 +2,12 @@ import { Link } from 'react-router-dom';
 import { BUILDING_FACTS } from '../data/building';
 import PageHero from '../components/PageHero';
 import HighlightStrip from '../components/HighlightStrip';
+import Photo from '../components/Photo';
 import { IconBuilding, IconLayers, IconArrowRight } from '../components/Icons';
+
+// .about-image is a fixed 460 px tall, object-fit: cover slot at every width (564 px wide on
+// desktop, full-width ≤ 900 px), so a 16:9 source is always height-bound: 460 × 16/9 ≈ 820 px.
+const ABOUT_IMAGE_SIZES = '820px';
 
 export default function About() {
   return (
@@ -50,7 +55,13 @@ export default function About() {
               View Floor Plans <IconArrowRight size={14} />
             </Link>
           </div>
-          <img src="/images/entrance-01.jpg" alt="Garden View entrance" className="about-image" />
+          <Photo
+            src="/images/entrance-01.jpg"
+            alt="Garden View entrance"
+            className="about-image"
+            sizes={ABOUT_IMAGE_SIZES}
+            eager
+          />
         </div>
       </section>
 

@@ -1,6 +1,18 @@
 import { useEffect, useMemo, useState } from 'react';
 import { GALLERY_IMAGES, GALLERY_CATEGORIES } from '../data/building';
 import { IconExpand, IconClose, IconChevronLeft, IconChevronRight, IconLeaf } from '../components/Icons';
+import Photo from '../components/Photo';
+
+// Slot widths for `sizes` (1240 px container, 32 px side padding): 4 columns with 18 px gaps,
+// the featured item spanning 2; 2 columns ≤ 900 px (featured spanning both); 1 column ≤ 560 px.
+// Rows are a fixed 200 px and the photos are object-fit: cover, so the 2-row featured slot
+// (418 px tall) is height-bound for a 3:2 source below ~690 px wide → 626 px.
+const SIZES = {
+  featured: '(max-width: 690px) 626px, (max-width: 900px) calc(100vw - 64px), (max-width: 1240px) 47vw, 579px',
+  tile: '(max-width: 560px) calc(100vw - 64px), (max-width: 900px) calc(50vw - 41px), (max-width: 1240px) 23vw, 281px',
+  // the lightbox figure is capped at 1100 px inside 40 px of padding
+  lightbox: 'min(1100px, calc(100vw - 80px))',
+};
 
 export default function Gallery() {
   const [category, setCategory] = useState('all');
@@ -73,7 +85,12 @@ export default function Gallery() {
                   className={`bento-gallery-item ${i === 0 ? 'is-featured' : ''}`}
                   onClick={() => setActive(i)}
                 >
-                  <img src={img.src} alt={img.caption} loading="lazy" />
+                  <Photo
+                    src={img.src}
+                    alt={img.caption}
+                    sizes={i === 0 ? SIZES.featured : SIZES.tile}
+                    eager={i === 0}
+                  />
                   <span className="bento-gallery-expand">
                     <IconExpand size={14} />
                   </span>
@@ -101,7 +118,7 @@ export default function Gallery() {
             <IconChevronLeft size={28} />
           </button>
           <figure className="lightbox-figure">
-            <img src={filtered[active].src} alt={filtered[active].caption} />
+            <Photo src={filtered[active].src} alt={filtered[active].caption} sizes={SIZES.lightbox} eager />
             <figcaption>
               {filtered[active].caption} — {active + 1} / {filtered.length}
             </figcaption>

@@ -701,6 +701,11 @@
 .fp3d-labels.is-veryfar .fp3d-label.is-hover {
   opacity: 1;
 }
+/* lit pills rank among themselves too — the pill under the pointer, then the pin, then the larger
+   room — so a selected residence's smaller rooms step aside where they would pile onto those */
+.fp3d-labels .fp3d-label.is-hover.is-occluded:not(.is-pointed) {
+  opacity: 0;
+}
 
 /* Apartment pins — the registered code floating above each residence, never tiered away */
 .fp3d-apt {

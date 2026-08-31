@@ -2,8 +2,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { api, type Project } from '../api';
 import { IconCheck, IconCalendar, IconWallet, IconUsers } from '../../components/Icons';
 import CircularProgress from '../CircularProgress';
+import Photo from '../../components/Photo';
 
 const PROJECT_IMAGES = ['/images/exterior-04.jpg', '/images/exterior-10.jpg', '/images/exterior-09.jpg', '/images/exterior-03.jpg'];
+// 2-column card grid (24 px gap) in the portal main column (viewport − 264 px sidebar − 2 × 56 px padding)
+const CARD_MEDIA_SIZES = '(max-width: 640px) calc(100vw - 48px), (max-width: 960px) calc(50vw - 36px), calc(50vw - 200px)';
 const STATUS_FILTERS = ['All Statuses', 'Planning', 'In Progress', 'Complete'] as const;
 
 function statusOf(p: Project): (typeof STATUS_FILTERS)[number] {
@@ -63,7 +66,12 @@ export default function ProjectsPage() {
           return (
             <div key={p.id} className="portal-project-card">
               <div className="portal-project-card-media">
-                <img src={PROJECT_IMAGES[i % PROJECT_IMAGES.length]} alt="" />
+                <Photo
+                  src={PROJECT_IMAGES[i % PROJECT_IMAGES.length]}
+                  alt=""
+                  sizes={CARD_MEDIA_SIZES}
+                  eager={i < 2}
+                />
                 <div className="portal-project-card-media-scrim" />
                 <span className="portal-project-card-status-badge">{statusOf(p).toUpperCase()}</span>
                 <span className="portal-project-card-ring">

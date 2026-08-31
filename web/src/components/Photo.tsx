@@ -1,0 +1,70 @@
+import type { ImgHTMLAttributes } from 'react';
+
+// Responsive photo: <picture> with the generated WebP variants in web/public/images
+// (<name>-480.webp / -960.webp / -1440.webp, plus -240.webp for a few thumbnail slots) and the
+// original JPEG as the fallback <img>. Width descriptors are the real pixel widths of each
+// file — the "-1440" variants are capped at the source width, so a 1280 px source only has a
+// 1280w candidate. `w`/`h` are the source dimensions, written as width/height attributes so the
+// browser knows the aspect ratio before the bytes arrive.
+type Variant = readonly [width: number, suffix: string];
+const PHOTOS: Record<string, { w: number; h: number; v: readonly Variant[] }> = {
+  'amenity-fitness': { w: 1200, h: 675, v: [[480, '480'], [960, '960'], [1200, '1440']] },
+  'amenity-lounge': { w: 1200, h: 1741, v: [[480, '480'], [960, '960'], [1200, '1440']] },
+  'amenity-parking': { w: 1200, h: 675, v: [[480, '480'], [960, '960'], [1200, '1440']] },
+  'amenity-rooftop': { w: 1200, h: 800, v: [[480, '480'], [960, '960'], [1200, '1440']] },
+  'entrance-01': { w: 1280, h: 720, v: [[240, '240'], [480, '480'], [960, '960'], [1280, '1440']] },
+  'exterior-01': { w: 1122, h: 750, v: [[240, '240'], [480, '480'], [960, '960'], [1122, '1440']] },
+  'exterior-02': { w: 1280, h: 720, v: [[480, '480'], [960, '960'], [1280, '1440']] },
+  'exterior-03': { w: 1280, h: 1252, v: [[480, '480'], [960, '960'], [1280, '1440']] },
+  'exterior-04': { w: 924, h: 1280, v: [[480, '480'], [924, '960']] },
+  'exterior-05': { w: 1280, h: 1051, v: [[480, '480'], [960, '960'], [1280, '1440']] },
+  'exterior-06': { w: 1280, h: 720, v: [[480, '480'], [960, '960'], [1280, '1440']] },
+  'exterior-07': { w: 1280, h: 720, v: [[240, '240'], [480, '480'], [960, '960'], [1280, '1440']] },
+  'exterior-08': { w: 1280, h: 720, v: [[480, '480'], [960, '960'], [1280, '1440']] },
+  'exterior-09': { w: 720, h: 1280, v: [[240, '240'], [480, '480'], [720, '960']] },
+  'exterior-10': { w: 1280, h: 720, v: [[480, '480'], [960, '960'], [1280, '1440']] },
+  'exterior-11': { w: 1280, h: 720, v: [[480, '480'], [960, '960'], [1280, '1440']] },
+};
+
+// Full-bleed, object-fit: cover heroes are width-bound on landscape screens but height-bound on
+// portrait ones (a 92vh-tall hero on a 390 px phone needs a ~1160 px-wide 3:2 source to cover
+// it), so in portrait we ask for the largest candidate rather than a 480 px one stretched 2.4×.
+export const COVER_HERO_SIZES = '(orientation: portrait) 300vw, 100vw';
+
+type PhotoProps = Omit<ImgHTMLAttributes<HTMLImageElement>, 'src' | 'srcSet' | 'sizes' | 'loading'> & {
+  /** Original JPEG path, e.g. "/images/exterior-01.jpg". */
+  src: string;
+  /** The image's rendered CSS width for its layout slot (standard `sizes` syntax). */
+  sizes: string;
+  /** The page's LCP image: fetched eagerly with fetchPriority="high". */
+  priority?: boolean;
+  /** In the first viewport but not the LCP: eager, normal priority. Everything else lazy-loads. */
+  eager?: boolean;
+};
+
+export default function Photo({ src, sizes, priority, eager, alt = '', ...rest }: PhotoProps) {
+  const name = /\/images\/([^/]+)\.jpe?g$/.exec(src)?.[1];
+  const meta = name ? PHOTOS[name] : undefined;
+  const img = (
+    <img
+      src={src}
+      alt={alt}
+      width={meta?.w}
+      height={meta?.h}
+      loading={priority || eager ? undefined : 'lazy'}
+      decoding="async"
+      fetchPriority={priority ? 'high' : undefined}
+      {...rest}
+    />
+  );
+  if (!meta) return img;
+  const srcSet = meta.v.map(([w, suffix]) => `/images/${name}-${suffix}.webp ${w}w`).join(', ');
+  return (
+    // display: contents (layout.css) — the <picture> adds no box, so the <img> keeps sitting in
+    // exactly the grid/flex/absolute slot it had before.
+    <picture className="photo">
+      <source type="image/webp" srcSet={srcSet} sizes={sizes} />
+      {img}
+    </picture>
+  );
+}

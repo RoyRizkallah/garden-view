@@ -113,8 +113,14 @@ const SERVICE_ROOM =
 const LABEL_GAP_PX = 6;
 /** Fit-in-room rule: a pill wider than this share of its room's projected width hides. */
 const LABEL_FIT_SHARE = 0.95;
-/** The declutter re-runs on every camera move and, idle, at most this often. */
+/** While the camera moves the declutter re-runs at most this often (and once more when it settles). */
 const DECLUTTER_IDLE_MS = 120;
+/** Frames are drawn only when something changed; the one continuous effect (the water shimmer) idles at this rate. */
+const IDLE_ANIM_FPS = 24;
+/** Above this canvas width (CSS px) the backing store caps at 1.5× — the extra pixels stop reading. */
+const PIXEL_RATIO_CAP_W = 1200;
+const PIXEL_RATIO_MAX = 2;
+const PIXEL_RATIO_WIDE = 1.5;
 /* Painted bay numbers (parking levels) */
 const BAY_PAINT_W = 1.7;
 const BAY_PAINT_H = 0.55;
@@ -1027,6 +1033,8 @@ type LabelEntry = {
   /** Measured pill size in CSS px, read once per build after the element is in the DOM. */
   w: number;
   h: number;
+  /** Lit (hovered / selected / active) on the current declutter pass — read once from the DOM per pass. */
+  lit: boolean;
   /** Last applied state, so class toggles only touch the DOM on change. */
   occluded: boolean;
   toobig: boolean;
@@ -1053,6 +1061,8 @@ type Level = {
   aptBounds: Map<string, THREE.Box3>;
   /** The illustrative staging, toggled as one. */
   staging: THREE.Group;
+  /** The level carries water: its shimmer is the one thing that animates while idle. */
+  water: boolean;
 };
 
 /** Callbacks the level's DOM pins report into. */
@@ -1152,6 +1162,7 @@ function makeLabelEntry(
     parkingPin: flags.parkingPin ?? false,
     w: 0,
     h: 0,
+    lit: false,
     occluded: false,
     toobig: false,
     nudge: 0,
@@ -1495,7 +1506,7 @@ function buildLevel(plan: Plan3D, mats: Mats, ui: LevelUi, parking: boolean, sho
     pickables.push(node.overlay);
   }
 
-  return { group, center, diag, width, depth, rooms, bays: bayNodes, labels, pickables, pins, aptBounds, staging };
+  return { group, center, diag, width, depth, rooms, bays: bayNodes, labels, pickables, pins, aptBounds, staging, water: waterRings.length > 0 };
 }
 
 /* ------------------------------------------------------------------ */
@@ -2283,8 +2294,11 @@ const FloorPlan3D = forwardRef<FloorPlan3DHandle, FloorPlan3DProps>(function Flo
     if (!container) return;
 
     /* ---------- renderer / scene / camera ---------- */
+    /** Retina-sharp up to a wide canvas; past PIXEL_RATIO_CAP_W the backing store caps at 1.5× — same look, far fewer pixels. */
+    const pixelRatioFor = (cssWidth: number): number =>
+      Math.min(window.devicePixelRatio, cssWidth > PIXEL_RATIO_CAP_W ? PIXEL_RATIO_WIDE : PIXEL_RATIO_MAX);
     const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(pixelRatioFor(container.clientWidth));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.05;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -2414,6 +2428,34 @@ const FloorPlan3D = forwardRef<FloorPlan3DHandle, FloorPlan3DProps>(function Flo
     };
     controls.addEventListener('start', cancelFly);
 
+    /* ---------- frame scheduling: draw only when something changed ---------- */
+    let disposed = false;
+    /** The scene or camera changed: the next tick draws the WebGL frame and re-places the labels. */
+    let sceneDirty = false;
+    /** A tick is booked; nothing is booked while idle (no fly, no water) — the loop restarts on the next event. */
+    let rafPending = false;
+    let raf = 0;
+    let inTick = false;
+    /** Nothing is drawn while the tab is hidden or the canvas has left the viewport. */
+    let paused = false;
+    let tabHidden = document.hidden;
+    let offscreen = false;
+    /** Under `?perf=1` the frame count is exposed as `window.__fp3dFrames` for the render-on-demand audit. */
+    const perfStats =
+      new URLSearchParams(window.location.search).get('perf') === '1' ? (window as unknown as { __fp3dFrames?: number }) : null;
+    if (perfStats) perfStats.__fp3dFrames = 0;
+    // `tick` is defined with the frame loop below; nothing books a frame before the setup reaches it.
+    let tick: (now: number) => void = () => {};
+    const requestFrame = (): void => {
+      if (rafPending || inTick || paused || disposed) return;
+      rafPending = true;
+      raf = requestAnimationFrame(tick);
+    };
+    const invalidate = (): void => {
+      sceneDirty = true;
+      requestFrame();
+    };
+
     /* ---------- hover / selection state ---------- */
     const dom = renderer.domElement;
     const raycaster = new THREE.Raycaster();
@@ -2441,7 +2483,11 @@ const FloorPlan3D = forwardRef<FloorPlan3DHandle, FloorPlan3DProps>(function Flo
           r.outline.visible = lit;
           r.outline.material = sel ? mats.selectEdge : mats.hoverEdge;
         }
-        r.label?.classList.toggle('is-hover', lit);
+        if (r.label) {
+          r.label.classList.toggle('is-hover', lit);
+          // the pill under the pointer outranks every other lit pill in the declutter
+          r.label.classList.toggle('is-pointed', r.index === hoveredRoom);
+        }
       }
       // a residence's bays light with it; any bay names itself while hovered
       for (const b of level.bays) {
@@ -2455,6 +2501,7 @@ const FloorPlan3D = forwardRef<FloorPlan3DHandle, FloorPlan3DProps>(function Flo
         }
         b.label.visible = lit;
         b.label.element.classList.toggle('is-hover', lit);
+        b.label.element.classList.toggle('is-pointed', b.index === hoveredBay);
       }
       for (const [code, pin] of level.pins) {
         pin.classList.toggle('is-active', code === selectedApt);
@@ -2462,6 +2509,7 @@ const FloorPlan3D = forwardRef<FloorPlan3DHandle, FloorPlan3DProps>(function Flo
       }
       labelRenderer.domElement.classList.toggle('has-selection', selectedApt !== null);
       labelsDirty = true; // lit labels move to the front of the declutter order
+      invalidate(); // overlays and bay pills toggled
     };
 
     /** Results of the last pick: indexes into the level's room / bay nodes, or -1. */
@@ -2501,7 +2549,10 @@ const FloorPlan3D = forwardRef<FloorPlan3DHandle, FloorPlan3DProps>(function Flo
       applyHighlights();
       if (code === null || !level) return;
       const box = level.aptBounds.get(code);
-      if (box) flyTo(poseFit(box));
+      if (box) {
+        flyTo(poseFit(box));
+        invalidate();
+      }
     };
 
     /** A pin or apartment room was clicked: the page owns selection when it listens, else we self-select. */
@@ -2522,10 +2573,12 @@ const FloorPlan3D = forwardRef<FloorPlan3DHandle, FloorPlan3DProps>(function Flo
       updatePointer(e);
       pointerInside = true;
       pickDirty = true;
+      requestFrame();
     };
     const onPointerLeave = (): void => {
       pointerInside = false;
       pickDirty = true;
+      requestFrame();
     };
     const onPointerDown = (e: PointerEvent): void => {
       if (e.pointerType === 'mouse' && e.button !== 0) return;
@@ -2545,9 +2598,11 @@ const FloorPlan3D = forwardRef<FloorPlan3DHandle, FloorPlan3DProps>(function Flo
       const code = pickedRoom >= 0 ? level.rooms[pickedRoom].apartment : pickedBay >= 0 ? level.bays[pickedBay].code : null;
       if (code) select(code);
     };
+    /** The camera moved (orbit, damping, zoom): re-pick, re-declutter, redraw. */
     const markPick = (): void => {
       pickDirty = true;
       labelsDirty = true;
+      invalidate();
     };
     dom.addEventListener('pointermove', onPointerMove);
     dom.addEventListener('pointerleave', onPointerLeave);
@@ -2574,6 +2629,7 @@ const FloorPlan3D = forwardRef<FloorPlan3DHandle, FloorPlan3DProps>(function Flo
         }
       }
       labelsDirty = true;
+      requestFrame();
     };
 
     /* Kept-rect pool for the declutter pass — grown once, reused every frame. */
@@ -2583,100 +2639,125 @@ const FloorPlan3D = forwardRef<FloorPlan3DHandle, FloorPlan3DProps>(function Flo
     const keptY1: number[] = [];
     let keptN = 0;
     const isLit = (el: HTMLElement): boolean => el.classList.contains('is-hover') || el.classList.contains('is-active');
+    const isPointed = (el: HTMLElement): boolean => el.classList.contains('is-pointed');
+    /** Indexes of the lit labels, sorted per pass; grown once. */
+    const litIdx: number[] = [];
+    let litList: LabelEntry[] = [];
+    /** Within the lit set: the pill under the pointer, then the residence's pin, then the larger room. */
+    const litRank = (l: LabelEntry): number => (isPointed(l.el) ? 2 : l.priority === PRIORITY_PIN ? 1 : 0);
+    const byLitRank = (a: number, b: number): number => {
+      const la = litList[a];
+      const lb = litList[b];
+      return litRank(lb) - litRank(la) || lb.area - la.area || a - b;
+    };
+    const kept = (x0: number, y0: number, x1: number, y1: number): boolean => {
+      for (let k = 0; k < keptN; k++) if (x0 < keptX1[k] && x1 > keptX0[k] && y0 < keptY1[k] && y1 > keptY0[k]) return false;
+      return true;
+    };
 
     /**
-     * Ranked screen-space declutter. Every label is projected to the viewport and, in priority order,
-     * kept only where it neither collides with a higher-ranked label nor outgrows its own room on screen.
-     * Two sweeps: lit labels first (never hidden), then the level's pre-sorted order.
+     * One label of the ranked screen-space declutter: projected to the viewport and kept only where it
+     * neither collides with a higher-ranked label nor (unlit) outgrows its own room on screen.
+     * Lit labels rank among themselves — the pill under the pointer and the pin always keep their
+     * place; a lit room that collides with a higher-ranked lit pill steps aside like any other.
+     */
+    const placeLabel = (l: LabelEntry, lit: boolean, far: boolean, veryFar: boolean): void => {
+      let occluded = false;
+      let toobig = false;
+      // labels the tiers or their own state already hide claim no space
+      const shown = lit
+        ? !(far && l.minor && !l.pinned)
+        : l.obj.visible && !l.parkingPin && !(veryFar && !l.pinned) && !(far && l.minor && !l.pinned) && l.w > 0;
+      // behind the camera the renderer hides it anyway
+      if (shown && (_v.setFromMatrixPosition(l.obj.matrixWorld).project(camera).z < -1 || _v.z > 1)) return;
+      if (shown) {
+        const sx = (_v.x + 1) * 0.5 * viewW;
+        const sy = (1 - _v.y) * 0.5 * viewH;
+        if (!lit && l.corners) {
+          // fit-in-room: the ring bbox's projected extent must hold the pill
+          let px0 = Infinity;
+          let py0 = Infinity;
+          let px1 = -Infinity;
+          let py1 = -Infinity;
+          for (let k = 0; k < 4; k++) {
+            _v.copy(l.corners[k]).project(camera);
+            const cx = (_v.x + 1) * 0.5 * viewW;
+            const cy = (1 - _v.y) * 0.5 * viewH;
+            if (cx < px0) px0 = cx;
+            if (cx > px1) px1 = cx;
+            if (cy < py0) py0 = cy;
+            if (cy > py1) py1 = cy;
+          }
+          toobig = l.w > LABEL_FIT_SHARE * (px1 - px0) || l.h > py1 - py0;
+        }
+        if (!toobig) {
+          const x0 = sx - l.w / 2 - LABEL_GAP_PX;
+          const y0 = sy - l.h / 2 - LABEL_GAP_PX;
+          const x1 = sx + l.w / 2 + LABEL_GAP_PX;
+          const y1 = sy + l.h / 2 + LABEL_GAP_PX;
+          // a lit label keeps whatever row it had so it doesn't jump under the pointer
+          let nudge = lit ? l.nudge : 0;
+          if (lit) {
+            // the pointed pill and the pin are placed first and always win; lit rooms below them
+            // in rank give way to the lit pills already placed
+            occluded = litRank(l) === 0 && !kept(x0, y0 + nudge, x1, y1 + nudge);
+          } else {
+            // a landmark (pool, car park, reception) that meets an equal steps one row down,
+            // then up, before it gives way — two lakes on a map both keep their names
+            const step = l.pinned && l.priority === PRIORITY_KEY ? l.h + 2 * LABEL_GAP_PX + 2 : 0;
+            const tries = step > 0 ? 3 : 1;
+            for (let t = 0; t < tries; t++) {
+              nudge = t === 0 ? 0 : t === 1 ? step : -step;
+              occluded = !kept(x0, y0 + nudge, x1, y1 + nudge);
+              if (!occluded) break;
+            }
+            if (occluded) nudge = 0;
+          }
+          if (!occluded) {
+            keptX0[keptN] = x0;
+            keptY0[keptN] = y0 + nudge;
+            keptX1[keptN] = x1;
+            keptY1[keptN] = y1 + nudge;
+            keptN++;
+          }
+          if (nudge !== l.nudge) {
+            l.nudge = nudge;
+            // CSS2DRenderer owns `transform`; the margin rides along with it untouched
+            l.el.style.marginTop = nudge === 0 ? '' : `${nudge}px`;
+          }
+        }
+      }
+      if (occluded !== l.occluded) {
+        l.occluded = occluded;
+        l.el.classList.toggle('is-occluded', occluded);
+      }
+      if (toobig !== l.toobig) {
+        l.toobig = toobig;
+        l.el.classList.toggle('is-toobig', toobig);
+      }
+    };
+
+    /**
+     * Ranked screen-space declutter over every label. Two sweeps: the lit labels first, ranked
+     * pointed → pin → larger room, then the level's pre-sorted order (priority, then area).
      */
     const declutter = (lv: Level, far: boolean, veryFar: boolean): void => {
       const list = lv.labels;
       keptN = 0;
-      for (let sweep = 0; sweep < 2; sweep++) {
-        for (let i = 0; i < list.length; i++) {
-          const l = list[i];
-          const lit = isLit(l.el);
-          if ((sweep === 0) !== lit) continue;
-          let occluded = false;
-          let toobig = false;
-          // labels the tiers or their own state already hide claim no space
-          const shown =
-            lit ||
-            (l.obj.visible &&
-              !l.parkingPin &&
-              !(veryFar && !l.pinned) &&
-              !(far && l.minor && !l.pinned) &&
-              l.w > 0);
-          // behind the camera the renderer hides it anyway
-          if (shown && (_v.setFromMatrixPosition(l.obj.matrixWorld).project(camera).z < -1 || _v.z > 1)) continue;
-          if (shown) {
-            const sx = (_v.x + 1) * 0.5 * viewW;
-            const sy = (1 - _v.y) * 0.5 * viewH;
-            if (!lit && l.corners) {
-              // fit-in-room: the ring bbox's projected extent must hold the pill
-              let px0 = Infinity;
-              let py0 = Infinity;
-              let px1 = -Infinity;
-              let py1 = -Infinity;
-              for (let k = 0; k < 4; k++) {
-                _v.copy(l.corners[k]).project(camera);
-                const cx = (_v.x + 1) * 0.5 * viewW;
-                const cy = (1 - _v.y) * 0.5 * viewH;
-                if (cx < px0) px0 = cx;
-                if (cx > px1) px1 = cx;
-                if (cy < py0) py0 = cy;
-                if (cy > py1) py1 = cy;
-              }
-              toobig = l.w > LABEL_FIT_SHARE * (px1 - px0) || l.h > py1 - py0;
-            }
-            if (!toobig) {
-              const x0 = sx - l.w / 2 - LABEL_GAP_PX;
-              const y0 = sy - l.h / 2 - LABEL_GAP_PX;
-              const x1 = sx + l.w / 2 + LABEL_GAP_PX;
-              const y1 = sy + l.h / 2 + LABEL_GAP_PX;
-              // a lit label keeps whatever row it had so it doesn't jump under the pointer
-              let nudge = lit ? l.nudge : 0;
-              if (!lit) {
-                // a landmark (pool, car park, reception) that meets an equal steps one row down,
-                // then up, before it gives way — two lakes on a map both keep their names
-                const step = l.pinned && l.priority === PRIORITY_KEY ? l.h + 2 * LABEL_GAP_PX + 2 : 0;
-                const tries = step > 0 ? 3 : 1;
-                for (let t = 0; t < tries; t++) {
-                  nudge = t === 0 ? 0 : t === 1 ? step : -step;
-                  occluded = false;
-                  for (let k = 0; k < keptN; k++) {
-                    if (x0 < keptX1[k] && x1 > keptX0[k] && y0 + nudge < keptY1[k] && y1 + nudge > keptY0[k]) {
-                      occluded = true;
-                      break;
-                    }
-                  }
-                  if (!occluded) break;
-                }
-                if (occluded) nudge = 0;
-              }
-              if (!occluded) {
-                keptX0[keptN] = x0;
-                keptY0[keptN] = y0 + nudge;
-                keptX1[keptN] = x1;
-                keptY1[keptN] = y1 + nudge;
-                keptN++;
-              }
-              if (nudge !== l.nudge) {
-                l.nudge = nudge;
-                // CSS2DRenderer owns `transform`; the margin rides along with it untouched
-                l.el.style.marginTop = nudge === 0 ? '' : `${nudge}px`;
-              }
-            }
-          }
-          if (occluded !== l.occluded) {
-            l.occluded = occluded;
-            l.el.classList.toggle('is-occluded', occluded);
-          }
-          if (toobig !== l.toobig) {
-            l.toobig = toobig;
-            l.el.classList.toggle('is-toobig', toobig);
-          }
-        }
+      litIdx.length = 0;
+      for (let i = 0; i < list.length; i++) {
+        const l = list[i];
+        l.lit = isLit(l.el);
+        if (l.lit) litIdx.push(i);
+      }
+      if (litIdx.length > 1) {
+        litList = list;
+        litIdx.sort(byLitRank);
+      }
+      for (let k = 0; k < litIdx.length; k++) placeLabel(list[litIdx[k]], true, far, veryFar);
+      for (let i = 0; i < list.length; i++) {
+        const l = list[i];
+        if (!l.lit) placeLabel(l, false, far, veryFar);
       }
     };
 
@@ -2726,15 +2807,19 @@ const FloorPlan3D = forwardRef<FloorPlan3DHandle, FloorPlan3DProps>(function Flo
       } else {
         flyTo(pose);
       }
+      invalidate();
     };
 
     const setView = (kind: FloorPlan3DView): void => {
       if (!level) return;
       flyTo(kind === 'top' ? poseTop(level) : poseIso(level));
+      invalidate();
     };
 
     const setStaging = (visible: boolean): void => {
-      if (level) level.staging.visible = visible;
+      if (!level || level.staging.visible === visible) return;
+      level.staging.visible = visible;
+      invalidate();
     };
 
     /* ---------- resize ---------- */
@@ -2748,42 +2833,44 @@ const FloorPlan3D = forwardRef<FloorPlan3DHandle, FloorPlan3DProps>(function Flo
       viewH = h;
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setPixelRatio(pixelRatioFor(w));
       renderer.setSize(w, h);
       labelRenderer.setSize(w, h);
       labelsDirty = true;
+      invalidate();
     };
     const ro = new ResizeObserver(resize);
-    ro.observe(container);
-    resize();
 
     /* ---------- frame loop ---------- */
-    let raf = 0;
     let labelsFar = false;
     let labelsVeryFar = false;
     let lastDeclutter = 0;
-    const tick = (): void => {
-      raf = requestAnimationFrame(tick);
+    let lastRender = -Infinity;
+    /**
+     * One tick. Runs only while something is in motion (a fly, damping, a pointer pick) or the
+     * level has water; otherwise the loop stops and the next event books it again. Each tick draws
+     * only if the scene or camera changed — the water shimmer alone idles at IDLE_ANIM_FPS.
+     */
+    tick = (now: number): void => {
+      rafPending = false;
+      if (paused || disposed) return;
+      inTick = true;
       if (fly) {
-        const t = Math.min((performance.now() - fly.t0) / FLY_MS, 1);
+        const t = Math.min((now - fly.t0) / FLY_MS, 1);
         const s = 1 - Math.pow(1 - t, 3); // ease-out cubic
         camera.position.lerpVectors(fly.p0, fly.p1, s);
         controls.target.lerpVectors(fly.c0, fly.c1, s);
         if (t >= 1) fly = null;
         pickDirty = true;
         labelsDirty = true;
+        sceneDirty = true;
       }
-      controls.update();
+      controls.update(); // damping in flight fires `change` → markPick
       // Hover picking is throttled to one raycast per frame, and only when something moved.
       if (pickDirty) {
         pickDirty = false;
         pick();
         setHovered();
-      }
-      // Water shimmer: only the shared normal map's offset moves — no allocations.
-      if (waterNormal) {
-        const t = performance.now() * 0.001;
-        waterNormal.offset.set((t * 0.018) % 1, (t * 0.011) % 1);
       }
       // Label density: screen pixels per metre at the orbit target.
       const pxPerM = viewH / (2 * camera.position.distanceTo(controls.target) * tanHalfFov);
@@ -2791,6 +2878,7 @@ const FloorPlan3D = forwardRef<FloorPlan3DHandle, FloorPlan3DProps>(function Flo
       if (far !== labelsFar) {
         labelsFar = far;
         labelRenderer.domElement.classList.toggle('is-far', far);
+        labelsDirty = true;
       }
       const veryFar = pxPerM < LABEL_MIN_PX_PER_M;
       if (veryFar !== labelsVeryFar) {
@@ -2798,33 +2886,77 @@ const FloorPlan3D = forwardRef<FloorPlan3DHandle, FloorPlan3DProps>(function Flo
         labelRenderer.domElement.classList.toggle('is-veryfar', veryFar);
         labelsDirty = true;
       }
-      if (far !== labelsFar) {
-        labelsFar = far;
-        labelsDirty = true;
+      const water = level !== null && level.water;
+      // Water shimmer: only the shared normal map's offset moves — no allocations — and, idle, no
+      // faster than IDLE_ANIM_FPS.
+      const shimmer = water && now - lastRender >= 1000 / IDLE_ANIM_FPS;
+      if (sceneDirty || shimmer) {
+        if (water && waterNormal) {
+          const t = now * 0.001;
+          waterNormal.offset.set((t * 0.018) % 1, (t * 0.011) % 1);
+        }
+        renderer.render(scene, camera);
+        lastRender = now;
+        if (perfStats) perfStats.__fp3dFrames = (perfStats.__fp3dFrames ?? 0) + 1;
       }
-      renderer.render(scene, camera);
-      // The declutter reads the matrices the render just refreshed; idle, it still settles every 120 ms.
-      const now = performance.now();
-      if (level && (labelsDirty || now - lastDeclutter > DECLUTTER_IDLE_MS)) {
+      // The declutter reads the matrices the render refreshed. It re-runs whenever the camera or a
+      // label's state changed (labelsDirty) and, as a backstop, on any other redraw older than
+      // DECLUTTER_IDLE_MS — never while idle.
+      if (level && (labelsDirty || (sceneDirty && now - lastDeclutter > DECLUTTER_IDLE_MS))) {
         labelsDirty = false;
         lastDeclutter = now;
         declutter(level, far, veryFar);
       }
-      labelRenderer.render(scene, camera);
+      if (sceneDirty) labelRenderer.render(scene, camera);
+      sceneDirty = false;
+      inTick = false;
+      if (fly || water || pickDirty || labelsDirty) requestFrame();
     };
-    raf = requestAnimationFrame(tick);
+    ro.observe(container);
+    resize();
     // web fonts arriving after the build change every pill's width
     const fontsReady = typeof document.fonts?.ready?.then === 'function' ? document.fonts.ready : null;
     void fontsReady?.then(() => {
       if (!disposed && level) measureLabels(level);
     });
 
+    /* ---------- pause while hidden or off-screen ---------- */
+    const setPaused = (): void => {
+      const next = tabHidden || offscreen;
+      if (next === paused) return;
+      paused = next;
+      if (paused) {
+        if (rafPending) cancelAnimationFrame(raf);
+        rafPending = false;
+      } else {
+        // whatever happened meanwhile (a fly that ran out, a hover that cleared) shows on the first frame back
+        pickDirty = true;
+        labelsDirty = true;
+        invalidate();
+      }
+    };
+    const onVisibility = (): void => {
+      tabHidden = document.hidden;
+      setPaused();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+    const io =
+      typeof IntersectionObserver === 'function'
+        ? new IntersectionObserver((entries) => {
+            offscreen = !entries[entries.length - 1].isIntersecting;
+            setPaused();
+          })
+        : null;
+    io?.observe(container);
+
     /* ---------- teardown (StrictMode-proof) ---------- */
-    let disposed = false;
     const dispose = (): void => {
       if (disposed) return;
       disposed = true;
       cancelAnimationFrame(raf);
+      rafPending = false;
+      document.removeEventListener('visibilitychange', onVisibility);
+      io?.disconnect();
       ro.disconnect();
       dom.removeEventListener('pointermove', onPointerMove);
       dom.removeEventListener('pointerleave', onPointerLeave);

@@ -10,7 +10,11 @@ import {
   IconArrowRight,
 } from '../components/Icons';
 import LocationMap from '../components/LocationMap';
+import Photo from '../components/Photo';
 import { api, ApiError } from '../portal/api';
+
+// the panel's inner column is capped at 460 px; panel padding is 32 px per side on small screens
+const LOCATION_PHOTO_SIZES = '(max-width: 524px) calc(100vw - 64px), 460px';
 
 const DISTRICT_HIGHLIGHTS = [
   { icon: IconMapPin, title: 'Prime Address', description: "In Beirut Central District" },
@@ -65,7 +69,12 @@ export default function Location() {
           </p>
 
           <div className="location-photo">
-            <img src="/images/exterior-09.jpg" alt="Garden View against the Beirut skyline" />
+            <Photo
+              src="/images/exterior-09.jpg"
+              alt="Garden View against the Beirut skyline"
+              sizes={LOCATION_PHOTO_SIZES}
+              eager
+            />
           </div>
 
           <div className="district-grid">

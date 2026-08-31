@@ -27,6 +27,11 @@
   position: absolute;
   inset: 0;
   background: url('/images/exterior-01.jpg') center/cover;
+  /* same 1122 px master as WebP (136 K vs 209 K); browsers without image-set() keep the JPEG */
+  background-image: image-set(
+    url('/images/exterior-01-1440.webp') type('image/webp'),
+    url('/images/exterior-01.jpg') type('image/jpeg')
+  );
   opacity: 0.16;
 }
 .login-card {

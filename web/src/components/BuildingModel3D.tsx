@@ -16,31 +16,56 @@ export type BuildingModel3DProps = {
 };
 
 /* ------------------------------------------------------------------ */
-/*  Site geometry (meters, Y-up, courtyard around the origin)          */
+/*  The building, as built                                             */
 /* ------------------------------------------------------------------ */
 
-type FaceDir = '+x' | '-x' | '+z' | '-z';
+/**
+ * None of this massing is modelled by hand. `scripts/build_massing.py` reads the same
+ * as-built sheets the floor plans come from and writes one small file holding each
+ * level's real floor plate, the glazing that sits on its outer wall, the level 9
+ * terraces, the ground-floor gardens, the open ground the blocks wrap around, and the
+ * three blocks' own outlines (the union of the residences the sheets place in each).
+ *
+ * Storey heights are the one thing the drawings cannot give — all fourteen are plan
+ * views — so the floor-to-floor figures below remain the model's stated assumption.
+ * Every outline, window and terrace on screen is measured.
+ */
 
-type BlockDef = {
-  id: BlockId;
-  w: number; // extent along x
-  d: number; // extent along z
-  cx: number;
-  cz: number;
-  /** Outer face fronting the street (colonnade, corner loggias, top-floor setback). */
-  street: FaceDir;
+/** Plan metres, exactly as drawn: x right, y up on the sheet. */
+type Ring = Array<[number, number]>;
+
+type MassingLevel = {
+  id: string;
+  floor: number;
+  ring: Ring;
+  /** The slab edge, standing a little proud of the wall it caps. */
+  band: Ring | null;
+  areaSqm: number;
+  /** Facade glazing, [x1, y1, x2, y2, nx, ny] — already on the wall line, normal pointing out. */
+  windows: Array<[number, number, number, number, number, number]>;
+  /** Balcony and terrace recesses cut into the storey above parapet height. */
+  voids?: Ring[];
+  terraces?: Ring[];
+  gardens?: Ring[];
 };
 
-const BLOCKS: BlockDef[] = [
-  { id: 'A', w: 44, d: 17, cx: 2, cz: 24, street: '+z' },
-  { id: 'B', w: 26, d: 15, cx: 8, cz: -20, street: '-z' },
-  { id: 'C', w: 17, d: 40, cx: -24, cz: -4, street: '-x' },
-];
+type Massing = {
+  bbox: [number, number, number, number];
+  center: [number, number];
+  parcel: Ring;
+  open: Ring[];
+  levels: MassingLevel[];
+  blocks: Array<{ id: BlockId; ring: Ring; x: number; y: number; areaSqm: number }>;
+};
 
+const MASSING_URL = '/plans/massing.json';
+
+/** Floor-to-floor heights: the model's assumption, not a measurement (see above). */
+/** Balcony parapets, and the height the storey stays solid to. */
+const PARAPET_H = 1.05;
 const GROUND_H = 4.6;
 const FLOOR_H = 3.2;
 const TOP_FLOOR = 10;
-const SETBACK = 2.2;
 const ROOF_Y = GROUND_H + (TOP_FLOOR - 1) * FLOOR_H + FLOOR_H; // 36.6 — top of floor 10
 
 const floorY = (f: number): number => (f <= 0 ? 0 : GROUND_H + (f - 1) * FLOOR_H);
@@ -52,54 +77,70 @@ const hash01 = (n: number): number => {
   return s - Math.floor(s);
 };
 
-type Footprint = { w: number; d: number; cx: number; cz: number };
-
-/** Floor-10 footprint: set back 2.2 on the street face only. */
-function topFootprint(b: BlockDef): Footprint {
-  let { w, d, cx, cz } = b;
-  if (b.street === '+z') { d -= SETBACK; cz -= SETBACK / 2; }
-  else if (b.street === '-z') { d -= SETBACK; cz += SETBACK / 2; }
-  else { w -= SETBACK; cx += SETBACK / 2; }
-  return { w, d, cx, cz };
-}
-
-type FaceRect = {
-  plane: number;
-  nx: number;
-  nz: number;
-  /** Rotation about Y that turns a +z-facing plane toward this face's normal. */
-  ry: number;
-  latCenter: number;
-  latLen: number;
-  axis: 'x' | 'z';
-};
-
-function faceRect(b: BlockDef, dir: FaceDir, floor: number): FaceRect {
-  const fp: Footprint = floor === TOP_FLOOR ? topFootprint(b) : b;
-  const { w, d, cx, cz } = fp;
-  switch (dir) {
-    case '+z': return { plane: cz + d / 2, nx: 0, nz: 1, ry: 0, latCenter: cx, latLen: w, axis: 'x' };
-    case '-z': return { plane: cz - d / 2, nx: 0, nz: -1, ry: Math.PI, latCenter: cx, latLen: w, axis: 'x' };
-    case '+x': return { plane: cx + w / 2, nx: 1, nz: 0, ry: Math.PI / 2, latCenter: cz, latLen: d, axis: 'z' };
-    case '-x': return { plane: cx - w / 2, nx: -1, nz: 0, ry: -Math.PI / 2, latCenter: cz, latLen: d, axis: 'z' };
+/**
+ * Sheet coordinates to world: the plan's y runs up the page, the scene's z runs toward
+ * the viewer, and the building is centred on the origin. A THREE.Shape built from
+ * (x, y) is extruded along +z and then laid down with rotateX(-90°), which maps the
+ * shape's y onto world -z — so the shape is built in plan coordinates directly and the
+ * ring is reversed to keep the faces pointing out of the building after that flip.
+ */
+function ringShape(ring: Ring, cx: number, cy: number): THREE.Shape {
+  const shape = new THREE.Shape();
+  for (let i = ring.length - 1; i >= 0; i--) {
+    const x = ring[i][0] - cx;
+    const y = ring[i][1] - cy;
+    if (i === ring.length - 1) shape.moveTo(x, y);
+    else shape.lineTo(x, y);
   }
+  shape.closePath();
+  return shape;
 }
 
-/** World (x,z) of a point on a face at lateral coordinate `lat`, pushed `off` along the outward normal. */
-function onFace(r: FaceRect, lat: number, off: number): { x: number; z: number } {
-  return r.axis === 'x'
-    ? { x: lat, z: r.plane + r.nz * off }
-    : { x: r.plane + r.nx * off, z: lat };
+/** A ring extruded from y0 upward, standing in the world; `holes` are voids through it. */
+function extrudeRing(ring: Ring, cx: number, cy: number, y0: number, height: number, holes?: Ring[]): THREE.BufferGeometry {
+  const shape = ringShape(ring, cx, cy);
+  for (const hole of holes ?? []) {
+    shape.holes.push(new THREE.Path(ringShape(hole, cx, cy).getPoints()));
+  }
+  const geom = new THREE.ExtrudeGeometry(shape, { depth: height, bevelEnabled: false, curveSegments: 1 });
+  geom.rotateX(-Math.PI / 2);
+  geom.translate(0, y0, 0);
+  return geom;
 }
 
-/** Window-bay lateral offsets (relative to face center) at a ~3.6 m rhythm. */
-function bayOffsets(latLen: number): number[] {
-  const usable = latLen - 5.4;
-  const n = Math.max(1, Math.round(usable / 3.6));
-  const spacing = usable / n;
-  const out: number[] = [];
-  for (let i = 0; i < n; i++) out.push(-usable / 2 + spacing * (i + 0.5));
-  return out;
+/** Flat cap of a ring, lying at height y. */
+function flatRing(ring: Ring, cx: number, cy: number, y: number): THREE.BufferGeometry {
+  const geom = new THREE.ShapeGeometry(ringShape(ring, cx, cy));
+  geom.rotateX(-Math.PI / 2);
+  geom.translate(0, y, 0);
+  return geom;
+}
+
+/** Distance from a plan point to a ring — 0 anywhere inside it. */
+function distToRing(px: number, py: number, ring: Ring): number {
+  let inside = false;
+  let best = Infinity;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const [xi, yi] = ring[i];
+    const [xj, yj] = ring[j];
+    if (yi > py !== yj > py && px < ((xj - xi) * (py - yi)) / (yj - yi) + xi) inside = !inside;
+    const dx = xj - xi;
+    const dy = yj - yi;
+    const len2 = dx * dx + dy * dy;
+    const t = len2 === 0 ? 0 : Math.max(0, Math.min(1, ((px - xi) * dx + (py - yi) * dy) / len2));
+    best = Math.min(best, Math.hypot(px - (xi + t * dx), py - (yi + t * dy)));
+  }
+  return inside ? 0 : best;
+}
+
+function ringCentroid(ring: Ring): [number, number] {
+  let x = 0;
+  let y = 0;
+  for (const p of ring) {
+    x += p[0];
+    y += p[1];
+  }
+  return [x / ring.length, y / ring.length];
 }
 
 /* ------------------------------------------------------------------ */
@@ -144,20 +185,6 @@ class Bag {
 
 const col = (hex: number, scale = 1): THREE.Color => new THREE.Color(hex).multiplyScalar(scale);
 
-function windowColor(seed: number): THREE.Color {
-  // ~45% lit: enough dark windows that the limestone facade stays readable and
-  // each lit window reads individually instead of the block melting into one glow.
-  if (hash01(seed) < 0.45) {
-    // ~7% of lit windows flicker a cool dim TV-blue — kept BELOW the bloom
-    // threshold so they read as screen-light, not lamp-light.
-    if (hash01(seed + 41.77) < 0.07) {
-      return col(0x9fc4d8, 0.3 + 0.12 * hash01(seed + 8.81));
-    }
-    // Warm lit — boosted just past the bloom threshold for a halo, not a flare.
-    return col(0xf2c176, (0.62 + 0.5 * hash01(seed + 17.17)) * 1.28);
-  }
-  return col(0x22313a, 0.75 + 0.5 * hash01(seed + 5.31)); // unlit, cool glass
-}
 
 /* ------------------------------------------------------------------ */
 /*  Component                                                          */
@@ -179,10 +206,15 @@ export default function BuildingModel3D(props: BuildingModel3DProps) {
     if (!container) return;
 
     /* ---------- renderer / scene / camera ---------- */
+    // Bloom on a full-bleed canvas at DPR 2 is the single biggest GPU cost, and past
+    // ~1200 CSS px wide the extra device pixels are not visible at viewing distance —
+    // so the ratio is capped at 1.5 there, 2 on narrower (denser-looking) canvases.
+    const pixelRatioFor = (cssWidth: number): number =>
+      Math.min(window.devicePixelRatio, cssWidth > 1200 ? 1.5 : 2);
     // No canvas MSAA: every frame goes through the composer, so anti-aliasing is
     // done by the multisampled render target below instead.
     const renderer = new THREE.WebGLRenderer({ antialias: false });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(pixelRatioFor(container.clientWidth));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.14;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -221,7 +253,7 @@ export default function BuildingModel3D(props: BuildingModel3DProps) {
     scene.environmentIntensity = 0.22;
 
     const camera = new THREE.PerspectiveCamera(42, 1, 0.5, 900);
-    camera.position.set(96, 60, 108);
+    camera.position.set(62, 44, 72);
 
     /* ---------- post-processing: RenderPass -> UnrealBloomPass -> OutputPass ---------- */
     // OutputPass applies the renderer's ACES tone mapping + sRGB conversion at the
@@ -247,11 +279,11 @@ export default function BuildingModel3D(props: BuildingModel3DProps) {
     composer.addPass(outputPass);
 
     const controls = new OrbitControls(camera, renderer.domElement);
-    controls.target.set(4, 13, 2);
+    controls.target.set(0, 14, 0);
     controls.enableDamping = true;
     controls.dampingFactor = 0.08;
-    controls.minDistance = 35;
-    controls.maxDistance = 175;
+    controls.minDistance = 32;
+    controls.maxDistance = 165;
     controls.minPolarAngle = 0.15;
     controls.maxPolarAngle = 1.42;
     controls.enablePan = false;
@@ -264,8 +296,8 @@ export default function BuildingModel3D(props: BuildingModel3DProps) {
     controls.addEventListener('start', stopAutoRotate);
 
     /* ---------- cinematic intro glide ---------- */
-    const CAM_START = new THREE.Vector3(175, 118, 192);
-    const CAM_END = new THREE.Vector3(96, 60, 108);
+    const CAM_START = new THREE.Vector3(128, 92, 148);
+    const CAM_END = new THREE.Vector3(62, 44, 72);
     const GLIDE_MS = 2600;
     let glideT0: number | null = null; // stamped on the first tick so a load hitch doesn't eat the glide
     const ORBIT_MAX_DISTANCE = controls.maxDistance;
@@ -283,6 +315,7 @@ export default function BuildingModel3D(props: BuildingModel3DProps) {
       camera.position.copy(CAM_END);
       controls.maxDistance = ORBIT_MAX_DISTANCE;
       controls.enabled = true;
+      invalidate();
     };
     // Any press or wheel fast-forwards the glide. Capture phase so OrbitControls
     // (listening on the canvas, an inner element) sees the same event with controls
@@ -290,8 +323,8 @@ export default function BuildingModel3D(props: BuildingModel3DProps) {
     container.addEventListener('pointerdown', endGlide, true);
     container.addEventListener('wheel', endGlide, { capture: true, passive: true });
 
-    const SITE_CENTER = new THREE.Vector3(0, 12, 3);
-    const desiredTarget = new THREE.Vector3(4, 13, 2);
+    const SITE_CENTER = new THREE.Vector3(0, 14, 0);
+    const desiredTarget = new THREE.Vector3(0, 14, 0);
 
     /* ---------- sky ---------- */
     const skyCanvas = document.createElement('canvas');
@@ -359,18 +392,19 @@ export default function BuildingModel3D(props: BuildingModel3DProps) {
     sun.position.set(-70, 60, 40);
     sun.castShadow = true;
     sun.shadow.mapSize.set(2048, 2048);
-    sun.shadow.camera.left = -70;
-    sun.shadow.camera.right = 70;
-    sun.shadow.camera.top = 70;
-    sun.shadow.camera.bottom = -70;
+    sun.shadow.camera.left = -48;
+    sun.shadow.camera.right = 48;
+    sun.shadow.camera.top = 48;
+    sun.shadow.camera.bottom = -48;
     sun.shadow.camera.near = 10;
     sun.shadow.camera.far = 220;
     sun.shadow.bias = -0.0004;
     scene.add(sun);
     scene.add(sun.target);
 
-    for (const [lx, ly, lz] of [[4, 1.6, 2], [-10, 1.2, 9], [14, 1.2, -7]] as const) {
-      const up = new THREE.PointLight(0xc9a769, 14, 26, 2);
+    // Uplights standing clear of the real footprint, washing the stone from the grounds.
+    for (const [lx, ly, lz] of [[0, 1.6, 30], [-28, 1.2, 6], [28, 1.2, -8]] as const) {
+      const up = new THREE.PointLight(0xc9a769, 14, 30, 2);
       up.position.set(lx, ly, lz);
       scene.add(up);
     }
@@ -385,7 +419,6 @@ export default function BuildingModel3D(props: BuildingModel3DProps) {
     const matLimestone = new THREE.MeshStandardMaterial({ color: 0xd8c9a3, roughness: 0.92 });
     const matSpandrel = new THREE.MeshStandardMaterial({ color: 0xe8ddc2, roughness: 0.9 });
     const matFrame = new THREE.MeshStandardMaterial({ color: 0x3a4448, roughness: 0.7 });
-    const matGlazing = new THREE.MeshStandardMaterial({ color: 0x141c20, roughness: 0.25, metalness: 0.55 });
     const matRail = new THREE.MeshStandardMaterial({ color: 0x4a4e52, roughness: 0.6 });
     const matSlab = new THREE.MeshStandardMaterial({ color: 0xe3d6b4, roughness: 0.95 });
     const matColumn = new THREE.MeshStandardMaterial({ color: 0xcfc2a0, roughness: 0.85 });
@@ -411,259 +444,298 @@ export default function BuildingModel3D(props: BuildingModel3DProps) {
     const bulbBag = new Bag();
     const cityBag = new Bag();
 
-    /* ---------- block massing + facades ---------- */
-    type BlockMeta = { def: BlockDef; top: Footprint; center: THREE.Vector3 };
+    /* ---------- the building, from the as-built sheets ---------- */
+    // Nothing here is invented: the plates, the glazing, the terraces and the block
+    // outlines are all read from massing.json, which is generated from the same
+    // fourteen sheets the floor plans are drawn from.
+    type BlockMeta = { id: BlockId; ring: Ring; center: THREE.Vector3 };
     const metaByBlock = {} as Record<BlockId, BlockMeta>;
     const hitMeshes: THREE.Mesh[] = [];
     const outlineByBlock = {} as Record<BlockId, THREE.LineSegments>;
     const pinByBlock = {} as Record<BlockId, HTMLDivElement>;
+    const buildingGroup = new THREE.Group();
+    scene.add(buildingGroup);
 
-    const addMassing = (fp: Footprint, y0: number, y1: number, material: THREE.Material): THREE.Mesh => {
-      const m = new THREE.Mesh(unitBox, material);
-      m.scale.set(fp.w, y1 - y0, fp.d);
-      m.position.set(fp.cx, (y0 + y1) / 2, fp.cz);
-      m.castShadow = true;
-      m.receiveShadow = true;
-      scene.add(m);
-      return m;
+    let originX = 0;
+    let originY = 0;
+    const levelByFloor = new Map<number, MassingLevel>();
+
+    // The facade glass is one instanced mesh; selection repaints it rather than
+    // rebuilding anything, so highlighting a block or a floor costs one buffer upload.
+    let facadeMesh: THREE.InstancedMesh | null = null;
+    const winOf: Array<{ block: BlockId | null; floor: number; seed: number }> = [];
+
+    /**
+     * A window's colour. Dusk lighting: a little under half the flats are lit, a few of
+     * those read as TV-blue. `emphasis` is what makes a selection legible — the chosen
+     * block keeps its warmth while the rest of the complex falls back to cool glass, and
+     * the chosen floor's band of windows lifts to gold.
+     */
+    const facadeColor = (seed: number, emphasis: 'normal' | 'dim' | 'floor'): THREE.Color => {
+      if (emphasis === 'floor') return col(0xc9a769, 1.15 + 0.45 * hash01(seed + 3.3));
+      const lit = hash01(seed) < 0.45;
+      if (emphasis === 'dim') {
+        // still reads as glass, but it stops competing with the selected block
+        return lit ? col(0x2c3a3c, 0.55 + 0.3 * hash01(seed + 1.9)) : col(0x1d282d, 0.6);
+      }
+      if (!lit) return col(0x22313a, 0.75 + 0.5 * hash01(seed + 5.31));
+      if (hash01(seed + 41.77) < 0.07) return col(0x9fc4d8, 0.3 + 0.12 * hash01(seed + 8.81));
+      return col(0xf2c176, (0.62 + 0.5 * hash01(seed + 17.17)) * 1.28);
     };
 
-    const DIRS: FaceDir[] = ['+x', '-x', '+z', '-z'];
-
-    BLOCKS.forEach((b, bi) => {
-      const top = topFootprint(b);
-      metaByBlock[b.id] = { def: b, top, center: new THREE.Vector3(b.cx, 12, b.cz) };
-
-      // Ground box recessed 0.8 on the street face (real colonnade depth), full mid box, set-back top box.
-      const gfp: Footprint = { w: b.w, d: b.d, cx: b.cx, cz: b.cz };
-      if (b.street === '+z') { gfp.d -= 0.8; gfp.cz -= 0.4; }
-      else if (b.street === '-z') { gfp.d -= 0.8; gfp.cz += 0.4; }
-      else { gfp.w -= 0.8; gfp.cx += 0.4; }
-      addMassing(gfp, 0, GROUND_H, matLimestone);
-      addMassing(b, GROUND_H, floorY(TOP_FLOOR), matLimestone);
-      addMassing(top, floorY(TOP_FLOOR), ROOF_Y, matLimestone);
-
-      // Ground-floor street glazing wall, recessed 0.8 behind the colonnade.
-      const streetRect = faceRect(b, b.street, 0);
-      {
-        const p = onFace(streetRect, streetRect.latCenter, -0.75);
-        const wall = new THREE.Mesh(unitBox, matGlazing);
-        wall.scale.set(streetRect.latLen - 1.0, 4.15, 0.14);
-        if (streetRect.axis === 'z') wall.rotation.y = Math.PI / 2;
-        wall.position.set(p.x, 2.2, p.z);
-        scene.add(wall);
-        // Warm lobby glow just in front of the glazing surface (-0.68) to avoid z-fighting.
-        for (const t of [-streetRect.latLen / 5, streetRect.latLen / 5]) {
-          const q = onFace(streetRect, streetRect.latCenter + t, -0.6);
-          windowBag.add(q.x, 2.15, q.z, 2.6, 3.5, 1, streetRect.ry, col(0xf2c176, 1.5)); // linear lum ≈ 0.87, over the bloom threshold
-        }
+    /** Repaint the facade for the current block/floor selection. */
+    const paintFacade = (): void => {
+      if (!facadeMesh) return;
+      const selBlock = state.block;
+      const selFloor = state.floor;
+      const floorLit = typeof selFloor === 'number' && selFloor >= 0 && selFloor <= TOP_FLOOR;
+      for (let i = 0; i < winOf.length; i++) {
+        const w = winOf[i];
+        const mine = w.block === selBlock;
+        const emphasis = mine && floorLit && w.floor === selFloor ? 'floor' : mine ? 'normal' : 'dim';
+        facadeMesh.setColorAt(i, facadeColor(w.seed, emphasis));
       }
+      if (facadeMesh.instanceColor) facadeMesh.instanceColor.needsUpdate = true;
+    };
 
-      // Colonnade along the street face — round stone columns on the original facade line.
-      {
-        const L = streetRect.latLen;
-        const n = Math.round((L - 4) / 4);
-        const spacing = (L - 4) / n;
-        for (let i = 0; i <= n; i++) {
-          const lat = streetRect.latCenter - (L - 4) / 2 + spacing * i;
-          const p = onFace(streetRect, lat, 0);
-          columnBag.add(p.x, GROUND_H / 2, p.z, 0.3, GROUND_H, 0.3);
-        }
-      }
+    const buildComplex = (m: Massing): void => {
+      originX = m.center[0];
+      originY = m.center[1];
+      const toWorldX = (x: number): number => x - originX;
+      const toWorldZ = (y: number): number => -(y - originY);
 
-      // Spandrel bands at every floor line, wrapping the block 0.06 proud.
-      for (let f = 1; f <= TOP_FLOOR; f++) {
-        spandrelBag.add(b.cx, floorY(f), b.cz, b.w + 0.12, 0.65, b.d + 0.12);
-      }
+      // Bags for the building's own instances — the site and city bags are already
+      // sealed into their meshes by the time the sheets land.
+      const glassBag = new Bag();
+      const revealBag = new Bag();
+      const leafBag = new Bag();
+      const trunkBag2 = new Bag();
 
-      // Cornice slab over floor 10, projecting past the setback face, then the parapet.
-      spandrelBag.add(top.cx, ROOF_Y + 0.175, top.cz, top.w + 0.9, 0.35, top.d + 0.9);
-      spandrelBag.add(top.cx, ROOF_Y + 0.65, top.cz + top.d / 2 - 0.02, top.w + 0.1, 0.6, 0.24);
-      spandrelBag.add(top.cx, ROOF_Y + 0.65, top.cz - top.d / 2 + 0.02, top.w + 0.1, 0.6, 0.24);
-      spandrelBag.add(top.cx + top.w / 2 - 0.02, ROOF_Y + 0.65, top.cz, 0.24, 0.6, top.d + 0.1);
-      spandrelBag.add(top.cx - top.w / 2 + 0.02, ROOF_Y + 0.65, top.cz, 0.24, 0.6, top.d + 0.1);
+      for (const lv of m.levels) {
+        levelByFloor.set(lv.floor, lv);
+        const y0 = floorY(lv.floor);
+        const h = floorHeight(lv.floor);
 
-      // Rooftop planting along the parapet.
-      {
-        const ix = top.w / 2 - 0.55;
-        const iz = top.d / 2 - 0.55;
-        const edges: Array<[number, number, number, number]> = [
-          [top.cx - ix, top.cz - iz, top.cx + ix, top.cz - iz],
-          [top.cx - ix, top.cz + iz, top.cx + ix, top.cz + iz],
-          [top.cx - ix, top.cz - iz, top.cx - ix, top.cz + iz],
-          [top.cx + ix, top.cz - iz, top.cx + ix, top.cz + iz],
-        ];
-        edges.forEach(([x1, z1, x2, z2], ei) => {
-          const len = Math.hypot(x2 - x1, z2 - z1);
-          const n = Math.max(2, Math.round(len / 1.7));
-          for (let i = 0; i <= n; i++) {
-            const t = i / n;
-            const r = 0.2 + 0.2 * hash01(bi * 31.7 + ei * 7.9 + i * 1.3);
-            greenBag.add(
-              x1 + (x2 - x1) * t, ROOF_Y + 0.72, z1 + (z2 - z1) * t,
-              r * 1.35, r, r * 1.35, 0,
-              col(0x3e5a34, 0.85 + 0.4 * hash01(bi + ei * 3.1 + i * 0.7)),
-            );
+        // The storey. Where the sheet draws balconies the floor plate still runs out to
+        // the parapet, so the mass is solid to parapet height and recessed above it —
+        // which is exactly what a balcony looks like from the street.
+        const voids = lv.voids ?? [];
+        if (voids.length > 0) {
+          const base = new THREE.Mesh(extrudeRing(lv.ring, originX, originY, y0, PARAPET_H), matLimestone);
+          base.castShadow = true;
+          base.receiveShadow = true;
+          buildingGroup.add(base);
+          const upper = new THREE.Mesh(
+            extrudeRing(lv.ring, originX, originY, y0 + PARAPET_H, h - PARAPET_H, voids),
+            matLimestone,
+          );
+          upper.castShadow = true;
+          upper.receiveShadow = true;
+          buildingGroup.add(upper);
+          // the soffit over each recess, so the opening reads as depth rather than a hole
+          for (const v of voids) {
+            const soffit = new THREE.Mesh(flatRing(v, originX, originY, y0 + h - 0.01), matSpandrel);
+            soffit.receiveShadow = true;
+            buildingGroup.add(soffit);
           }
-        });
-        // A second row along the setback terrace edge on the street side.
-        const tr = faceRect(b, b.street, 0);
-        const n = Math.max(2, Math.round((tr.latLen - 2) / 1.6));
-        for (let i = 0; i <= n; i++) {
-          const lat = tr.latCenter - (tr.latLen - 2) / 2 + ((tr.latLen - 2) / n) * i;
-          const p = onFace(tr, lat, -0.55);
-          const r = 0.2 + 0.18 * hash01(bi * 57.3 + i * 2.9);
-          greenBag.add(p.x, floorY(TOP_FLOOR) + 0.26, p.z, r * 1.3, r, r * 1.3, 0, col(0x3e5a34, 0.9 + 0.3 * hash01(bi + i)));
+        } else {
+          const mass = new THREE.Mesh(extrudeRing(lv.ring, originX, originY, y0, h), matLimestone);
+          mass.castShadow = true;
+          mass.receiveShadow = true;
+          buildingGroup.add(mass);
+        }
+
+        // the slab edge that caps it — the shadow line that reads as a storey
+        if (lv.band) {
+          const band = new THREE.Mesh(extrudeRing(lv.band, originX, originY, y0 + h - 0.2, 0.24), matSpandrel);
+          band.castShadow = true;
+          band.receiveShadow = true;
+          buildingGroup.add(band);
+        }
+
+        // measured glazing: one run of glass per line the sheet draws on the outer wall
+        const winH = Math.min(2.15, h - 1.35);
+        const sill = y0 + (lv.floor === 0 ? 1.05 : 0.95);
+            for (let wi = 0; wi < lv.windows.length; wi++) {
+          const run = lv.windows[wi];
+          const ax = toWorldX(run[0]);
+          const az = toWorldZ(run[1]);
+          const bx = toWorldX(run[2]);
+          const bz = toWorldZ(run[3]);
+          const len = Math.hypot(bx - ax, bz - az);
+          if (len < 0.5) continue;
+          const nx = run[4];
+          const nz = -run[5]; // the sheet's outward normal, mapped into the scene
+          const mx = (ax + bx) / 2;
+          const mz = (az + bz) / 2;
+          const ry = Math.atan2(nx, nz);
+          const seed = lv.floor * 97.3 + wi * 13.7;
+          // which block the window belongs to: the nearest of the three residence outlines
+          let block: BlockId | null = null;
+          let best = 9;
+          for (const b of m.blocks) {
+            const d = distToRing((run[0] + run[2]) / 2, (run[1] + run[3]) / 2, b.ring);
+            if (d < best) {
+              best = d;
+              block = b.id;
+            }
+          }
+          winOf.push({ block, floor: lv.floor, seed });
+          const outGlass = 0.07;
+          const outReveal = 0.02;
+          const cy2 = sill + winH / 2;
+          // a dark reveal a little larger than the glass reads as the opening's depth
+          revealBag.add(mx + nx * outReveal, cy2, mz + nz * outReveal, len + 0.12, winH + 0.14, 0.06, ry);
+          glassBag.add(mx + nx * outGlass, cy2, mz + nz * outGlass, len - 0.06, winH, 1, ry, facadeColor(seed, 'normal'));
+        }
+
+        // level 9's terraces and the ground-floor gardens, planted
+        for (const t of lv.terraces ?? []) {
+          const deck = new THREE.Mesh(flatRing(t, originX, originY, y0 + 0.06), matSlab);
+          deck.receiveShadow = true;
+          buildingGroup.add(deck);
+          const tc = ringCentroid(t);
+          for (let i = 0; i < 3; i++) {
+            const px = toWorldX(tc[0]) + (hash01(i * 4.1 + lv.floor) - 0.5) * 2.4;
+            const pz = toWorldZ(tc[1]) + (hash01(i * 7.9 + lv.floor) - 0.5) * 2.4;
+            const r = 0.5 + 0.35 * hash01(i * 2.3 + tc[0]);
+            leafBag.add(px, y0 + 0.5 + r * 0.5, pz, r * 1.5, r, r * 1.5, 0, col(0x3f6b3c, 0.7 + 0.4 * hash01(i + tc[0])));
+          }
+        }
+        for (const g of lv.gardens ?? []) {
+          const lawn = new THREE.Mesh(
+            flatRing(g, originX, originY, 0.08),
+            new THREE.MeshStandardMaterial({ color: 0x3d5c36, roughness: 1 }),
+          );
+          lawn.receiveShadow = true;
+          buildingGroup.add(lawn);
+          const gc = ringCentroid(g);
+          for (let i = 0; i < 4; i++) {
+            const px = toWorldX(gc[0]) + (hash01(i * 3.3 + gc[0]) - 0.5) * 5;
+            const pz = toWorldZ(gc[1]) + (hash01(i * 6.1 + gc[1]) - 0.5) * 5;
+            const r = 0.7 + 0.5 * hash01(i * 1.7 + gc[0]);
+            trunkBag2.add(px, 0.9, pz, 0.11, 1.8, 0.11, 0, col(0x4a3a2a));
+            leafBag.add(px, 1.8 + r * 0.7, pz, r * 1.6, r * 1.3, r * 1.6, 0, col(0x39602f, 0.75 + 0.4 * hash01(i + gc[1])));
+          }
         }
       }
 
-      // ---- facade bays: windows, terraces, recessed loggias ----
-      DIRS.forEach((dir, di) => {
-        for (let f = 0; f <= TOP_FLOOR; f++) {
-          if (f === 0 && dir === b.street) continue; // colonnade instead
-          const rect = faceRect(b, dir, f);
-          const offsets = bayOffsets(rect.latLen);
-          const loggiaFace = f >= 1 && f <= 9 &&
-            ((b.id === 'C' && dir === '-x') || (b.id === 'B' && dir === '-z'));
-
-          offsets.forEach((rel, bay) => {
-            const lat = rect.latCenter + rel;
-            const seed = bi * 91.31 + di * 7.3 + f * 13.7 + bay * 1.77;
-
-            if (loggiaFace && bay % 2 === 0) {
-              // Recessed loggia: dark shadow plane + rail, occasionally a small palm.
-              const pv = onFace(rect, lat, 0.05);
-              voidBag.add(pv.x, floorY(f) + 1.6, pv.z, 2.7, 2.5, 1, rect.ry);
-              const pr = onFace(rect, lat, 0.16);
-              railBag.add(pr.x, floorY(f) + 1.15, pr.z, 2.5, 0.045, 0.045, rect.ry);
-              for (const e of [-1.2, 1.2]) {
-                const pp = onFace(rect, lat + e, 0.16);
-                railBag.add(pp.x, floorY(f) + 0.78, pp.z, 0.05, 0.85, 0.05, rect.ry);
-              }
-              if (hash01(seed + 3.3) < 0.38) {
-                const side = hash01(seed + 9.1) < 0.5 ? -0.8 : 0.8;
-                const pt = onFace(rect, lat + side, 0.14);
-                trunkBag.add(pt.x, floorY(f) + 0.72, pt.z, 0.06, 0.75, 0.06, 0, col(0x3a3227));
-                coneBag.addTilted(pt.x, floorY(f) + 1.45, pt.z, 0.45, 0.95, 0.45, 0.35, rect.ry, 0.1);
-                coneBag.addTilted(pt.x, floorY(f) + 1.35, pt.z, 0.42, 0.85, 0.42, -0.28, rect.ry, -0.32);
-              }
-              return;
-            }
-
-            // Standard bay: dark frame + glowing/dark glass. The glass must sit proud of
-            // both the massing surface (offset 0) and the frame's front cap (+0.02) —
-            // anything deeper is swallowed by the opaque limestone box.
-            const winW = f === 0 ? 2.25 : 1.9;
-            const winH = f === 0 ? 3.3 : 2.05;
-            const cy = f === 0 ? 2.25 : floorY(f) + 0.85 + winH / 2;
-            const pf = onFace(rect, lat, -0.11);
-            frameBag.add(pf.x, cy, pf.z, winW + 0.22, winH + 0.22, 0.26, rect.ry);
-            const pg = onFace(rect, lat, 0.035);
-            windowBag.add(pg.x, cy, pg.z, winW, winH, 1, rect.ry, windowColor(seed));
-
-            // Deep planted terraces on Block A's south face, floors 2–8, alternating bays.
-            if (b.id === 'A' && dir === '+z' && f >= 2 && f <= 8 && bay % 2 === 1) {
-              const ps = onFace(rect, lat, 1.0);
-              slabBag.add(ps.x, floorY(f) - 0.09, ps.z, 3.3, 0.22, 2.3, rect.ry);
-              const pb = onFace(rect, lat, 1.9);
-              slabBag.add(pb.x, floorY(f) + 0.23, pb.z, 3.0, 0.42, 0.42, rect.ry);
-              const nGreens = hash01(seed + 21.3) < 0.5 ? 2 : 3;
-              const spots = nGreens === 2 ? [-0.6, 0.65] : [-0.95, 0, 0.95];
-              spots.forEach((gx, gi) => {
-                const pgr = onFace(rect, lat + gx, 1.9);
-                const r = 0.24 + 0.12 * hash01(seed + gi * 4.7);
-                greenBag.add(pgr.x, floorY(f) + 0.56, pgr.z, r, r * 0.85, r, 0, col(0x56704a, 0.85 + 0.4 * hash01(seed + gi)));
-              });
-            }
-          });
+      // the crown: roof deck and a parapet standing on the top plate's own outline
+      const top = m.levels[m.levels.length - 1];
+      if (top) {
+        const roof = new THREE.Mesh(flatRing(top.ring, originX, originY, ROOF_Y + 0.01), matSlab);
+        roof.receiveShadow = true;
+        buildingGroup.add(roof);
+        if (top.band) {
+          const parapet = new THREE.Mesh(
+            extrudeRing(top.band, originX, originY, ROOF_Y, 0.95, [top.ring]),
+            matSpandrel,
+          );
+          parapet.castShadow = true;
+          buildingGroup.add(parapet);
         }
+      }
+
+      // paving and planting on the open ground the blocks wrap around
+      const groundRing = m.levels.find((lv) => lv.floor === 0)?.ring;
+      for (const ring of m.open) {
+        const paving = new THREE.Mesh(
+          flatRing(ring, originX, originY, 0.02),
+          new THREE.MeshStandardMaterial({ color: 0xb9b1a0, roughness: 0.95 }),
+        );
+        paving.receiveShadow = true;
+        buildingGroup.add(paving);
+        // courtyard trees, scattered deterministically wherever the ground is genuinely open
+        const xs = ring.map((p) => p[0]);
+        const ys = ring.map((p) => p[1]);
+        const rx0 = Math.min(...xs);
+        const rx1 = Math.max(...xs);
+        const ry0 = Math.min(...ys);
+        const ry1 = Math.max(...ys);
+        let placed = 0;
+        for (let i = 0; i < 320 && placed < 26; i++) {
+          const px = rx0 + (rx1 - rx0) * hash01(i * 1.37 + 0.11);
+          const py = ry0 + (ry1 - ry0) * hash01(i * 2.71 + 5.3);
+          if (distToRing(px, py, ring) > 0) continue; // outside the open ground
+          if (groundRing && distToRing(px, py, groundRing) < 2.6) continue; // hard against a facade
+          placed++;
+          const wx = toWorldX(px);
+          const wz = toWorldZ(py);
+          const r = 1.1 + 0.7 * hash01(i * 5.9);
+          trunkBag2.add(wx, 1.15, wz, 0.14, 2.3, 0.14, 0, col(0x4a3a2a, 0.8 + 0.4 * hash01(i)));
+          leafBag.add(wx, 2.3 + r * 0.75, wz, r * 1.7, r * 1.35, r * 1.7, 0, col(0x35592d, 0.7 + 0.5 * hash01(i * 3.1)));
+        }
+      }
+
+      facadeMesh = glassBag.build(unitPlane, matWindow);
+      buildingGroup.add(facadeMesh);
+      buildingGroup.add(revealBag.build(unitBox, matFrame));
+      buildingGroup.add(leafBag.build(unitSphere, matGreen, true));
+      buildingGroup.add(trunkBag2.build(unitCyl, matTrunk, true));
+
+      /* ---------- blocks: outline, hit volume and pin, on the real wings ---------- */
+      for (const b of m.blocks) {
+        const center = new THREE.Vector3(toWorldX(b.x), ROOF_Y * 0.45, toWorldZ(b.y));
+        metaByBlock[b.id] = { id: b.id, ring: b.ring, center };
+
+        const volume = extrudeRing(b.ring, originX, originY, 0, ROOF_Y);
+        const hit = new THREE.Mesh(volume, new THREE.MeshBasicMaterial({ visible: false }));
+        hit.userData.block = b.id;
+        buildingGroup.add(hit);
+        hitMeshes.push(hit);
+
+        const outline = new THREE.LineSegments(
+          new THREE.EdgesGeometry(volume, 25),
+          new THREE.LineBasicMaterial({ color: col(0xc9a769, 1.4), transparent: true, opacity: 0.3, depthWrite: false }),
+        );
+        outline.renderOrder = 4;
+        outline.visible = false;
+        buildingGroup.add(outline);
+        outlineByBlock[b.id] = outline;
+
+        const pin = document.createElement('div');
+        pin.className = 'bm3d-pin';
+        pin.textContent = b.id;
+        pin.addEventListener('pointerdown', (e) => e.stopPropagation());
+        pin.addEventListener('click', (e) => {
+          e.stopPropagation();
+          propsRef.current.onSelectBlock(b.id);
+        });
+        pin.addEventListener(
+          'wheel',
+          (e) => {
+            // the pin sits over the canvas: let the wheel keep zooming the model
+            e.preventDefault();
+            e.stopPropagation();
+            renderer.domElement.dispatchEvent(new WheelEvent('wheel', e));
+          },
+          { passive: false },
+        );
+        const pinObj = new CSS2DObject(pin);
+        pinObj.position.set(center.x, ROOF_Y + 5.4, center.z);
+        scene.add(pinObj);
+        pinByBlock[b.id] = pin;
+      }
+
+      // re-apply whatever the page had already selected while the sheets were loading
+      setSelection(state.block, state.floor);
+      invalidate();
+    };
+
+    const massingAbort = new AbortController();
+    fetch(MASSING_URL, { signal: massingAbort.signal })
+      .then((r) => (r.ok ? (r.json() as Promise<Massing>) : null))
+      .then((m) => {
+        if (m && !disposed) buildComplex(m);
+      })
+      .catch(() => {
+        // an aborted or failed load leaves the site and sky standing; the page's own
+        // block and floor lists remain the authoritative way to browse the building
       });
 
-      // ---- corner loggias at the two outer street corners, floors 1–9 ----
-      {
-        const sr = faceRect(b, b.street, 1);
-        const corners: Array<{ px: number; pz: number; sx: number; sz: number }> = [];
-        if (sr.axis === 'x') {
-          // Street face runs along x; corners at both x ends.
-          corners.push({ px: b.cx - b.w / 2, pz: sr.plane, sx: -1, sz: sr.nz });
-          corners.push({ px: b.cx + b.w / 2, pz: sr.plane, sx: 1, sz: sr.nz });
-        } else {
-          corners.push({ px: sr.plane, pz: b.cz - b.d / 2, sx: sr.nx, sz: -1 });
-          corners.push({ px: sr.plane, pz: b.cz + b.d / 2, sx: sr.nx, sz: 1 });
-        }
-        for (const c of corners) {
-          // Dark glass void filling the hollowed corner, floors 1–9.
-          const dv = new THREE.Mesh(unitBox, matDarkVoid);
-          dv.scale.set(2.8, floorY(TOP_FLOOR) - GROUND_H, 2.8);
-          dv.position.set(c.px - c.sx * 1.35, (GROUND_H + floorY(TOP_FLOOR)) / 2, c.pz - c.sz * 1.35);
-          scene.add(dv);
-
-          for (let f = 1; f <= 9; f++) {
-            const slabY = floorY(f) - 0.07;
-            // L-shaped wrap slab: one leg along each face.
-            slabBag.add(c.px - c.sx * 0.95, slabY, c.pz + c.sz * 0.275, 3.6, 0.18, 1.15);
-            slabBag.add(c.px + c.sx * 0.275, slabY, c.pz - c.sz * 0.95, 1.15, 0.18, 3.6);
-            const st = floorY(f) + 0.02;
-            for (const hh of [0.38, 0.68, 0.98]) {
-              railBag.add(c.px - c.sx * 0.95, st + hh, c.pz + c.sz * 0.78, 3.6, 0.045, 0.045);
-              railBag.add(c.px + c.sx * 0.78, st + hh, c.pz - c.sz * 0.95, 0.045, 0.045, 3.6);
-            }
-            railBag.add(c.px + c.sx * 0.78, st + 0.53, c.pz + c.sz * 0.78, 0.055, 1.05, 0.055);
-            railBag.add(c.px - c.sx * 2.72, st + 0.53, c.pz + c.sz * 0.78, 0.055, 1.05, 0.055);
-            railBag.add(c.px + c.sx * 0.78, st + 0.53, c.pz - c.sz * 2.72, 0.055, 1.05, 0.055);
-          }
-        }
-      }
-
-      // ---- invisible-but-raycastable hit volume ----
-      const hit = new THREE.Mesh(
-        unitBox,
-        new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false, colorWrite: false }),
-      );
-      hit.scale.set(b.w + 0.4, 38, b.d + 0.4);
-      hit.position.set(b.cx, 19, b.cz);
-      hit.userData.block = b.id;
-      scene.add(hit);
-      hitMeshes.push(hit);
-
-      // ---- gold massing outline (selection / hover) ----
-      const outline = new THREE.LineSegments(
-        new THREE.EdgesGeometry(new THREE.BoxGeometry(b.w + 0.25, 36.9, b.d + 0.25)),
-        new THREE.LineBasicMaterial({ color: 0xc9a769, transparent: true, opacity: 0.85 }),
-      );
-      outline.position.set(b.cx, 18.45, b.cz);
-      outline.visible = false;
-      scene.add(outline);
-      outlineByBlock[b.id] = outline;
-
-      // ---- CSS2D block pin ----
-      const pin = document.createElement('div');
-      pin.className = 'bm3d-pin';
-      pin.dataset.block = b.id;
-      pin.textContent = b.id;
-      pin.style.pointerEvents = 'auto';
-      pin.style.cursor = 'pointer';
-      const swallow = (e: Event) => e.stopPropagation();
-      pin.addEventListener('pointerdown', swallow);
-      pin.addEventListener('pointerup', swallow);
-      pin.addEventListener('click', () => propsRef.current.onSelectBlock(b.id));
-      // Zooming shouldn't die (and scroll the page) just because the cursor crossed a pin.
-      pin.addEventListener(
-        'wheel',
-        (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          renderer.domElement.dispatchEvent(new WheelEvent('wheel', e));
-        },
-        { passive: false },
-      );
-      const pinObj = new CSS2DObject(pin);
-      pinObj.position.set(b.cx, ROOF_Y + 0.95 + 4.5, b.cz);
-      scene.add(pinObj);
-      pinByBlock[b.id] = pin;
-    });
-
-    /* ---------- ground, courtyard, streets ---------- */
+    /* ---------- ground and street ---------- */
+    // The paving, gardens and planting that belong to the parcel are placed from the
+    // sheets in buildComplex(); only the ground the drawings say nothing about is here.
     const ground = new THREE.Mesh(
       new THREE.PlaneGeometry(600, 600),
       new THREE.MeshStandardMaterial({ color: 0x131a15, roughness: 1 }),
@@ -672,110 +744,26 @@ export default function BuildingModel3D(props: BuildingModel3DProps) {
     ground.receiveShadow = true;
     scene.add(ground);
 
-    const flat = (w: number, d: number, x: number, y: number, z: number, color: number, rough = 0.95): void => {
-      const m = new THREE.Mesh(unitPlane, new THREE.MeshStandardMaterial({ color, roughness: rough }));
-      m.rotation.x = -Math.PI / 2;
-      m.scale.set(w, d, 1);
-      m.position.set(x, y, z);
-      m.receiveShadow = true;
-      scene.add(m);
-    };
+    // The street the parcel fronts. The sheets stop at the property line, so this is
+    // context, not a survey — kept plain for that reason.
+    const street = new THREE.Mesh(
+      new THREE.PlaneGeometry(260, 15),
+      new THREE.MeshStandardMaterial({ color: 0x1a201e, roughness: 1 }),
+    );
+    street.rotation.x = -Math.PI / 2;
+    street.position.set(0, 0.012, 42);
+    street.receiveShadow = true;
+    scene.add(street);
 
-    // Courtyard paving + lawns.
-    flat(36, 27, 3, 0.02, 1.5, 0xcfc7b4);
-    flat(10, 7, -7, 0.05, 7, 0x42603a, 1);
-    flat(9, 6.5, 13, 0.05, -3, 0x42603a, 1);
-
-    // Raised planters (stone edge + soft ground-cover mounds).
-    const planter = (x: number, z: number, w: number, d: number, seed: number): void => {
-      slabBag.add(x, 0.25, z, w, 0.5, d, 0, col(0xb6a988));
-      const n = Math.max(2, Math.round(Math.max(w, d) / 1.2));
-      for (let i = 0; i < n; i++) {
-        const t = n === 1 ? 0 : i / (n - 1) - 0.5;
-        const gx = w > d ? x + t * (w - 1) : x + (hash01(seed + i) - 0.5) * (w - 0.9);
-        const gz = w > d ? z + (hash01(seed + i + 3.1) - 0.5) * (d - 0.9) : z + t * (d - 1);
-        const r = 0.32 + 0.2 * hash01(seed + i * 1.9);
-        greenBag.add(gx, 0.55, gz, r * 1.25, r, r * 1.25, 0, col(0x56704a, 0.85 + 0.35 * hash01(seed + i * 0.6)));
-      }
-    };
-    planter(-8, 14.2, 4.2, 1.5, 1.1);
-    planter(-14.2, 4, 1.5, 4.5, 2.2);
-    planter(10, -11.4, 4.5, 1.5, 3.3);
-    planter(18, 8, 1.6, 3.6, 4.4);
-
-    // The sculptural olive at the courtyard's heart.
-    {
-      const ring = new THREE.Mesh(unitCyl, matSlab);
-      ring.scale.set(2.4, 0.5, 2.4);
-      ring.position.set(4, 0.25, 2);
-      ring.castShadow = true;
-      ring.receiveShadow = true;
-      scene.add(ring);
-      const soil = new THREE.Mesh(unitCyl, new THREE.MeshStandardMaterial({ color: 0x2a2a1e, roughness: 1 }));
-      soil.scale.set(2.25, 0.09, 2.25);
-      soil.position.set(4, 0.52, 2);
-      scene.add(soil);
-      trunkBag.addTilted(4, 1.9, 2, 0.32, 3.0, 0.32, 0, 0, 0.11, col(0x211d18));
-      trunkBag.addTilted(4.3, 1.8, 2.15, 0.22, 2.8, 0.22, -0.13, 0, -0.09, col(0x211d18, 1.1));
-      greenBag.add(4, 4.35, 2, 2.2, 1.75, 2.2, 0, col(0x6b7d5a));
-      greenBag.add(2.9, 3.9, 2.7, 1.6, 1.3, 1.6, 0, col(0x6b7d5a, 0.92));
-      greenBag.add(5.2, 4.0, 1.3, 1.7, 1.35, 1.7, 0, col(0x6b7d5a, 1.06));
-      greenBag.add(4.4, 5.0, 2.5, 1.35, 1.1, 1.35, 0, col(0x6b7d5a, 0.85));
+    // Kerb lamps: the bulbs sit just over the bloom threshold so they flare gently.
+    for (let i = -4; i <= 4; i++) {
+      const x = i * 15;
+      railBag.add(x, 2.4, 35.4, 0.16, 4.8, 0.16, 0, col(0x4a4e52));
+      bulbBag.add(x, 5.02, 35.4, 0.34, 0.34, 0.34);
+      const lamp = new THREE.PointLight(0xffcf9a, 8, 20, 2);
+      lamp.position.set(x, 5, 35.4);
+      scene.add(lamp);
     }
-
-    // Courtyard glow anchors — additive light pools under the planters and the
-    // olive, warm spill for the bloom pass to catch.
-    {
-      const glowGeom = new THREE.CircleGeometry(1, 24);
-      const glowMat = new THREE.MeshBasicMaterial({
-        color: col(0xc9a769, 1.3),
-        transparent: true,
-        opacity: 0.28,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false,
-      });
-      const pools: Array<[number, number, number]> = [
-        [4, 2, 3.4], // olive
-        [-8, 14.2, 2.6],
-        [-14.2, 4, 2.6],
-        [10, -11.4, 2.6],
-        [18, 8, 2.2],
-      ];
-      for (const [gx, gz, gr] of pools) {
-        const pool = new THREE.Mesh(glowGeom, glowMat);
-        pool.rotation.x = -Math.PI / 2;
-        pool.scale.set(gr, gr, 1);
-        pool.position.set(gx, 0.06, gz); // a hair above the lawn planes (0.05) — coplanar would flicker
-        scene.add(pool);
-      }
-    }
-
-    // Streets south (z > 33) and west (x < -33): sidewalks, asphalt, trees, lamps.
-    flat(92, 1.9, 2, 0.045, 33.45, 0x8d897c);
-    flat(92, 7.2, 2, 0.03, 38.1, 0x3d4143, 0.98);
-    flat(92, 2.0, 2, 0.045, 42.7, 0x8d897c);
-    flat(1.9, 96, -33.45, 0.047, -3, 0x8d897c);
-    flat(7.2, 96, -38.1, 0.032, -3, 0x3d4143, 0.98);
-    flat(2.0, 96, -42.7, 0.047, -3, 0x8d897c);
-
-    const streetTree = (x: number, z: number, seed: number): void => {
-      trunkBag.add(x, 1.2, z, 0.08, 2.4, 0.08, 0, col(0x2a251c));
-      const r = 0.9 + 0.5 * hash01(seed);
-      greenBag.add(x, 2.55 + 0.3 * hash01(seed + 1.3), z, r * 1.15, r, r * 1.15, 0, col(0x55703f, 0.85 + 0.35 * hash01(seed + 2.6)));
-    };
-    for (let i = 0; i < 9; i++) streetTree(-18 + i * 7.5, 33.5, i * 1.7);
-    for (let i = 0; i < 9; i++) streetTree(-33.6, -36 + i * 7.5, 40 + i * 2.3);
-
-    const lamp = (x: number, z: number): void => {
-      railBag.add(x, 2.5, z, 0.09, 5, 0.09, 0, col(0x23262b));
-      bulbBag.add(x, 4.95, z, 0.16, 0.16, 0.16);
-    };
-    lamp(-30, 34.1);
-    lamp(-4, 34.1);
-    lamp(22, 34.1);
-    lamp(42, 34.1);
-    lamp(-34.1, -28);
-    lamp(-34.1, 10);
 
     /* ---------- background city: a distant skyline, deep in the fog ---------- */
     // Kept on the far side of the site from the default camera (+x,+z) and at
@@ -837,19 +825,30 @@ export default function BuildingModel3D(props: BuildingModel3DProps) {
     scene.add(bulbBag.build(unitSphere, matBulb));
     scene.add(cityBag.build(unitBox, matCity));
 
-    /* ---------- selection band (selected floor on selected block) ---------- */
+    /* ---------- selection band: the chosen floor of the chosen block ---------- */
+    // The band follows the block's own outline at that storey's height, so it sits on
+    // the real wing rather than around a bounding box.
     const bandGroup = new THREE.Group();
     // ×1.6 lifts the gold over the bloom threshold so the selection band genuinely glows.
-    const bandMat = new THREE.MeshBasicMaterial({ color: col(0xc9a769, 1.6), transparent: true, opacity: 0.3, depthWrite: false });
+    const bandMat = new THREE.MeshBasicMaterial({ color: col(0xc9a769, 1.6), transparent: true, opacity: 0.26, depthWrite: false });
     const bandEdgeMat = new THREE.LineBasicMaterial({ color: col(0xc9a769, 1.6), transparent: true, opacity: 0.9, depthWrite: false });
-    const bandMesh = new THREE.Mesh(unitBox, bandMat);
-    bandMesh.renderOrder = 5;
-    const bandEdges = new THREE.LineSegments(new THREE.EdgesGeometry(unitBox), bandEdgeMat);
-    bandEdges.renderOrder = 6;
-    bandGroup.add(bandMesh);
-    bandGroup.add(bandEdges);
+    let bandMesh: THREE.Mesh | null = null;
+    let bandEdges: THREE.LineSegments | null = null;
     bandGroup.visible = false;
     scene.add(bandGroup);
+
+    const clearBand = (): void => {
+      if (bandMesh) {
+        bandGroup.remove(bandMesh);
+        bandMesh.geometry.dispose();
+        bandMesh = null;
+      }
+      if (bandEdges) {
+        bandGroup.remove(bandEdges);
+        bandEdges.geometry.dispose();
+        bandEdges = null;
+      }
+    };
 
     /* ---------- selection / hover state ---------- */
     const state: { block: BlockId; floor: FloorId; hover: BlockId | null } = {
@@ -859,46 +858,63 @@ export default function BuildingModel3D(props: BuildingModel3DProps) {
     };
 
     const updateOutlines = (): void => {
-      for (const b of BLOCKS) {
-        const line = outlineByBlock[b.id];
+      for (const id of Object.keys(outlineByBlock) as BlockId[]) {
+        const line = outlineByBlock[id];
         const mat = line.material as THREE.LineBasicMaterial;
-        const sel = state.block === b.id;
-        line.visible = sel || state.hover === b.id;
-        mat.opacity = sel ? 0.85 : 0.28;
+        const sel = state.block === id;
+        line.visible = sel || state.hover === id;
+        mat.opacity = sel ? 0.8 : 0.3;
       }
+      invalidate();
     };
 
     const updateBand = (): void => {
+      clearBand();
       const meta = metaByBlock[state.block];
       const f = state.floor;
-      if (typeof f === 'number' && f >= 0 && f <= TOP_FLOOR) {
-        const fp = f === TOP_FLOOR ? meta.top : meta.def;
-        const h = floorHeight(f);
-        bandGroup.scale.set(fp.w + 0.8, h, fp.d + 0.8);
-        bandGroup.position.set(fp.cx, floorY(f) + h / 2, fp.cz);
-        bandMat.opacity = 0.3;
-        bandEdgeMat.opacity = 0.9;
-        bandGroup.visible = true;
-      } else if (f === 'roof') {
-        const fp = meta.top;
-        bandGroup.scale.set(fp.w + 0.8, 1.15, fp.d + 0.8);
-        bandGroup.position.set(fp.cx, ROOF_Y + 0.58, fp.cz);
-        bandMat.opacity = 0.22;
-        bandEdgeMat.opacity = 0.5;
-        bandGroup.visible = true;
-      } else {
-        bandGroup.visible = false; // basements
+      let y0: number;
+      let h: number;
+      if (meta === undefined) {
+        bandGroup.visible = false; // the sheets have not landed yet
+        return;
       }
+      if (typeof f === 'number' && f >= 0 && f <= TOP_FLOOR) {
+        y0 = floorY(f);
+        h = floorHeight(f);
+        bandMat.opacity = 0.26;
+        bandEdgeMat.opacity = 0.9;
+      } else if (f === 'roof') {
+        y0 = ROOF_Y;
+        h = 1.15;
+        bandMat.opacity = 0.2;
+        bandEdgeMat.opacity = 0.5;
+      } else {
+        bandGroup.visible = false; // basements are not part of the massing
+        return;
+      }
+      const geom = extrudeRing(meta.ring, originX, originY, y0, h);
+      bandMesh = new THREE.Mesh(geom, bandMat);
+      bandMesh.renderOrder = 5;
+      bandEdges = new THREE.LineSegments(new THREE.EdgesGeometry(geom, 25), bandEdgeMat);
+      bandEdges.renderOrder = 6;
+      bandGroup.add(bandMesh);
+      bandGroup.add(bandEdges);
+      bandGroup.visible = true;
     };
 
     const setSelection = (block: BlockId, floor: FloorId): void => {
       state.block = block;
       state.floor = floor;
-      for (const b of BLOCKS) pinByBlock[b.id].classList.toggle('is-active', b.id === block);
+      for (const id of Object.keys(pinByBlock) as BlockId[]) {
+        pinByBlock[id].classList.toggle('is-active', id === block);
+      }
       updateOutlines();
       updateBand();
+      paintFacade(); // the rest of the complex steps back so the selection reads
       // glide partway toward the block so the whole complex stays framed — lerped each frame
-      desiredTarget.lerpVectors(SITE_CENTER, metaByBlock[block].center, 0.45);
+      const meta = metaByBlock[block];
+      if (meta) desiredTarget.lerpVectors(SITE_CENTER, meta.center, 0.45);
+      invalidate();
     };
 
     /* ---------- pointer interaction ---------- */
@@ -953,6 +969,101 @@ export default function BuildingModel3D(props: BuildingModel3DProps) {
     container.addEventListener('pointerup', onPointerUp);
     container.addEventListener('pointerleave', onPointerLeave);
 
+    /* ---------- frame loop: render on demand ---------- */
+    // Nothing in the scene is time-animated (stars, window glow and the light pools
+    // are static), so a frame is only worth drawing when the camera or the
+    // selection/hover state changed:
+    //  - full rate while the intro glide, a drag, damping momentum or the target lerp
+    //    is in motion (OrbitControls dispatches 'change' from update() while it still
+    //    moves the camera, which re-arms the loop through invalidate());
+    //  - the ambient auto-rotate (until the first interaction) at a capped ~24 fps,
+    //    passing the frame delta to update() so the angular speed stays unchanged;
+    //  - nothing at all when idle, when the tab is hidden or the canvas is off-screen.
+    const AMBIENT_FRAME_MS = 1000 / 24;
+    let raf = 0;
+    let ambientTimer = 0;
+    let pending = false; // something asked for a frame
+    let inTick = false;
+    let lastTick = 0; // 0 = no reference frame (first frame, or just resumed)
+    let hidden = document.hidden;
+    let offscreen = false;
+    let disposed = false;
+
+    const tick = (now: number): void => {
+      raf = 0;
+      if (ambientTimer !== 0) {
+        clearTimeout(ambientTimer);
+        ambientTimer = 0;
+      }
+      pending = false;
+      inTick = true;
+      const dt = lastTick === 0 ? 1 / 60 : Math.min((now - lastTick) / 1000, 0.1);
+      lastTick = now;
+
+      if (gliding) {
+        if (glideT0 === null) glideT0 = now;
+        const t = Math.min((now - glideT0) / GLIDE_MS, 1);
+        const s = t * t * (3 - 2 * t); // smoothstep
+        camera.position.lerpVectors(CAM_START, CAM_END, s);
+        if (t >= 1) endGlide();
+      }
+      const targetMoving = controls.target.distanceToSquared(desiredTarget) > 1e-6;
+      if (targetMoving) controls.target.lerp(desiredTarget, 0.04);
+      controls.update(dt); // fires 'change' -> invalidate() while there is still motion
+      composer.render();
+      labelRenderer.render(scene, camera);
+
+      if (gliding || targetMoving || (pending && !controls.autoRotate)) {
+        // autoRotate is switched off by the first 'start', so a pending frame with it
+        // still on can only be the ambient orbit — everything else runs at full rate.
+        inTick = false;
+        schedule();
+      } else if (controls.autoRotate) {
+        ambientTimer = window.setTimeout(() => {
+          ambientTimer = 0;
+          schedule();
+        }, AMBIENT_FRAME_MS);
+      }
+      inTick = false;
+    };
+    const schedule = (): void => {
+      if (raf !== 0 || hidden || offscreen || disposed) return;
+      raf = requestAnimationFrame(tick);
+    };
+    const invalidate = (): void => {
+      pending = true;
+      if (!inTick) schedule();
+    };
+    controls.addEventListener('change', invalidate);
+
+    const syncPause = (): void => {
+      if (hidden || offscreen) {
+        if (raf !== 0) {
+          cancelAnimationFrame(raf);
+          raf = 0;
+        }
+        if (ambientTimer !== 0) {
+          clearTimeout(ambientTimer);
+          ambientTimer = 0;
+        }
+      } else {
+        lastTick = 0; // the pause must not count as elapsed auto-rotate time
+        invalidate();
+      }
+    };
+    const onVisibility = (): void => {
+      hidden = document.hidden;
+      syncPause();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+    const io = new IntersectionObserver((entries) => {
+      const last = entries[entries.length - 1];
+      if (!last) return;
+      offscreen = !last.isIntersecting;
+      syncPause();
+    });
+    io.observe(container);
+
     /* ---------- resize ---------- */
     const resize = (): void => {
       const w = container.clientWidth;
@@ -961,7 +1072,7 @@ export default function BuildingModel3D(props: BuildingModel3DProps) {
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       // DPR can change after mount (browser zoom, moving to a HiDPI monitor)
-      const pr = Math.min(window.devicePixelRatio, 2);
+      const pr = pixelRatioFor(w);
       renderer.setPixelRatio(pr);
       renderer.setSize(w, h);
       composer.setPixelRatio(pr);
@@ -970,36 +1081,24 @@ export default function BuildingModel3D(props: BuildingModel3DProps) {
       // setSize halves its input, so 2/3 of the device size lands at 1/3 resolution.
       if ((w * pr * h * pr) / 1e6 > 2.2) bloomPass.setSize((w * pr * 2) / 3, (h * pr * 2) / 3);
       labelRenderer.setSize(w, h);
+      invalidate();
     };
     const ro = new ResizeObserver(resize);
     ro.observe(container);
     resize();
-
-    /* ---------- frame loop ---------- */
-    let raf = 0;
-    const tick = (): void => {
-      raf = requestAnimationFrame(tick);
-      if (gliding) {
-        const now = performance.now();
-        if (glideT0 === null) glideT0 = now;
-        const t = Math.min((now - glideT0) / GLIDE_MS, 1);
-        const s = t * t * (3 - 2 * t); // smoothstep
-        camera.position.lerpVectors(CAM_START, CAM_END, s);
-        if (t >= 1) endGlide();
-      }
-      controls.target.lerp(desiredTarget, 0.04);
-      controls.update();
-      composer.render();
-      labelRenderer.render(scene, camera);
-    };
-    raf = requestAnimationFrame(tick);
+    invalidate(); // first frame even if the container has no size yet
 
     /* ---------- teardown (StrictMode-proof) ---------- */
-    let disposed = false;
     const dispose = (): void => {
       if (disposed) return;
       disposed = true;
       cancelAnimationFrame(raf);
+      raf = 0;
+      if (ambientTimer !== 0) clearTimeout(ambientTimer);
+      massingAbort.abort();
+      document.removeEventListener('visibilitychange', onVisibility);
+      io.disconnect();
+      controls.removeEventListener('change', invalidate);
       ro.disconnect();
       container.removeEventListener('pointerdown', endGlide, true);
       container.removeEventListener('wheel', endGlide, { capture: true });

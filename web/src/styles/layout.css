@@ -1,3 +1,15 @@
+/* ---------- RESPONSIVE PHOTOS ---------- */
+/* <Photo> wraps its <img> in a <picture>; contents-display keeps the img in the same grid/flex
+   slot it occupied as a bare <img>, so the srcset swap changes bytes, not layout. */
+.photo {
+  display: contents;
+}
+/* <source> carries no UA display:none — inside a display:contents <picture> it would surface as
+   an empty grid/flex item and push the image out of its box, so hide it everywhere. */
+picture > source {
+  display: none;
+}
+
 /* ---------- LOGO ---------- */
 .logo {
   display: inline-flex;
@@ -1304,6 +1316,9 @@
   text-align: center;
 }
 .lightbox-figure img {
+  /* the img carries width/height attributes now; size from the loaded bitmap, not the attrs */
+  width: auto;
+  height: auto;
   max-width: 100%;
   max-height: 74vh;
   border-radius: var(--radius-sm);

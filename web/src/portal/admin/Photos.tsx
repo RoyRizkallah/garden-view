@@ -97,7 +97,8 @@ export default function AdminPhotos() {
           <div className="admin-photo-grid">
             {imgs.map((img) => (
               <figure key={img.id} className="admin-photo-tile">
-                <img src={img.url} alt={img.caption ?? `Block ${img.block}`} />
+                {/* admin-supplied URLs: no generated variants, so just defer the fetch/decode */}
+                <img src={img.url} alt={img.caption ?? `Block ${img.block}`} loading="lazy" decoding="async" />
                 <figcaption>
                   <span>{img.caption ?? '—'}</span>
                   <button type="button" className="admin-delete-link" onClick={() => deleteImage(img.id)}>

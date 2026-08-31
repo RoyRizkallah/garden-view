@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import Photo, { COVER_HERO_SIZES } from './Photo';
 
 type PageHeroProps = {
   image: string;
@@ -20,7 +21,8 @@ export default function PageHero({
   return (
     <section className={`page-hero page-hero-${height}`}>
       <div className="page-hero-media">
-        <img src={image} alt="" />
+        {/* full-bleed cover image: the page's LCP */}
+        <Photo src={image} alt="" sizes={COVER_HERO_SIZES} priority />
         <div className="page-hero-scrim" />
       </div>
       <div className="container page-hero-inner">
