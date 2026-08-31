@@ -216,7 +216,7 @@ export default function BuildingModel3D(props: BuildingModel3DProps) {
     const renderer = new THREE.WebGLRenderer({ antialias: false });
     renderer.setPixelRatio(pixelRatioFor(container.clientWidth));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.14;
+    renderer.toneMappingExposure = 0.98;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -250,7 +250,7 @@ export default function BuildingModel3D(props: BuildingModel3DProps) {
     pmrem.dispose();
     roomEnv.dispose();
     scene.environment = envRT.texture;
-    scene.environmentIntensity = 0.22;
+    scene.environmentIntensity = 0.3;
 
     const camera = new THREE.PerspectiveCamera(42, 1, 0.5, 900);
     camera.position.set(62, 44, 72);
@@ -294,6 +294,10 @@ export default function BuildingModel3D(props: BuildingModel3DProps) {
       controls.removeEventListener('start', stopAutoRotate);
     };
     controls.addEventListener('start', stopAutoRotate);
+    // the moment anyone touches the model, it is theirs
+    controls.addEventListener('start', () => {
+      flyTo = null;
+    });
 
     /* ---------- cinematic intro glide ---------- */
     const CAM_START = new THREE.Vector3(128, 92, 148);
@@ -324,6 +328,9 @@ export default function BuildingModel3D(props: BuildingModel3DProps) {
     container.addEventListener('wheel', endGlide, { capture: true, passive: true });
 
     const SITE_CENTER = new THREE.Vector3(0, 14, 0);
+    // Where the camera is easing to after a block was picked: there is no point lighting
+    // Block A if the viewer is looking at the other side of the building.
+    let flyTo: THREE.Vector3 | null = null;
     const desiredTarget = new THREE.Vector3(0, 14, 0);
 
     /* ---------- sky ---------- */
@@ -386,9 +393,15 @@ export default function BuildingModel3D(props: BuildingModel3DProps) {
     scene.add(stars);
 
     /* ---------- lights ---------- */
-    scene.add(new THREE.HemisphereLight(0x2e4a55, 0x232c1f, 1.25));
+    // Low ambient: the storeys need a lit side and a shadow side to read as a building
+    // rather than a white model.
+    scene.add(new THREE.HemisphereLight(0x33586a, 0x1d2519, 0.55));
+    // A dim cool fill opposite the sun so the shadow side keeps its detail.
+    const fill = new THREE.DirectionalLight(0x7fa8c0, 0.5);
+    fill.position.set(70, 34, -46);
+    scene.add(fill);
 
-    const sun = new THREE.DirectionalLight(0xffb469, 1.8);
+    const sun = new THREE.DirectionalLight(0xffd9b4, 2.4);
     sun.position.set(-70, 60, 40);
     sun.castShadow = true;
     sun.shadow.mapSize.set(2048, 2048);
@@ -416,14 +429,59 @@ export default function BuildingModel3D(props: BuildingModel3DProps) {
     const unitSphere = new THREE.SphereGeometry(1, 14, 10);
     const unitCone = new THREE.ConeGeometry(1, 1, 10);
 
-    const matLimestone = new THREE.MeshStandardMaterial({ color: 0xd8c9a3, roughness: 0.92 });
-    const matSpandrel = new THREE.MeshStandardMaterial({ color: 0xe8ddc2, roughness: 0.9 });
-    const matFrame = new THREE.MeshStandardMaterial({ color: 0x3a4448, roughness: 0.7 });
+    /**
+     * Procedural surfaces. Flat colour reads as a study model however good the massing
+     * is, so the stone gets a grain and a faint course line, and the glass gets the
+     * gradient every window has — sky at the top, room at the bottom.
+     */
+    const makeTexture = (w: number, h: number, paint: (ctx: CanvasRenderingContext2D) => void): THREE.CanvasTexture => {
+      const c = document.createElement('canvas');
+      c.width = w;
+      c.height = h;
+      const ctx = c.getContext('2d');
+      if (ctx) paint(ctx);
+      const t = new THREE.CanvasTexture(c);
+      t.colorSpace = THREE.SRGBColorSpace;
+      t.anisotropy = 4;
+      return t;
+    };
+
+    const stoneTex = makeTexture(256, 256, (ctx) => {
+      ctx.fillStyle = '#c6bda8';
+      ctx.fillRect(0, 0, 256, 256);
+      // grain
+      for (let i = 0; i < 5200; i++) {
+        const v = hash01(i * 1.7);
+        const g = Math.round(150 + 70 * hash01(i * 3.1));
+        ctx.fillStyle = `rgba(${g + 14},${g + 8},${Math.round(g * 0.93)},${0.04 + 0.12 * v})`;
+        const r = 0.6 + 2.6 * hash01(i * 5.3);
+        ctx.fillRect(hash01(i * 7.9) * 256, hash01(i * 11.3) * 256, r, r * 0.8);
+      }
+      // no drawn courses: the extruded walls take their UVs from the plan, so any line
+      // drawn here would run down the facade instead of across it
+    });
+    stoneTex.wrapS = THREE.RepeatWrapping;
+    stoneTex.wrapT = THREE.RepeatWrapping;
+    stoneTex.repeat.set(0.42, 0.42);
+
+    const glassTex = makeTexture(4, 64, (ctx) => {
+      const g = ctx.createLinearGradient(0, 0, 0, 64);
+      g.addColorStop(0, '#ffffff'); // the sky the pane catches
+      g.addColorStop(0.34, '#cfd8dc');
+      g.addColorStop(0.62, '#8b9aa2');
+      g.addColorStop(1, '#6d7d86');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, 4, 64);
+    });
+
+    const matLimestone = new THREE.MeshStandardMaterial({ color: 0xcdc6b4, roughness: 0.94, map: stoneTex });
+    const matSpandrel = new THREE.MeshStandardMaterial({ color: 0xbfb8a5, roughness: 0.9, map: stoneTex });
+    const matFrame = new THREE.MeshStandardMaterial({ color: 0x8e9088, roughness: 0.55, metalness: 0.25 });
     const matRail = new THREE.MeshStandardMaterial({ color: 0x4a4e52, roughness: 0.6 });
-    const matSlab = new THREE.MeshStandardMaterial({ color: 0xe3d6b4, roughness: 0.95 });
+    const matSlab = new THREE.MeshStandardMaterial({ color: 0xcdc0a0, roughness: 0.95 });
     const matColumn = new THREE.MeshStandardMaterial({ color: 0xcfc2a0, roughness: 0.85 });
     const matDarkVoid = new THREE.MeshStandardMaterial({ color: 0x10181c, roughness: 0.5 });
-    const matWindow = new THREE.MeshBasicMaterial({ color: 0xffffff }); // per-instance colors carry the glow
+    const matWindow = new THREE.MeshBasicMaterial({ color: 0xffffff, map: glassTex }); // per-instance colors carry the glow
     const matGreen = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1 }); // per-instance greens
     const matTrunk = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1 }); // per-instance browns
     const matCone = new THREE.MeshStandardMaterial({ color: 0x2e4630, roughness: 1 });
@@ -476,9 +534,9 @@ export default function BuildingModel3D(props: BuildingModel3DProps) {
       const lit = hash01(seed) < 0.45;
       if (emphasis === 'dim') {
         // still reads as glass, but it stops competing with the selected block
-        return lit ? col(0x2c3a3c, 0.55 + 0.3 * hash01(seed + 1.9)) : col(0x1d282d, 0.6);
+        return lit ? col(0x53656b, 0.8 + 0.3 * hash01(seed + 1.9)) : col(0x40525a, 0.85);
       }
-      if (!lit) return col(0x22313a, 0.75 + 0.5 * hash01(seed + 5.31));
+      if (!lit) return col(0x4a5f68, 0.85 + 0.4 * hash01(seed + 5.31));
       if (hash01(seed + 41.77) < 0.07) return col(0x9fc4d8, 0.3 + 0.12 * hash01(seed + 8.81));
       return col(0xf2c176, (0.62 + 0.5 * hash01(seed + 17.17)) * 1.28);
     };
@@ -508,6 +566,7 @@ export default function BuildingModel3D(props: BuildingModel3DProps) {
       // sealed into their meshes by the time the sheets land.
       const glassBag = new Bag();
       const revealBag = new Bag();
+      const mullionBag = new Bag();
       const leafBag = new Bag();
       const trunkBag2 = new Bag();
 
@@ -516,18 +575,22 @@ export default function BuildingModel3D(props: BuildingModel3DProps) {
         const y0 = floorY(lv.floor);
         const h = floorHeight(lv.floor);
 
+        // A touch of tone per storey: eleven identical greys read as a study model.
+        const stone = matLimestone.clone();
+        stone.map = stoneTex;
+        stone.color.multiplyScalar(0.94 + 0.1 * hash01(lv.floor * 6.7 + 2.1));
         // The storey. Where the sheet draws balconies the floor plate still runs out to
         // the parapet, so the mass is solid to parapet height and recessed above it —
         // which is exactly what a balcony looks like from the street.
         const voids = lv.voids ?? [];
         if (voids.length > 0) {
-          const base = new THREE.Mesh(extrudeRing(lv.ring, originX, originY, y0, PARAPET_H), matLimestone);
+          const base = new THREE.Mesh(extrudeRing(lv.ring, originX, originY, y0, PARAPET_H), stone);
           base.castShadow = true;
           base.receiveShadow = true;
           buildingGroup.add(base);
           const upper = new THREE.Mesh(
             extrudeRing(lv.ring, originX, originY, y0 + PARAPET_H, h - PARAPET_H, voids),
-            matLimestone,
+            stone,
           );
           upper.castShadow = true;
           upper.receiveShadow = true;
@@ -539,7 +602,7 @@ export default function BuildingModel3D(props: BuildingModel3DProps) {
             buildingGroup.add(soffit);
           }
         } else {
-          const mass = new THREE.Mesh(extrudeRing(lv.ring, originX, originY, y0, h), matLimestone);
+          const mass = new THREE.Mesh(extrudeRing(lv.ring, originX, originY, y0, h), stone);
           mass.castShadow = true;
           mass.receiveShadow = true;
           buildingGroup.add(mass);
@@ -587,6 +650,14 @@ export default function BuildingModel3D(props: BuildingModel3DProps) {
           // a dark reveal a little larger than the glass reads as the opening's depth
           revealBag.add(mx + nx * outReveal, cy2, mz + nz * outReveal, len + 0.12, winH + 0.14, 0.06, ry);
           glassBag.add(mx + nx * outGlass, cy2, mz + nz * outGlass, len - 0.06, winH, 1, ry, facadeColor(seed, 'normal'));
+          // divide a wide run the way the real frames do, so it reads as windows and not glass wall
+          const bays = Math.floor(len / 1.6);
+          const ux = (bx - ax) / len;
+          const uz = (bz - az) / len;
+          for (let k = 1; k < bays; k++) {
+            const t = (k / bays - 0.5) * len;
+            mullionBag.add(mx + ux * t + nx * (outGlass + 0.01), cy2, mz + uz * t + nz * (outGlass + 0.01), 0.07, winH, 0.07, ry);
+          }
         }
 
         // level 9's terraces and the ground-floor gardens, planted
@@ -670,6 +741,7 @@ export default function BuildingModel3D(props: BuildingModel3DProps) {
       facadeMesh = glassBag.build(unitPlane, matWindow);
       buildingGroup.add(facadeMesh);
       buildingGroup.add(revealBag.build(unitBox, matFrame));
+      buildingGroup.add(mullionBag.build(unitBox, matFrame));
       buildingGroup.add(leafBag.build(unitSphere, matGreen, true));
       buildingGroup.add(trunkBag2.build(unitCyl, matTrunk, true));
 
@@ -870,29 +942,35 @@ export default function BuildingModel3D(props: BuildingModel3DProps) {
 
     const updateBand = (): void => {
       clearBand();
-      const meta = metaByBlock[state.block];
       const f = state.floor;
       let y0: number;
       let h: number;
-      if (meta === undefined) {
-        bandGroup.visible = false; // the sheets have not landed yet
-        return;
-      }
+      let outline: Ring | undefined;
       if (typeof f === 'number' && f >= 0 && f <= TOP_FLOOR) {
+        const lvl = levelByFloor.get(f);
+        // the storey's own outline, stepped just clear of the wall so the band reads
+        // from outside; which block it belongs to is said by the facade lighting
+        outline = lvl?.band ?? lvl?.ring;
         y0 = floorY(f);
         h = floorHeight(f);
-        bandMat.opacity = 0.26;
-        bandEdgeMat.opacity = 0.9;
+        bandMat.opacity = 0.3;
+        bandEdgeMat.opacity = 1;
       } else if (f === 'roof') {
+        const top = levelByFloor.get(TOP_FLOOR);
+        outline = top?.band ?? top?.ring;
         y0 = ROOF_Y;
         h = 1.15;
-        bandMat.opacity = 0.2;
+        bandMat.opacity = 0.12;
         bandEdgeMat.opacity = 0.5;
       } else {
         bandGroup.visible = false; // basements are not part of the massing
         return;
       }
-      const geom = extrudeRing(meta.ring, originX, originY, y0, h);
+      if (!outline) {
+        bandGroup.visible = false; // the sheets have not landed yet
+        return;
+      }
+      const geom = extrudeRing(outline, originX, originY, y0 + 0.06, Math.max(0.4, h - 0.12));
       bandMesh = new THREE.Mesh(geom, bandMat);
       bandMesh.renderOrder = 5;
       bandEdges = new THREE.LineSegments(new THREE.EdgesGeometry(geom, 25), bandEdgeMat);
@@ -903,6 +981,7 @@ export default function BuildingModel3D(props: BuildingModel3DProps) {
     };
 
     const setSelection = (block: BlockId, floor: FloorId): void => {
+      const blockChanged = state.block !== block || flyTo !== null;
       state.block = block;
       state.floor = floor;
       for (const id of Object.keys(pinByBlock) as BlockId[]) {
@@ -911,9 +990,31 @@ export default function BuildingModel3D(props: BuildingModel3DProps) {
       updateOutlines();
       updateBand();
       paintFacade(); // the rest of the complex steps back so the selection reads
-      // glide partway toward the block so the whole complex stays framed — lerped each frame
+      // Glide partway toward the block so the whole complex stays framed, and ride up to
+      // the chosen storey — picking floor 9 should feel like looking at floor 9.
       const meta = metaByBlock[block];
       if (meta) desiredTarget.lerpVectors(SITE_CENTER, meta.center, 0.45);
+      if (meta && blockChanged && !gliding) {
+        // swing round to the side the block actually faces, keeping height and distance
+        const dir = new THREE.Vector3(meta.center.x - SITE_CENTER.x, 0, meta.center.z - SITE_CENTER.z);
+        if (dir.lengthSq() < 1e-4) dir.set(0, 0, 1);
+        dir.normalize();
+        const off = camera.position.clone().sub(controls.target);
+        const horizontal = Math.hypot(off.x, off.z);
+        flyTo = new THREE.Vector3(
+          desiredTarget.x + dir.x * horizontal,
+          camera.position.y,
+          desiredTarget.z + dir.z * horizontal,
+        );
+        controls.autoRotate = false;
+      }
+      if (typeof floor === 'number' && floor >= 0 && floor <= TOP_FLOOR) {
+        desiredTarget.y = floorY(floor) + floorHeight(floor) / 2 + 1.5;
+      } else if (floor === 'roof') {
+        desiredTarget.y = ROOF_Y;
+      } else {
+        desiredTarget.y = SITE_CENTER.y; // basements: back to the whole building
+      }
       invalidate();
     };
 
@@ -1009,11 +1110,15 @@ export default function BuildingModel3D(props: BuildingModel3DProps) {
       }
       const targetMoving = controls.target.distanceToSquared(desiredTarget) > 1e-6;
       if (targetMoving) controls.target.lerp(desiredTarget, 0.04);
+      if (flyTo) {
+        camera.position.lerp(flyTo, 0.045);
+        if (camera.position.distanceToSquared(flyTo) < 0.25) flyTo = null;
+      }
       controls.update(dt); // fires 'change' -> invalidate() while there is still motion
       composer.render();
       labelRenderer.render(scene, camera);
 
-      if (gliding || targetMoving || (pending && !controls.autoRotate)) {
+      if (gliding || targetMoving || flyTo !== null || (pending && !controls.autoRotate)) {
         // autoRotate is switched off by the first 'start', so a pending frame with it
         // still on can only be the ambient orbit — everything else runs at full rate.
         inTick = false;
