@@ -399,3 +399,11 @@ export function IconBox({ size = 22, className }: IconProps) {
     </svg>
   );
 }
+
+export function IconPlay({ size = 22, className }: IconProps) {
+  return (
+    <svg {...base(size)} className={className} fill="currentColor" stroke="none">
+      <path d="M8 5.5v13a.6.6 0 0 0 .9.5l10.3-6.5a.6.6 0 0 0 0-1L8.9 5a.6.6 0 0 0-.9.5Z" />
+    </svg>
+  );
+}

@@ -95,22 +95,23 @@ export const GALLERY_CATEGORIES = [
 
 // Categories per the project spec's assumed feature set (Section 3.2). Hours and rules are
 // still pending from building management — see the note on the Amenities page.
-// `image` for Rooftop/Fitness/Residents' Lounge/Parking is stock photography standing in for
-// real photos that don't exist yet (illustrative of the category, not actual Garden View
-// spaces) — the page's note card says so. Landscaped Grounds and Building Access use real
-// Garden View photos since those spaces are visible in our real exterior shots.
+// Fitness & Pool, Landscaped Grounds, Parking and Building Access use the client's professional
+// shoot (web/public/images/shoot/). Rooftop and Residents' Lounge still use stock photography
+// standing in for spaces the shoot didn't cover (illustrative, not actual Garden View spaces).
+// The first entry is the page's featured tile, so it has to be a real space.
 export const AMENITY_CATEGORIES = [
+  {
+    icon: 'dumbbell',
+    title: 'Fitness & Pool',
+    description: 'A residents’ fitness studio laid out along an indoor pool.',
+    image: '/images/shoot/gym-2.jpg',
+    link: '/gallery#fitness',
+  },
   {
     icon: 'leaf',
     title: 'Rooftop',
     description: 'A shared rooftop space for residents.',
     image: '/images/amenity-rooftop.jpg',
-  },
-  {
-    icon: 'dumbbell',
-    title: 'Fitness',
-    description: 'An on-site fitness space for residents.',
-    image: '/images/amenity-fitness.jpg',
   },
   {
     icon: 'sofa',
@@ -121,20 +122,20 @@ export const AMENITY_CATEGORIES = [
   {
     icon: 'leaf',
     title: 'Landscaped Grounds',
-    description: 'Planted courtyard and street-level greenery around the building.',
-    image: '/images/exterior-07.jpg',
+    description: 'A private planted garden and street-level greenery around the building.',
+    image: '/images/shoot/common-3.jpg',
   },
   {
     icon: 'car',
     title: 'Parking',
-    description: 'On-site parking.',
-    image: '/images/amenity-parking.jpg',
+    description: 'Underground parking behind barrier-controlled entry.',
+    image: '/images/shoot/common-5.jpg',
   },
   {
     icon: 'shield',
     title: 'Building Access',
-    description: 'Controlled entrance access for residents and visitors.',
-    image: '/images/entrance-01.jpg',
+    description: 'Controlled entrance access, watched over from a CCTV security room.',
+    image: '/images/shoot/common-2.jpg',
   },
 ] as const;
 
@@ -147,9 +148,9 @@ export const LIFESTYLE_HIGHLIGHTS = [
 
 // Unit counts per block are real, from the owner directory (18 + 6 + 17 = 41).
 export const BLOCKS = [
-  { name: 'Block A', units: 18, levels: BUILDING_FACTS.levels, image: '/images/exterior-04.jpg' },
-  { name: 'Block B', units: 6, levels: BUILDING_FACTS.levels, image: '/images/exterior-10.jpg' },
-  { name: 'Block C', units: 17, levels: BUILDING_FACTS.levels, image: '/images/exterior-03.jpg' },
+  { name: 'Block A', units: 18, levels: BUILDING_FACTS.levels, image: '/images/shoot/block-a-1.jpg' },
+  { name: 'Block B', units: 6, levels: BUILDING_FACTS.levels, image: '/images/shoot/block-b-4.jpg' },
+  { name: 'Block C', units: 17, levels: BUILDING_FACTS.levels, image: '/images/shoot/block-c-1.jpg' },
 ];
 
 export const BUILDING_HIGHLIGHTS = [

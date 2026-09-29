@@ -61,7 +61,7 @@ export default function Amenities() {
           </p>
 
           <div className="amenity-showcase">
-            <Link to="/location" className="amenity-tile amenity-tile-featured">
+            <Link to={featured.link} className="amenity-tile amenity-tile-featured">
               <Photo src={featured.image} alt="" sizes={SIZES.featured} eager />
               <div className="amenity-tile-featured-scrim" />
               <span className="amenity-tile-featured-tag">Featured</span>
@@ -72,7 +72,7 @@ export default function Amenities() {
                 <h3>{featured.title}</h3>
                 <p>{featured.description}</p>
                 <span className="amenity-tile-link">
-                  Learn More <IconArrowRight size={13} />
+                  See the Gallery <IconArrowRight size={13} />
                 </span>
               </div>
             </Link>
