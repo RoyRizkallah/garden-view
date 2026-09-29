@@ -1,1 +1,6 @@
+# Text files are stored with LF endings whatever editor or script wrote them (a CRLF shell
+# script cannot run in the Linux container: "#!/bin/sh: no such file").
+* text=auto eol=lf
+*.sh text eol=lf
+
 web/public/media/*.mp4 filter=lfs diff=lfs merge=lfs -text

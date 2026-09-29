@@ -43,6 +43,8 @@ WORKDIR /app/server
 COPY --from=server --chown=node:node /build/server ./
 COPY --from=web --chown=node:node /build/web/dist /app/web
 COPY --chmod=755 deploy/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+# belt and braces: a checkout with Windows line endings must still start
+RUN sed -i 's/\r$//' /usr/local/bin/docker-entrypoint.sh
 RUN mkdir -p /app/uploads && chown node:node /app/uploads
 USER node
 EXPOSE 4000
