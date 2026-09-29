@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api, type Project } from '../api';
-import { IconCheck, IconCalendar, IconWallet, IconUsers } from '../../components/Icons';
+import { IconCheck, IconCalendar, IconWallet, IconUsers, IconChart } from '../../components/Icons';
 import CircularProgress from '../CircularProgress';
 import Photo from '../../components/Photo';
+import EmptyState from '../EmptyState';
 
 // building-maintenance projects: the plant and spaces they concern, from the professional shoot
 const PROJECT_IMAGES = ['/images/shoot/common-7.jpg', '/images/shoot/common-8.jpg', '/images/shoot/common-5.jpg', '/images/shoot/block-c-4.jpg'];
@@ -166,7 +167,13 @@ export default function ProjectsPage() {
             </div>
           );
         })}
-        {filtered.length === 0 && <p className="portal-empty-note">No projects match this filter.</p>}
+        {projects && projects.length === 0 && (
+          <EmptyState icon={<IconChart size={22} />} title="No building projects right now">
+            Maintenance and improvement works appear here with their progress, budget and expected completion,
+            so you can follow them from start to finish.
+          </EmptyState>
+        )}
+        {projects && projects.length > 0 && filtered.length === 0 && <p className="portal-empty-note">No projects match this filter.</p>}
       </div>
     </div>
   );

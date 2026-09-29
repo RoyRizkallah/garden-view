@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { prisma } from '../db';
 import { requireAuth, requireRole } from '../auth/middleware';
+import { AdminFileError, removeAdminFile, saveAdminFile } from '../adminFiles';
 
 export const adminRouter = Router();
 
@@ -10,14 +11,77 @@ adminRouter.use(requireAuth, requireRole('ADMIN'));
 
 // ---------- Overview ----------
 adminRouter.get('/overview', async (_req, res) => {
-  const [units, openVotes, openRequests, newInquiries, activeProjects] = await Promise.all([
+  const now = new Date();
+  const [
+    units,
+    residentAccounts,
+    openVotes,
+    openRequests,
+    inProgressRequests,
+    newInquiries,
+    activeProjects,
+    pendingListings,
+    liveListings,
+    unpaid,
+    latestRequests,
+    latestListings,
+    latestInquiries,
+    closingVotes,
+  ] = await Promise.all([
     prisma.unit.count(),
+    prisma.account.count({ where: { role: 'RESIDENT' } }),
     prisma.vote.count({ where: { status: 'OPEN' } }),
-    prisma.request.count({ where: { status: { not: 'RESOLVED' } } }),
+    prisma.request.count({ where: { status: 'OPEN' } }),
+    prisma.request.count({ where: { status: 'IN_PROGRESS' } }),
     prisma.inquiry.count({ where: { status: 'NEW' } }),
     prisma.project.count({ where: { progressPct: { lt: 100 } } }),
+    prisma.listingRequest.count({ where: { status: { in: ['PENDING', 'REVIEWING'] } } }),
+    prisma.listingRequest.count({ where: { status: 'APPROVED', photos: { some: {} } } }),
+    prisma.charge.findMany({ where: { status: { not: 'PAID' } }, select: { amountDue: true, amountPaid: true, dueDate: true } }),
+    prisma.request.findMany({
+      where: { status: 'OPEN' },
+      orderBy: { createdAt: 'desc' },
+      take: 4,
+      select: { id: true, type: true, category: true, createdAt: true, unit: { select: { block: true, number: true } } },
+    }),
+    prisma.listingRequest.findMany({
+      where: { status: { in: ['PENDING', 'REVIEWING'] } },
+      orderBy: { createdAt: 'desc' },
+      take: 3,
+      select: { id: true, type: true, status: true, askingPrice: true, createdAt: true, unit: { select: { block: true, number: true } }, _count: { select: { photos: true } } },
+    }),
+    prisma.inquiry.findMany({
+      where: { status: 'NEW' },
+      orderBy: { createdAt: 'desc' },
+      take: 3,
+      select: { id: true, name: true, interest: true, createdAt: true },
+    }),
+    prisma.vote.findMany({
+      where: { status: 'OPEN' },
+      orderBy: { closesAt: 'asc' },
+      take: 3,
+      select: { id: true, title: true, closesAt: true, _count: { select: { responses: true } } },
+    }),
   ]);
-  res.json({ units, openVotes, openRequests, newInquiries, activeProjects });
+  const outstanding = unpaid.reduce((sum, c) => sum + Math.max(0, c.amountDue - c.amountPaid), 0);
+  const overdueCharges = unpaid.filter((c) => c.dueDate < now).length;
+  res.json({
+    units,
+    residentAccounts,
+    openVotes,
+    openRequests,
+    inProgressRequests,
+    newInquiries,
+    activeProjects,
+    pendingListings,
+    liveListings,
+    outstanding,
+    overdueCharges,
+    latestRequests,
+    latestListings: latestListings.map(({ _count, ...l }) => ({ ...l, photoCount: _count.photos })),
+    latestInquiries,
+    closingVotes: closingVotes.map(({ _count, ...v }) => ({ ...v, responses: _count.responses })),
+  });
 });
 
 // ---------- Projects ----------
@@ -164,7 +228,7 @@ adminRouter.patch('/votes/:id/close', async (req, res) => {
 // ---------- Requests (all residents) ----------
 adminRouter.get('/requests', async (_req, res) => {
   const requests = await prisma.request.findMany({
-    include: { unit: true, account: { select: { name: true, email: true } }, photos: { orderBy: { order: 'asc' } } },
+    include: { unit: true, account: { select: { name: true, email: true } } },
     orderBy: { createdAt: 'desc' },
   });
   res.json({ requests });
@@ -238,6 +302,24 @@ adminRouter.post('/units/:id/account', async (req, res) => {
   res.status(201).json({ account: { id: account.id, name: account.name, email: account.email } });
 });
 
+// A resident forgot their password: management sets a new temporary one and sends it to them.
+const resetPasswordSchema = z.object({ password: z.string().min(8).max(200) });
+
+adminRouter.post('/units/:id/account/password', async (req, res) => {
+  const parsed = resetPasswordSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: 'The new password must be at least 8 characters' });
+    return;
+  }
+  const account = await prisma.account.findFirst({ where: { unitId: req.params.id } });
+  if (!account) {
+    res.status(404).json({ error: 'This home has no portal account' });
+    return;
+  }
+  await prisma.account.update({ where: { id: account.id }, data: { passwordHash: await bcrypt.hash(parsed.data.password, 10) } });
+  res.json({ ok: true, email: account.email });
+});
+
 const unitUpdateSchema = z.object({ floorPlanUrl: z.string().url().or(z.literal('')).optional() });
 
 adminRouter.patch('/units/:id', async (req, res) => {
@@ -259,11 +341,15 @@ adminRouter.get('/block-images', async (_req, res) => {
   res.json({ blockImages });
 });
 
-const blockImageSchema = z.object({
-  block: z.string().min(1),
-  url: z.string().url(),
-  caption: z.string().optional(),
-});
+const blockImageSchema = z
+  .object({
+    block: z.enum(['A', 'B', 'C']),
+    url: z.string().url().optional(),
+    /** an uploaded photo, resized in the browser */
+    dataUrl: z.string().max(6 * 1024 * 1024).optional(),
+    caption: z.string().max(140).optional(),
+  })
+  .refine((d) => d.url || d.dataUrl, { message: 'Add a photo or a link' });
 
 adminRouter.post('/block-images', async (req, res) => {
   const parsed = blockImageSchema.safeParse(req.body);
@@ -271,13 +357,64 @@ adminRouter.post('/block-images', async (req, res) => {
     res.status(400).json({ error: 'Missing or invalid image fields' });
     return;
   }
+  const { dataUrl, url, ...rest } = parsed.data;
+  let stored = url ?? '';
+  if (dataUrl) {
+    try {
+      stored = await saveAdminFile('block-photos', dataUrl);
+    } catch (err) {
+      res.status(400).json({ error: err instanceof AdminFileError ? err.message : 'Could not save the photo.' });
+      return;
+    }
+  }
   const count = await prisma.blockImage.count({ where: { block: parsed.data.block } });
-  const blockImage = await prisma.blockImage.create({ data: { ...parsed.data, order: count } });
+  const blockImage = await prisma.blockImage.create({ data: { ...rest, url: stored, order: count } });
   res.status(201).json({ blockImage });
 });
 
 adminRouter.delete('/block-images/:id', async (req, res) => {
-  await prisma.blockImage.delete({ where: { id: req.params.id } });
+  const image = await prisma.blockImage.delete({ where: { id: req.params.id } });
+  await removeAdminFile(image.url);
+  res.json({ ok: true });
+});
+
+// ---------- Building documents (bylaws, minutes, financial summaries...) ----------
+adminRouter.get('/documents', async (_req, res) => {
+  const documents = await prisma.document.findMany({ orderBy: { createdAt: 'desc' } });
+  res.json({ documents });
+});
+
+const documentSchema = z.object({
+  title: z.string().trim().min(1).max(140),
+  category: z.string().trim().min(1).max(40),
+  dataUrl: z.string().max(28 * 1024 * 1024),
+});
+
+adminRouter.post('/documents', async (req, res) => {
+  const parsed = documentSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: 'Add a title, a category and a file.' });
+    return;
+  }
+  let fileUrl: string;
+  try {
+    fileUrl = await saveAdminFile('documents', parsed.data.dataUrl);
+  } catch (err) {
+    res.status(400).json({ error: err instanceof AdminFileError ? err.message : 'Could not save the file.' });
+    return;
+  }
+  const document = await prisma.document.create({ data: { title: parsed.data.title, category: parsed.data.category, fileUrl } });
+  res.status(201).json({ document });
+});
+
+adminRouter.delete('/documents/:id', async (req, res) => {
+  const document = await prisma.document.findUnique({ where: { id: req.params.id } });
+  if (!document) {
+    res.status(404).json({ error: 'Document not found' });
+    return;
+  }
+  await prisma.document.delete({ where: { id: document.id } });
+  await removeAdminFile(document.fileUrl);
   res.json({ ok: true });
 });
 

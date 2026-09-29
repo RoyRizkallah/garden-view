@@ -3,6 +3,7 @@ import { api, type Charge } from '../api';
 import VoteDonut from '../VoteDonut';
 import LineChart from '../LineChart';
 import { IconCalendar, IconDocument } from '../../components/Icons';
+import EmptyState from '../EmptyState';
 
 const PAGE_SIZE = 5;
 const DATE_RANGES = ['All Time', 'This Year', 'Last 6 Months', 'Last 3 Months'] as const;
@@ -96,7 +97,14 @@ export default function Charges() {
 
       {error && <div className="note-card">{error}</div>}
 
-      {charges && (
+      {charges && charges.length === 0 && (
+        <EmptyState icon={<IconDocument size={22} />} title="No charges yet">
+          When building management issues a charge for your home, such as the monthly service charge, it
+          appears here with its due date, and your payments are tracked against it.
+        </EmptyState>
+      )}
+
+      {charges && charges.length > 0 && (
         <>
           <div className="portal-charge-summary">
             <div className="portal-charge-summary-item">

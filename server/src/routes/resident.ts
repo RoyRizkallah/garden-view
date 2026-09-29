@@ -27,20 +27,45 @@ residentRouter.get('/overview', async (req, res) => {
     return;
   }
 
-  const [charges, openVotes, activeRequests, projects] = await Promise.all([
-    prisma.charge.findMany({ where: { unitId } }),
-    prisma.vote.count({ where: { status: 'OPEN' } }),
-    prisma.request.count({ where: { unitId, status: { not: 'RESOLVED' } } }),
-    prisma.project.findMany({ orderBy: { createdAt: 'desc' }, take: 3 }),
+  const now = new Date();
+  const [charges, openVotes, requests, projects, listing, documents] = await Promise.all([
+    prisma.charge.findMany({ where: { unitId }, orderBy: { dueDate: 'asc' } }),
+    prisma.vote.findMany({
+      where: { status: 'OPEN' },
+      orderBy: { closesAt: 'asc' },
+      select: { id: true, title: true, closesAt: true, responses: { where: { unitId }, select: { id: true } } },
+    }),
+    prisma.request.findMany({
+      where: { unitId, status: { not: 'RESOLVED' } },
+      orderBy: { updatedAt: 'desc' },
+      select: { id: true, type: true, category: true, status: true, updatedAt: true },
+    }),
+    prisma.project.findMany({ where: { progressPct: { lt: 100 } }, orderBy: { createdAt: 'desc' }, take: 3 }),
+    prisma.listingRequest.findFirst({
+      where: { unitId, status: { in: ['PENDING', 'REVIEWING', 'APPROVED'] } },
+      orderBy: { createdAt: 'desc' },
+      select: { id: true, type: true, status: true },
+    }),
+    prisma.document.findMany({ orderBy: { createdAt: 'desc' }, take: 3, select: { id: true, title: true, category: true, fileUrl: true, createdAt: true } }),
   ]);
 
-  const balance = charges.reduce((sum, c) => sum + (c.amountDue - c.amountPaid), 0);
+  const unpaid = charges.filter((c) => c.amountDue - c.amountPaid > 0.004);
+  const balance = unpaid.reduce((sum, c) => sum + (c.amountDue - c.amountPaid), 0);
+  const next = unpaid[0];
+  const awaiting = openVotes.filter((v) => v.responses.length === 0);
 
   res.json({
     balance,
-    openVotesCount: openVotes,
-    activeRequestsCount: activeRequests,
+    overdueCount: unpaid.filter((c) => c.dueDate < now).length,
+    nextCharge: next ? { period: next.period, amount: next.amountDue - next.amountPaid, dueDate: next.dueDate } : null,
+    openVotesCount: openVotes.length,
+    awaitingVotes: awaiting.slice(0, 3).map(({ responses: _r, ...v }) => v),
+    awaitingVotesCount: awaiting.length,
+    activeRequestsCount: requests.length,
+    activeRequests: requests.slice(0, 3),
     recentProjects: projects,
+    listing,
+    latestDocuments: documents,
   });
 });
 

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api, mediaUrl, type AdminListingRequest } from '../api';
 import { IconTag } from '../../components/Icons';
+import EmptyState from '../EmptyState';
 
 const STATUSES = ['PENDING', 'REVIEWING', 'APPROVED', 'DECLINED', 'WITHDRAWN'] as const;
 // APPROVED is what publishes a listing on the public For Sale & Rent page (/listings); moving it to
@@ -117,7 +118,12 @@ export default function AdminListings() {
             </div>
           </div>
         ))}
-        {listings?.length === 0 && <p className="portal-empty-note">No sale or rental requests yet.</p>}
+        {listings?.length === 0 && (
+          <EmptyState icon={<IconTag size={22} />} title="No listing requests yet">
+            When an owner lists their home for sale or rent from the resident portal, it arrives here with their
+            photos for you to review and publish.
+          </EmptyState>
+        )}
       </div>
     </div>
   );

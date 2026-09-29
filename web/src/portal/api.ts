@@ -90,7 +90,7 @@ export type ResidentRequest = {
   createdAt: string;
 };
 
-export type GvDocument = { id: string; title: string; category: string; createdAt: string };
+export type GvDocument = { id: string; title: string; category: string; fileUrl: string; createdAt: string };
 
 export type AmenitySpace = { id: string; name: string };
 export type AmenityBooking = {
@@ -103,18 +103,36 @@ export type AmenityBooking = {
 
 export type Overview = {
   balance: number;
+  overdueCount: number;
+  nextCharge: { period: string; amount: number; dueDate: string } | null;
   openVotesCount: number;
+  /** open proposals this unit has not voted on yet, closing soonest first */
+  awaitingVotes: { id: string; title: string; closesAt: string }[];
+  awaitingVotesCount: number;
   activeRequestsCount: number;
+  activeRequests: { id: string; type: 'ISSUE' | 'RENOVATION'; category: string; status: 'OPEN' | 'IN_PROGRESS' | 'RESOLVED'; updatedAt: string }[];
   recentProjects: Project[];
+  listing: { id: string; type: 'SALE' | 'RENT'; status: 'PENDING' | 'REVIEWING' | 'APPROVED' } | null;
+  latestDocuments: GvDocument[];
 };
 
 // ---------- Admin ----------
 export type AdminOverview = {
   units: number;
+  residentAccounts: number;
   openVotes: number;
   openRequests: number;
+  inProgressRequests: number;
   newInquiries: number;
   activeProjects: number;
+  pendingListings: number;
+  liveListings: number;
+  outstanding: number;
+  overdueCharges: number;
+  latestRequests: { id: string; type: 'ISSUE' | 'RENOVATION'; category: string; createdAt: string; unit: { block: string; number: string } }[];
+  latestListings: { id: string; type: 'SALE' | 'RENT'; status: string; askingPrice: number | null; createdAt: string; unit: { block: string; number: string }; photoCount: number }[];
+  latestInquiries: { id: string; name: string; interest: string | null; createdAt: string }[];
+  closingVotes: { id: string; title: string; closesAt: string; responses: number }[];
 };
 
 export type AdminVote = {

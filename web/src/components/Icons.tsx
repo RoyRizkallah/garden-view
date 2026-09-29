@@ -407,3 +407,11 @@ export function IconPlay({ size = 22, className }: IconProps) {
     </svg>
   );
 }
+
+export function IconMenu({ size = 22, className }: IconProps) {
+  return (
+    <svg {...base(size)} className={className}>
+      <path d="M4 7h16M4 12h16M4 17h16" />
+    </svg>
+  );
+}

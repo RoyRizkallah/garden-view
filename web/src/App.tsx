@@ -35,6 +35,7 @@ const AdminProjects = lazy(() => import('./portal/admin/Projects'));
 const AdminVotes = lazy(() => import('./portal/admin/Votes'));
 const AdminRequests = lazy(() => import('./portal/admin/Requests'));
 const AdminResidents = lazy(() => import('./portal/admin/Residents'));
+const AdminDocuments = lazy(() => import('./portal/admin/Documents'));
 const AdminInquiries = lazy(() => import('./portal/admin/Inquiries'));
 const AdminListings = lazy(() => import('./portal/admin/Listings'));
 const AdminPhotos = lazy(() => import('./portal/admin/Photos'));
@@ -90,6 +91,7 @@ function App() {
           <Route path="residents" element={deferred(AdminResidents)} />
           <Route path="listings" element={deferred(AdminListings)} />
           <Route path="photos" element={deferred(AdminPhotos)} />
+          <Route path="documents" element={deferred(AdminDocuments)} />
           <Route path="inquiries" element={deferred(AdminInquiries)} />
           <Route path="profile" element={deferred(PortalProfile)} />
         </Route>

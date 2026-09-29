@@ -32,6 +32,8 @@ app.use(
 );
 // a listing arrives with its photos (resized in the browser to a few hundred KB each)
 app.use('/api/resident/listing-requests', express.json({ limit: '40mb' }));
+// building documents (PDFs up to 20 MB) and block photos, as data URLs
+app.use(['/api/admin/documents', '/api/admin/block-images'], express.json({ limit: '30mb' }));
 app.use(express.json());
 app.use(cookieParser());
 

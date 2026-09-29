@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { api, ApiError, type AdminCharge } from '../api';
 import { IconWallet, IconChevronRight } from '../../components/Icons';
+import EmptyState from '../EmptyState';
 
 const BLOCKS = ['ALL', 'A', 'B', 'C'] as const;
 
@@ -163,7 +164,12 @@ export default function AdminCharges() {
           </div>
         );
       })}
-      {grouped.length === 0 && <p className="portal-empty-note">No charges created yet.</p>}
+      {grouped.length === 0 && (
+        <EmptyState icon={<IconWallet size={22} />} title="No charges issued yet">
+          Create a charge period above, for example this month's service charge for all 41 homes. Each owner then
+          sees it in their portal, and you mark payments here as they come in.
+        </EmptyState>
+      )}
     </div>
   );
 }

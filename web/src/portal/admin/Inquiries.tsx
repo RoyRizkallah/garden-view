@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api, type Inquiry } from '../api';
 import { IconMail } from '../../components/Icons';
+import EmptyState from '../EmptyState';
 
 const STATUSES = ['NEW', 'CONTACTED', 'CLOSED'] as const;
 
@@ -62,7 +63,12 @@ export default function AdminInquiries() {
             </div>
           </div>
         ))}
-        {inquiries?.length === 0 && <p className="portal-empty-note">No inquiries yet.</p>}
+        {inquiries?.length === 0 && (
+          <EmptyState icon={<IconMail size={22} />} title="No enquiries yet">
+            Messages sent from the website's contact form, such as tour requests and questions about homes for sale
+            or rent, arrive here.
+          </EmptyState>
+        )}
       </div>
     </div>
   );

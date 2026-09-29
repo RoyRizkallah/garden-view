@@ -1,28 +1,41 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { api, ApiError, type ResidentUnit } from '../api';
-import { IconUsers, IconCheck, IconUser, IconSearch } from '../../components/Icons';
+import { IconCheck, IconSearch, IconChevronRight, IconUser } from '../../components/Icons';
+import { matchResidence } from '../../data/useUnitPlan';
+import { UNIT_KIND_LABEL } from '../../data/buildingExplorer';
 
-const BLOCK_ORDER = ['A', 'B', 'C'];
-const BLOCK_FILTERS = ['All', 'A', 'B', 'C'] as const;
-type BlockFilter = (typeof BLOCK_FILTERS)[number];
+// The owner directory: every registered home, who owns it, and whether they can sign in to the
+// resident portal. One line per home; a line opens to the directory's notes and, for homes
+// without an account yet, a form that creates one and hands back ready-to-send sign-in details.
 
+const BLOCKS = ['All', 'A', 'B', 'C'] as const;
+const ACCESS = ['All', 'Invited', 'Not yet'] as const;
+type BlockFilter = (typeof BLOCKS)[number];
+type AccessFilter = (typeof ACCESS)[number];
+
+/** 12 characters from an unambiguous alphabet, from the browser's secure random source. */
 function generatePassword() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
-  let out = '';
-  for (let i = 0; i < 10; i++) out += chars[Math.floor(Math.random() * chars.length)];
-  return out;
+  const bytes = crypto.getRandomValues(new Uint32Array(12));
+  return Array.from(bytes, (n) => chars[n % chars.length]).join('');
 }
+
+const validEmail = (e: string | null | undefined) => !!e && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e.trim());
+const kindOf = (u: ResidentUnit) => {
+  const r = matchResidence(u.block, u.number);
+  return r ? UNIT_KIND_LABEL[r.kind].split(' · ')[0] : null;
+};
+
+type Created = { email: string; password: string };
 
 export default function AdminResidents() {
   const [units, setUnits] = useState<ResidentUnit[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [drafts, setDrafts] = useState<Record<string, string>>({});
-  const [addingFor, setAddingFor] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
-  const [justCreated, setJustCreated] = useState<Record<string, string>>({});
+  const [open, setOpen] = useState<string | null>(null);
+  const [created, setCreated] = useState<Record<string, Created>>({});
   const [search, setSearch] = useState('');
-  const [blockFilter, setBlockFilter] = useState<BlockFilter>('All');
+  const [block, setBlock] = useState<BlockFilter>('All');
+  const [access, setAccess] = useState<AccessFilter>('All');
 
   function load() {
     api
@@ -30,245 +43,261 @@ export default function AdminResidents() {
       .then((res) => setUnits(res.units))
       .catch((err) => setError(err.message));
   }
-
   useEffect(load, []);
 
-  async function saveFloorPlan(unitId: string, current: string | null) {
-    const value = (drafts[unitId] ?? current ?? '').trim();
-    if (value === (current ?? '')) return;
-    await api.patch(`/admin/units/${unitId}`, { floorPlanUrl: value });
-    setUnits((prev) => prev?.map((u) => (u.id === unitId ? { ...u, floorPlanUrl: value || null } : u)) ?? prev);
-  }
+  const total = units?.length ?? 0;
+  const invited = units?.filter((u) => u.account).length ?? 0;
 
-  async function handleCreateAccount(e: FormEvent<HTMLFormElement>, unitId: string) {
-    e.preventDefault();
-    setSubmitting(true);
-    setFormError(null);
-    const form = new FormData(e.currentTarget);
-    try {
-      const res = await api.post<{ account: { email: string } }>(`/admin/units/${unitId}/account`, {
-        email: form.get('email'),
-        password: form.get('password'),
-        name: form.get('name') || undefined,
-      });
-      setAddingFor(null);
-      setJustCreated((prev) => ({ ...prev, [unitId]: res.account.email }));
-      load();
-    } catch (err) {
-      setFormError(err instanceof ApiError ? err.message : 'Could not create account.');
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  const stats = useMemo(() => {
-    const all = units ?? [];
-    const withAccess = all.filter((u) => u.account).length;
-    return { total: all.length, withAccess, withoutAccess: all.length - withAccess };
-  }, [units]);
-
-  const filtered = useMemo(() => {
-    let list = units ?? [];
-    if (blockFilter !== 'All') list = list.filter((u) => u.block === blockFilter);
+  const list = useMemo(() => {
+    let l = units ?? [];
+    if (block !== 'All') l = l.filter((u) => u.block === block);
+    if (access === 'Invited') l = l.filter((u) => u.account);
+    if (access === 'Not yet') l = l.filter((u) => !u.account);
     const q = search.trim().toLowerCase();
     if (q) {
-      list = list.filter((u) =>
+      l = l.filter((u) =>
         [u.number, u.registrationNo, u.ownerName, u.ownerPhone, u.ownerEmail, u.account?.name, u.account?.email]
           .filter(Boolean)
-          .some((field) => field!.toLowerCase().includes(q)),
+          .some((f) => f!.toLowerCase().includes(q)),
       );
     }
-    return list;
-  }, [units, blockFilter, search]);
-
-  const grouped = useMemo(() => {
-    const map = new Map<string, ResidentUnit[]>();
-    for (const u of filtered) {
-      const list = map.get(u.block) ?? [];
-      list.push(u);
-      map.set(u.block, list);
-    }
-    for (const list of map.values()) {
-      list.sort((a, b) => a.number.localeCompare(b.number, undefined, { numeric: true }));
-    }
-    return Array.from(map.entries()).sort(
-      ([a], [b]) => BLOCK_ORDER.indexOf(a) - BLOCK_ORDER.indexOf(b) || a.localeCompare(b),
-    );
-  }, [filtered]);
+    return [...l].sort((a, b) => a.block.localeCompare(b.block) || a.number.localeCompare(b.number, undefined, { numeric: true }));
+  }, [units, block, access, search]);
 
   return (
     <div className="portal-page">
       <p className="eyebrow">Residents</p>
       <h1>Owner Directory</h1>
-      <p className="portal-page-lede">Provision a portal account whenever an owner is ready to use the resident app.</p>
+      <p className="portal-page-lede">Every home at Garden View, its owner, and their access to the resident portal.</p>
 
       {error && <div className="note-card">{error}</div>}
 
-      <div className="portal-stat-grid" style={{ marginBottom: 28 }}>
-        <div className="portal-stat-card">
-          <span className="portal-stat-icon">
-            <IconUsers size={20} />
-          </span>
-          <span className="portal-stat-label">Total Units</span>
-          <span className="portal-stat-value">{stats.total}</span>
+      {units && (
+        <div className="ad-adoption">
+          <div>
+            <strong>
+              {invited} of {total}
+            </strong>{' '}
+            homes can sign in to the resident portal
+          </div>
+          <div className="ad-bar" role="progressbar" aria-valuemin={0} aria-valuemax={total} aria-valuenow={invited}>
+            <span style={{ width: `${total ? (invited / total) * 100 : 0}%` }} />
+          </div>
         </div>
-        <div className="portal-stat-card">
-          <span className="portal-stat-icon">
-            <IconCheck size={20} />
-          </span>
-          <span className="portal-stat-label">With Portal Access</span>
-          <span className="portal-stat-value">{stats.withAccess}</span>
-        </div>
-        <div className="portal-stat-card">
-          <span className="portal-stat-icon">
-            <IconUser size={20} />
-          </span>
-          <span className="portal-stat-label">No Account Yet</span>
-          <span className="portal-stat-value">{stats.withoutAccess}</span>
-        </div>
-      </div>
+      )}
 
-      <div className="admin-resident-toolbar">
+      <div className="ad-toolbar">
         <div className="admin-resident-search">
           <IconSearch size={16} />
-          <input
-            type="text"
-            placeholder="Search by name, apt #, email…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+          <input type="search" placeholder="Search name, home, phone or email" value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
-        <div className="portal-filter-tabs">
-          {BLOCK_FILTERS.map((b) => (
-            <button key={b} className={blockFilter === b ? 'is-active' : ''} onClick={() => setBlockFilter(b)}>
-              {b === 'All' ? 'All' : `Block ${b}`}
+        <div className="ad-chips" role="group" aria-label="Block">
+          {BLOCKS.map((b) => (
+            <button key={b} type="button" aria-pressed={block === b} onClick={() => setBlock(b)}>
+              {b === 'All' ? 'All blocks' : `Block ${b}`}
+            </button>
+          ))}
+        </div>
+        <div className="ad-chips" role="group" aria-label="Portal access">
+          {ACCESS.map((a) => (
+            <button key={a} type="button" aria-pressed={access === a} onClick={() => setAccess(a)}>
+              {a === 'All' ? 'Everyone' : a === 'Invited' ? 'Has access' : 'No access yet'}
             </button>
           ))}
         </div>
       </div>
 
-      {filtered.length === 0 && (
-        <p className="portal-empty-note" style={{ marginTop: 8 }}>
-          No units match your search.
-        </p>
-      )}
+      {units && list.length === 0 && <p className="portal-empty-note">No homes match these filters.</p>}
 
-      {grouped.map(([block, blockUnits]) => (
-        <div key={block} style={{ marginBottom: 36 }}>
-          <p className="portal-booking-step" style={{ marginTop: 0 }}>
-            Block {block} · {blockUnits.length} units
-          </p>
-          <div className="admin-resident-list">
-            {blockUnits.map((u) => (
-              <div key={u.id} className="admin-resident-row">
-                <span className="admin-resident-icon">
-                  <IconUsers size={16} />
+      <ul className="ad-directory">
+        {list.map((u) => {
+          const isOpen = open === u.id;
+          const made = created[u.id];
+          const kind = kindOf(u);
+          return (
+            <li key={u.id} className={isOpen ? 'is-open' : ''}>
+              <button type="button" className="ad-row" aria-expanded={isOpen} onClick={() => setOpen(isOpen ? null : u.id)}>
+                <span className="ad-home">
+                  <strong>{u.number}</strong>
+                  <span>
+                    Block {u.block}
+                    {kind ? ` · ${kind}` : ''}
+                  </span>
                 </span>
-                <div className="admin-resident-body">
-                  <strong>
-                    Apt {u.number}
-                    {u.registrationNo && <span className="portal-request-type"> · Reg. {u.registrationNo}</span>}
-                    {u.sizeSqm && <span className="portal-request-type"> · {u.sizeSqm} m²</span>}
-                  </strong>
-                  <p>
-                    {u.ownerName ?? <span className="admin-no-account">Owner name not on file</span>}
-                    {(u.ownerPhone || u.ownerEmail) && (
-                      <span className="admin-owner-contact">
-                        {u.ownerPhone && ` · ${u.ownerPhone}`}
-                        {u.ownerEmail && ` · ${u.ownerEmail}`}
-                      </span>
-                    )}
-                  </p>
-                  {u.dataNotes && <p className="admin-data-note">{u.dataNotes}</p>}
-
-                  <div className="admin-floorplan-field">
-                    <label htmlFor={`floorplan-${u.id}`}>Floor plan URL</label>
-                    <input
-                      id={`floorplan-${u.id}`}
-                      type="url"
-                      placeholder="https://…"
-                      value={drafts[u.id] ?? u.floorPlanUrl ?? ''}
-                      onChange={(e) => setDrafts((prev) => ({ ...prev, [u.id]: e.target.value }))}
-                      onBlur={() => saveFloorPlan(u.id, u.floorPlanUrl)}
-                    />
-                  </div>
-
-                  {u.account ? (
-                    <p className="admin-account-status admin-account-status-active">
-                      <IconCheck size={13} /> Portal access: {u.account.name} — {u.account.email}
-                    </p>
-                  ) : justCreated[u.id] ? (
-                    <p className="admin-account-status admin-account-status-active">
-                      <IconCheck size={13} /> Account created for {justCreated[u.id]}
-                    </p>
-                  ) : addingFor === u.id ? (
-                    <form className="admin-add-account-form" onSubmit={(e) => handleCreateAccount(e, u.id)}>
-                      <div className="form-row">
-                        <div className="form-field">
-                          <label htmlFor={`email-${u.id}`}>Email</label>
-                          <input id={`email-${u.id}`} name="email" type="email" required autoFocus />
-                        </div>
-                        <div className="form-field">
-                          <label htmlFor={`name-${u.id}`}>Name (optional)</label>
-                          <input
-                            id={`name-${u.id}`}
-                            name="name"
-                            defaultValue={u.ownerName ?? ''}
-                            placeholder="Defaults to owner name"
-                          />
-                        </div>
-                      </div>
-                      <div className="admin-password-row">
-                        <div className="form-field">
-                          <label htmlFor={`password-${u.id}`}>Temporary password</label>
-                          <input
-                            id={`password-${u.id}`}
-                            name="password"
-                            type="text"
-                            minLength={8}
-                            required
-                            defaultValue={generatePassword()}
-                          />
-                        </div>
-                      </div>
-                      {formError && <div className="note-card">{formError}</div>}
-                      <div className="admin-add-account-actions">
-                        <button type="submit" className="btn btn-primary btn-sm" disabled={submitting}>
-                          {submitting ? 'Creating…' : 'Create Account'}
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-outline btn-sm"
-                          onClick={() => {
-                            setAddingFor(null);
-                            setFormError(null);
-                          }}
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                      <p className="admin-password-hint">
-                        There's no email delivery yet — share this password with the owner directly.
-                      </p>
-                    </form>
+                <span className="ad-owner">
+                  <strong>{u.ownerName ?? 'Owner not on file'}</strong>
+                  <span>{[u.ownerPhone, u.ownerEmail].filter(Boolean).join(' · ') || 'No contact details'}</span>
+                </span>
+                <span className="ad-access">
+                  {u.account || made ? (
+                    <span className="ad-pill is-on">
+                      <IconCheck size={12} /> Has access
+                    </span>
                   ) : (
-                    <button
-                      type="button"
-                      className="admin-add-account-link"
-                      onClick={() => {
-                        setAddingFor(u.id);
-                        setFormError(null);
+                    <span className="ad-pill">No access yet</span>
+                  )}
+                  {u.dataNotes && <span className="ad-note-dot" title="The directory has a note on this home" />}
+                </span>
+                <IconChevronRight size={16} className="ad-chevron" />
+              </button>
+
+              {isOpen && (
+                <div className="ad-detail">
+                  {u.dataNotes && (
+                    <div className="ad-import-note">
+                      <p className="ad-label">Note from the owner directory</p>
+                      <p>{u.dataNotes.replace(/\s*--\s*/g, ' · ')}</p>
+                    </div>
+                  )}
+                  {u.registrationNo && (
+                    <p className="ad-meta">
+                      Registration {u.registrationNo}
+                      {u.sizeSqm ? ` · ${u.sizeSqm} m² registered` : ''}
+                    </p>
+                  )}
+                  {made ? (
+                    <SignInDetails created={made} />
+                  ) : u.account ? (
+                    <div className="ad-account">
+                      <IconUser size={16} />
+                      <div>
+                        <strong>{u.account.name}</strong>
+                        <span>Signs in as {u.account.email}</span>
+                      </div>
+                      <ResetPassword unitId={u.id} email={u.account.email} onReset={(c) => setCreated((prev) => ({ ...prev, [u.id]: c }))} />
+                    </div>
+                  ) : (
+                    <CreateAccount
+                      unit={u}
+                      onCreated={(c) => {
+                        setCreated((prev) => ({ ...prev, [u.id]: c }));
+                        load();
                       }}
-                    >
-                      + Add Account
-                    </button>
+                    />
                   )}
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      ))}
+              )}
+            </li>
+          );
+        })}
+      </ul>
     </div>
+  );
+}
+
+function CreateAccount({ unit, onCreated }: { unit: ResidentUnit; onCreated: (c: Created) => void }) {
+  const [password, setPassword] = useState(generatePassword);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function submit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setSubmitting(true);
+    setError(null);
+    const form = new FormData(e.currentTarget);
+    const email = String(form.get('email') ?? '').trim();
+    try {
+      await api.post(`/admin/units/${unit.id}/account`, { email, password, name: String(form.get('name') ?? '').trim() || undefined });
+      onCreated({ email, password });
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Could not create the account.');
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <form className="ad-create" onSubmit={submit}>
+      <p className="ad-label">Give this owner access to the resident portal</p>
+      <div className="form-row">
+        <div className="form-field">
+          <label htmlFor={`email-${unit.id}`}>Their email</label>
+          <input id={`email-${unit.id}`} name="email" type="email" required defaultValue={validEmail(unit.ownerEmail) ? unit.ownerEmail!.trim() : ''} autoFocus />
+        </div>
+        <div className="form-field">
+          <label htmlFor={`name-${unit.id}`}>Name shown in the portal</label>
+          <input id={`name-${unit.id}`} name="name" defaultValue={unit.ownerName ?? ''} />
+        </div>
+      </div>
+      <div className="form-field">
+        <label htmlFor={`pw-${unit.id}`}>Temporary password</label>
+        <div className="ad-password">
+          <input id={`pw-${unit.id}`} value={password} onChange={(e) => setPassword(e.target.value)} minLength={8} required spellCheck={false} />
+          <button type="button" className="btn btn-outline btn-sm" onClick={() => setPassword(generatePassword())}>
+            New password
+          </button>
+        </div>
+      </div>
+      {error && <div className="note-card">{error}</div>}
+      <button type="submit" className="btn btn-primary btn-sm" disabled={submitting}>
+        {submitting ? 'Creating…' : 'Create Account'}
+      </button>
+    </form>
+  );
+}
+
+/** Shown once, right after creating an account: the details to send the owner, with a copy button. */
+function SignInDetails({ created }: { created: Created }) {
+  const [copied, setCopied] = useState(false);
+  const text = `Your Garden View resident portal\nSign in at ${window.location.origin}/login\nEmail: ${created.email}\nTemporary password: ${created.password}\nYou can change the password under Profile once signed in.`;
+  return (
+    <div className="ad-created">
+      <p className="ad-label">
+        <IconCheck size={14} /> Account created. Send these details to the owner
+      </p>
+      <pre>{text}</pre>
+      <button
+        type="button"
+        className="btn btn-primary btn-sm"
+        onClick={() =>
+          navigator.clipboard.writeText(text).then(
+            () => setCopied(true),
+            () => setCopied(false),
+          )
+        }
+      >
+        {copied ? 'Copied' : 'Copy sign-in details'}
+      </button>
+      <p className="ad-hint">The password is shown only now. If the owner loses it, open their home here and choose Reset password.</p>
+    </div>
+  );
+}
+
+/** Sets a new temporary password for an owner who has forgotten theirs. */
+function ResetPassword({ unitId, email, onReset }: { unitId: string; email: string; onReset: (c: Created) => void }) {
+  const [busy, setBusy] = useState(false);
+  const [confirming, setConfirming] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  if (!confirming) {
+    return (
+      <button type="button" className="ad-link" onClick={() => setConfirming(true)}>
+        Reset password
+      </button>
+    );
+  }
+  return (
+    <span className="ad-reset">
+      {error ? <span className="ad-error">{error}</span> : <span>Replace their password with a new temporary one?</span>}
+      <button type="button" className="btn btn-outline btn-sm" onClick={() => setConfirming(false)} disabled={busy}>
+        Cancel
+      </button>
+      <button
+        type="button"
+        className="btn btn-primary btn-sm"
+        disabled={busy}
+        onClick={async () => {
+          setBusy(true);
+          const password = generatePassword();
+          try {
+            await api.post(`/admin/units/${unitId}/account/password`, { password });
+            onReset({ email, password });
+          } catch (err) {
+            setError(err instanceof ApiError ? err.message : 'Could not reset the password.');
+            setBusy(false);
+          }
+        }}
+      >
+        {busy ? 'Resetting…' : 'Reset password'}
+      </button>
+    </span>
   );
 }

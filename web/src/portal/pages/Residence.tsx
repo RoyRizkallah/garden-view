@@ -2,7 +2,9 @@ import { useEffect, useMemo, useState } from 'react';
 import Photo from '../../components/Photo';
 import ResidencePlan from '../../components/ResidencePlan';
 import ListingPanel from './ListingPanel';
-import { api, type MyResidence } from '../api';
+import { api, mediaUrl, type MyResidence } from '../api';
+import { SHOOT_CHAPTERS, formatDuration } from '../../data/photoshoot';
+import { floorsLabel } from '../../data/listings';
 import { matchResidence, residenceLevels } from '../../data/useUnitPlan';
 import { IconLayers, IconImage, IconTag, IconHome } from '../../components/Icons';
 
@@ -28,21 +30,24 @@ export default function Residence() {
   const residence = useMemo(() => matchResidence(unit?.block, unit?.number), [unit?.block, unit?.number]);
   const levels = useMemo(() => (residence ? residenceLevels(residence) : []), [residence]);
   const matched = residence !== null;
+  // the professional shoot of the resident's own block, plus any photos management adds
+  const chapter = SHOOT_CHAPTERS.find((c) => c.id === `block-${(unit?.block ?? '').toLowerCase()}`);
+  const blockPhotoCount = (chapter?.photos.length ?? 0) + (data?.blockImages.length ?? 0);
 
   return (
     <div className="portal-page">
       <section className="portal-hero" style={{ minHeight: 150 }}>
-        <Photo src="/images/shoot/block-a-2.jpg" alt="" sizes="100vw" />
+        <Photo src={chapter?.photos.find((ph) => ph.tag === 'Exterior')?.src ?? '/images/shoot/block-a-2.jpg'} alt="" sizes="100vw" />
         <div className="portal-hero-scrim" />
         <div className="portal-hero-content">
           <p className="eyebrow" style={{ color: '#e9e1cc' }}>
             <IconHome size={14} />
             Your Home
           </p>
-          <h1>
-            {unit?.sizeSqm ? `${unit.sizeSqm} m² · Block ${unit.block}` : `Residence ${unit?.number ?? ''}`}
-          </h1>
-          <p className="portal-hero-sub">Garden View Residency</p>
+          <h1>Residence {residence?.apartment ?? unit?.number ?? ''}</h1>
+          <p className="portal-hero-sub">
+            {residence ? `Block ${residence.block} · ${floorsLabel(residence.floors)}` : unit ? `Block ${unit.block}` : 'Garden View'}
+          </p>
         </div>
       </section>
 
@@ -69,9 +74,9 @@ export default function Residence() {
           <div>
             <p className="portal-residence-summary-label">Block {unit?.block ?? ''} Photos</p>
             <p className="portal-residence-summary-desc">
-              {data && data.blockImages.length > 0
-                ? `${data.blockImages.length} photo${data.blockImages.length === 1 ? '' : 's'} available — view below.`
-                : `Photos of Block ${unit?.block ?? 'your building'} will appear here once building management uploads them.`}
+              {blockPhotoCount > 0
+                ? `${blockPhotoCount} photographs${chapter?.film ? ` and a ${formatDuration(chapter.film.duration)} film` : ''} of your block, below.`
+                : `Photos of Block ${unit?.block ?? 'your building'} appear here.`}
             </p>
           </div>
         </div>
@@ -114,15 +119,42 @@ export default function Residence() {
           </a>
         ))}
 
-      {data && data.blockImages.length > 0 && (
-        <div className="portal-block-gallery">
-          {data.blockImages.map((img) => (
-            <figure key={img.id}>
-              <img src={img.url} alt={img.caption ?? `Block ${img.block}`} />
-              {img.caption && <figcaption>{img.caption}</figcaption>}
-            </figure>
-          ))}
-        </div>
+      {unit && (chapter || (data && data.blockImages.length > 0)) && (
+        <>
+          <div className="portal-doc-category-head">
+            <span className="portal-doc-category-icon">
+              <IconImage size={16} />
+            </span>
+            <p>Block {unit.block}</p>
+          </div>
+          {chapter && <p className="rs-block-lede">{chapter.summary}</p>}
+          <div className="rs-block">
+            {chapter?.film && (
+              <figure className="rs-film">
+                <video controls preload="none" playsInline poster={chapter.film.poster.replace(/\.jpg$/, '-1440.webp')}>
+                  {chapter.film.sources.map((src) => (
+                    <source key={src.src} src={src.src} media={src.media} type="video/mp4" />
+                  ))}
+                </video>
+                <figcaption>Block {unit.block} on film · {formatDuration(chapter.film.duration)}</figcaption>
+              </figure>
+            )}
+            <div className="rs-photos">
+              {data?.blockImages.map((img) => (
+                <figure key={img.id}>
+                  <img src={mediaUrl(img.url)} alt={img.caption ?? `Block ${img.block}`} loading="lazy" />
+                  {img.caption && <figcaption>{img.caption}</figcaption>}
+                </figure>
+              ))}
+              {chapter?.photos.map((ph) => (
+                <figure key={ph.src}>
+                  <Photo src={ph.src} alt={ph.title} sizes="(max-width: 960px) 45vw, 260px" />
+                  <figcaption>{ph.title}</figcaption>
+                </figure>
+              ))}
+            </div>
+          </div>
+        </>
       )}
 
       <div className="portal-doc-category-head" id="list-your-home">

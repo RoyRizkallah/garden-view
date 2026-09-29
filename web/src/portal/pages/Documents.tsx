@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { api, type GvDocument } from '../api';
+import { api, mediaUrl, type GvDocument } from '../api';
+import EmptyState from '../EmptyState';
 import Photo from '../../components/Photo';
 import {
   IconDocument,
@@ -58,6 +59,13 @@ export default function Documents() {
 
       {error && <div className="note-card">{error}</div>}
 
+      {documents && documents.length === 0 && (
+        <EmptyState icon={<IconDocument size={22} />} title="No documents published yet">
+          Building management publishes the bylaws, meeting minutes, safety guidelines and financial summaries
+          here. You will be able to open and download each one.
+        </EmptyState>
+      )}
+
       {grouped.map(([category, docs]) => {
         const CategoryIcon = CATEGORY_ICON[category] ?? IconDocument;
         return (
@@ -70,14 +78,17 @@ export default function Documents() {
             </div>
             <div className="portal-doc-list">
               {docs.map((d) => (
-                <div key={d.id} className="portal-doc-row">
+                <a key={d.id} className="portal-doc-row" href={mediaUrl(d.fileUrl)} target="_blank" rel="noreferrer">
                   <IconDocument size={18} />
                   <div>
                     <strong>{d.title}</strong>
-                    <span>Added {new Date(d.createdAt).toLocaleDateString()}</span>
+                    <span>
+                      {/\.pdf$/i.test(d.fileUrl) ? 'PDF' : 'Image'} · added{' '}
+                      {new Date(d.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+                    </span>
                   </div>
                   <IconChevronRight size={16} className="portal-doc-row-arrow" />
-                </div>
+                </a>
               ))}
             </div>
           </div>

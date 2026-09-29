@@ -12,6 +12,7 @@ import {
   IconLogout,
   IconChevronRight,
 } from '../components/Icons';
+import { initials } from './names';
 
 const LINKS = [
   { to: '/portal', label: 'Overview', shortLabel: 'Overview', icon: IconHome, end: true },
@@ -32,7 +33,7 @@ export default function PortalLayout() {
     navigate('/login', { replace: true });
   }
 
-  const initial = account?.name?.trim()?.[0]?.toUpperCase() ?? '?';
+  const initial = initials(account?.name);
 
   return (
     <div className="portal-shell portal-shell-resident">

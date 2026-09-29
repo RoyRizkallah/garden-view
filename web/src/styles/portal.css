@@ -3694,3 +3694,111 @@ button.portal-plan-level:hover {
   font-weight: 600;
   color: var(--gold-dim);
 }
+
+/* ---------- empty states (resident: dark, admin: light) ---------- */
+.portal-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  padding: 48px 28px;
+  margin: 8px 0 28px;
+  border-radius: var(--radius);
+  border: 1px dashed var(--cream-dark);
+  background: var(--white);
+  color: var(--ink);
+}
+.portal-empty-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+  color: var(--gold-dim);
+  background: var(--cream);
+}
+.portal-empty h2 {
+  font-size: 21px;
+  margin: 0;
+}
+.portal-empty p {
+  max-width: 440px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #6b6a5e;
+}
+.portal-empty-action {
+  margin-top: 8px;
+}
+.portal-shell-resident .portal-empty {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.16);
+  color: var(--white);
+}
+.portal-shell-resident .portal-empty-icon {
+  color: var(--gold);
+  background: rgba(201, 167, 105, 0.12);
+}
+.portal-shell-resident .portal-empty p {
+  color: rgba(255, 253, 248, 0.62);
+}
+
+/* resident: my block (film + photos) */
+.rs-block-lede {
+  max-width: 640px;
+  margin: -6px 0 18px;
+  font-size: 14.5px;
+  color: rgba(255, 253, 248, 0.68);
+}
+.rs-block {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: 16px;
+  margin-bottom: 48px;
+}
+.rs-film {
+  margin: 0;
+}
+.rs-film video {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius);
+  background: #000;
+  display: block;
+}
+.rs-film figcaption,
+.rs-photos figcaption {
+  margin-top: 8px;
+  font-size: 12.5px;
+  color: rgba(255, 253, 248, 0.6);
+}
+.rs-photos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  align-content: start;
+  max-height: 520px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.rs-photos figure {
+  margin: 0;
+}
+.rs-photos img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 10px;
+}
+@media (max-width: 960px) {
+  .rs-block {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .rs-photos {
+    max-height: none;
+  }
+}

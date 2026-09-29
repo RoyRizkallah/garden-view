@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { api, ApiError, type VoteSummary, type VoteChoice } from '../api';
 import { IconCheck, IconBallot, IconUser, IconClock } from '../../components/Icons';
 import VoteDonut from '../VoteDonut';
+import EmptyState from '../EmptyState';
 
 const CHOICE_LABEL: Record<VoteChoice, string> = { YES: 'Yes', NO: 'No', ABSTAIN: 'Abstain' };
 const CHOICE_COLOR: Record<VoteChoice, string> = {
@@ -209,7 +210,13 @@ export default function Voting() {
             </div>
           );
         })}
-        {filtered.length === 0 && <p className="portal-empty-note">No proposals in this view.</p>}
+        {votes && votes.length === 0 && (
+          <EmptyState icon={<IconBallot size={22} />} title="No proposals yet">
+            When building management puts a decision to the owners, it appears here. Each home has one vote,
+            and you can follow the results as they come in.
+          </EmptyState>
+        )}
+        {votes && votes.length > 0 && filtered.length === 0 && <p className="portal-empty-note">No proposals in this view.</p>}
       </div>
     </div>
   );
