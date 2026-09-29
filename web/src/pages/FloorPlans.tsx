@@ -192,8 +192,6 @@ function ResidenceSummary({ unit, level, levelPlan, partnerLevel, partnerPlan }:
 
 type ViewMode = '2d' | '3d';
 const VIEW_MODE_KEY = 'gv.plans.viewMode';
-/** Dev aid: `?fixture=1` loads the hand-made fixture flat instead of the level's model. */
-const FIXTURE_URL = '/plans/_fixture.3d.json';
 
 function readStoredViewMode(): ViewMode {
   try {
@@ -772,16 +770,12 @@ export default function FloorPlans() {
   const planSrc = level.src && level.src !== brokenSrc ? level.src : null;
 
   /* ---- 3D model loading ---- */
-  const useFixture = searchParams.get('fixture') === '1';
-  const plan3dKey = useFixture ? '_fixture' : level.id;
+  const plan3dKey = level.id;
   const [plan3dLoad, setPlan3dLoad] = useState<Plan3DLoad | null>(null);
 
   useEffect(() => {
     const ac = new AbortController();
-    const request = useFixture
-      ? fetch(FIXTURE_URL, { signal: ac.signal }).then((r) => (r.ok ? (r.json() as Promise<Plan3D>) : null))
-      : loadPlan3D(level.id, ac.signal);
-    request
+    loadPlan3D(level.id, ac.signal)
       .then((plan) => {
         if (ac.signal.aborted) return;
         setPlan3dLoad(plan ? { key: plan3dKey, status: 'ready', plan } : { key: plan3dKey, status: 'none' });
@@ -791,7 +785,7 @@ export default function FloorPlans() {
         setPlan3dLoad({ key: plan3dKey, status: 'none' });
       });
     return () => ac.abort();
-  }, [plan3dKey, useFixture, level.id]);
+  }, [plan3dKey, level.id]);
 
   const loading3d = plan3dLoad === null || plan3dLoad.key !== plan3dKey;
   const has3d = !loading3d && plan3dLoad.status === 'ready';
@@ -873,7 +867,7 @@ export default function FloorPlans() {
 
   // One reconciliation for the selection: it belongs to a sheet, so a level or mode change clears
   // it (model included), and a `?unit=` link applies once this level's model and the viewer are
-  // both there. `level.id` matters on its own because the fixture keeps one model key everywhere.
+  // both there.
   useEffect(() => {
     const code =
       show3d && has3d && linkedUnit && selectableCodes.has(linkedUnit.apartment) ? linkedUnit.apartment : null;
@@ -905,7 +899,7 @@ export default function FloorPlans() {
 
   /* ---- the residence the card speaks for: the lit one, else the linked one on this floor ---- */
   const onThisFloor = (unit: UnitRecord) =>
-    useFixture || (typeof level.floor === 'number' && unit.floors.includes(level.floor));
+    typeof level.floor === 'number' && unit.floors.includes(level.floor);
   const panelUnit: UnitRecord | null = !isResidential
     ? null
     : selectedApt
@@ -917,7 +911,7 @@ export default function FloorPlans() {
   // A duplex's other sheet, fetched once so both levels can be read together. (PLAN_LEVELS entries
   // are stable objects, so this is a safe effect dependency.)
   const partnerFloor =
-    panelUnit && !useFixture && typeof level.floor === 'number'
+    panelUnit && typeof level.floor === 'number'
       ? panelUnit.floors.find((f) => f !== level.floor)
       : undefined;
   const partnerLevel = partnerFloor === undefined ? undefined : planLevelById(planIdForFloor(partnerFloor));

@@ -7,9 +7,7 @@ import Amenities from './pages/Amenities';
 import Gallery from './pages/Gallery';
 import Location from './pages/Location';
 import About from './pages/About';
-import ComingSoon from './pages/ComingSoon';
 import ProtectedRoute from './portal/ProtectedRoute';
-import { heroImage } from './data/routeHeroes';
 
 // Loaded on demand so three.js never weighs down the rest of the site.
 const Explorer = lazy(() => import('./pages/Explorer'));
@@ -65,16 +63,6 @@ function App() {
         <Route path="/floor-plans" element={deferred(FloorPlans)} />
         <Route path="/listings" element={deferred(Listings)} />
         <Route path="/listings/:id" element={deferred(ListingDetail)} />
-        <Route
-          path="/virtual-tour"
-          element={
-            <ComingSoon
-              image={heroImage('/virtual-tour')}
-              title="360° Virtual Tour"
-              description="An immersive walkthrough of a sample residence. This needs professional 360° photography, which hasn't been captured yet."
-            />
-          }
-        />
       </Route>
 
       <Route path="/login" element={deferred(Login)} />

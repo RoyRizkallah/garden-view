@@ -454,7 +454,7 @@ picture > source {
   padding-top: 20px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
-.home-bento-contact-list div {
+.home-bento-contact-list > * {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -2274,4 +2274,26 @@ picture > source {
   .district-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* footer: management's direct contact details, once set in data/contact.ts */
+.footer-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.footer-contact-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 14px;
+  opacity: 0.8;
+}
+.footer-contact-item svg {
+  color: var(--gold);
+}
+.footer-note a {
+  color: var(--gold);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }

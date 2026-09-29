@@ -13,10 +13,6 @@
       "photo": "block-c-5",
       "sizes": "cover"
     },
-    "/virtual-tour": {
-      "photo": "block-a-3",
-      "sizes": "cover"
-    },
     "/location": {
       "photo": "block-c-1",
       "sizes": "(max-width: 584px) calc(100vw - 64px), 520px"

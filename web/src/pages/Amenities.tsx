@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { AMENITY_CATEGORIES, LIFESTYLE_HIGHLIGHTS, BUILDING_FACTS } from '../data/building';
 import PageHero from '../components/PageHero';
 import Photo from '../components/Photo';
+import ContactDetails from '../components/ContactDetails';
 import {
   IconLeaf,
   IconDumbbell,
@@ -9,9 +10,6 @@ import {
   IconCar,
   IconShield,
   IconLamp,
-  IconMail,
-  IconPhone,
-  IconWhatsapp,
   IconArrowRight,
   IconExpand,
   IconBuilding,
@@ -196,20 +194,7 @@ export default function Amenities() {
                   Request a Private Tour
                 </Link>
               </div>
-              <div className="services-band-contact">
-                <div className="contact-icon-item">
-                  <IconPhone size={18} />
-                  <span>Phone — pending</span>
-                </div>
-                <div className="contact-icon-item">
-                  <IconMail size={18} />
-                  <span>Email — pending</span>
-                </div>
-                <div className="contact-icon-item">
-                  <IconWhatsapp size={18} />
-                  <span>Chat on WhatsApp — pending</span>
-                </div>
-              </div>
+              <ContactDetails className="services-band-contact" itemClassName="contact-icon-item" />
             </div>
           </div>
         </div>

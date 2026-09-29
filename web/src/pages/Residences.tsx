@@ -3,13 +3,10 @@ import { BUILDING_FACTS, BLOCKS, GALLERY_IMAGES } from '../data/building';
 import PageHero from '../components/PageHero';
 import HighlightStrip from '../components/HighlightStrip';
 import Photo from '../components/Photo';
+import ContactDetails from '../components/ContactDetails';
 import {
   IconBuilding,
   IconArrowRight,
-  IconPhone,
-  IconMail,
-  IconMapPin,
-  IconWhatsapp,
 } from '../components/Icons';
 import { heroImage } from '../data/routeHeroes';
 
@@ -123,24 +120,7 @@ export default function Residences() {
                 <IconArrowRight size={14} />
               </Link>
             </div>
-            <div className="services-band-contact">
-              <div className="contact-icon-item">
-                <IconPhone size={18} />
-                <span>Phone — pending</span>
-              </div>
-              <div className="contact-icon-item">
-                <IconMail size={18} />
-                <span>Email — pending</span>
-              </div>
-              <div className="contact-icon-item">
-                <IconMapPin size={18} />
-                <span>Office — pending</span>
-              </div>
-              <div className="contact-icon-item">
-                <IconWhatsapp size={18} />
-                <span>Chat on WhatsApp — pending</span>
-              </div>
-            </div>
+            <ContactDetails className="services-band-contact" itemClassName="contact-icon-item" />
           </div>
         </div>
       </section>

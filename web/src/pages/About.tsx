@@ -48,10 +48,14 @@ export default function About() {
             <p className="eyebrow">Our Building</p>
             <h2>Designed for Everyday Living</h2>
             <p>
-              This site is being built out in phases as more building data — floor plans, unit
-              details, and amenity information — is confirmed with building management.
+              Garden View is three limestone blocks, A, B and C, set around two private gardens in
+              Beirut Central District. Each block has its own entrance and lobby, and its 41 homes
+              range from single-floor apartments to duplexes and penthouses on levels 9 and 10.
             </p>
-            <p>What you see today reflects what's confirmed so far.</p>
+            <p>
+              Below ground are an indoor pool and fitness studio, 120 parking spaces over three
+              levels, standby generators and a CCTV security room.
+            </p>
             <Link to="/floor-plans" className="btn btn-outline-gold" style={{ marginTop: 10 }}>
               View Floor Plans <IconArrowRight size={14} />
             </Link>

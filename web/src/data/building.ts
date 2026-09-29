@@ -85,9 +85,10 @@ export const BLOCKS = [
 ];
 
 export const BUILDING_HIGHLIGHTS = [
-  { icon: 'shield', title: 'Private & Secure', description: '24/7 security and controlled access' },
-  { icon: 'leaf', title: 'Green Living', description: 'Landscaped gardens and open spaces' },
-  { icon: 'car', title: 'Parking', description: 'Secure parking for residents' },
-  { icon: 'elevator', title: 'Modern Elevators', description: 'High-speed elevators in every block' },
-  { icon: 'concierge', title: 'Concierge Service', description: 'Assistance for residents and visitors' },
+  // each one visible in the professional shoot or written on the as-built plans
+  { icon: 'shield', title: 'Security', description: 'A CCTV security room and fire detection' },
+  { icon: 'leaf', title: 'Private Gardens', description: 'Two planted gardens between the blocks' },
+  { icon: 'car', title: 'Parking', description: '120 spaces on three levels below ground' },
+  { icon: 'elevator', title: 'Private Lobbies', description: 'Each block with its own entrance and lifts' },
+  { icon: 'concierge', title: 'Standby Power', description: 'Generators and a central heating plant' },
 ];

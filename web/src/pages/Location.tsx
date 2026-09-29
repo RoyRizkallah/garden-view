@@ -2,15 +2,13 @@ import { useState, type FormEvent } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   IconMapPin,
-  IconMail,
-  IconPhone,
-  IconWhatsapp,
   IconCar,
   IconLeaf,
   IconBuilding,
   IconArrowRight,
 } from '../components/Icons';
 import LocationMap from '../components/LocationMap';
+import { contactItems } from '../components/contactItems';
 import Photo from '../components/Photo';
 import { api, ApiError } from '../portal/api';
 import { heroImage, heroSizes } from '../data/routeHeroes';
@@ -24,6 +22,7 @@ const DISTRICT_HIGHLIGHTS = [
 ];
 
 const INTERESTS = ['buying', 'renting', 'tour', 'other'];
+const directContact = contactItems(18);
 
 export default function Location() {
   // "Enquire" on a listing lands here as ?interest=buying&unit=3%20A1
@@ -116,13 +115,6 @@ export default function Location() {
                 details.
               </p>
             </div>
-            <div className="location-aside">
-              <IconMail size={20} />
-              <div>
-                <strong>Prefer another way?</strong>
-                <span>Direct contact details are coming soon.</span>
-              </div>
-            </div>
           </div>
 
           {submitted ? (
@@ -184,24 +176,31 @@ export default function Location() {
             </form>
           )}
 
-          <p className="location-contact-divider">Or contact us directly</p>
-          <div className="contact-grid">
-            <div className="contact-grid-item">
-              <IconPhone size={18} />
-              <strong>Call Us</strong>
-              <span>Pending confirmation</span>
-            </div>
-            <div className="contact-grid-item">
-              <IconMail size={18} />
-              <strong>Email Us</strong>
-              <span>Pending confirmation</span>
-            </div>
-            <div className="contact-grid-item">
-              <IconWhatsapp size={18} />
-              <strong>WhatsApp</strong>
-              <span>Pending confirmation</span>
-            </div>
-          </div>
+          {directContact.length > 0 && (
+            <>
+              <p className="location-contact-divider">Or contact us directly</p>
+              <div className="contact-grid">
+                {directContact.map((c) => {
+                  const body = (
+                    <>
+                      {c.icon}
+                      <strong>{c.label}</strong>
+                      <span>{c.value}</span>
+                    </>
+                  );
+                  return c.href ? (
+                    <a key={c.key} className="contact-grid-item" href={c.href} target={c.key === 'whatsapp' ? '_blank' : undefined} rel="noreferrer">
+                      {body}
+                    </a>
+                  ) : (
+                    <div key={c.key} className="contact-grid-item">
+                      {body}
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
         </div>
       </div>
     </section>

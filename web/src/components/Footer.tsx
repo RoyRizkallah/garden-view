@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
 import Logo from './Logo';
+import ContactDetails from './ContactDetails';
+import { hasDirectContact } from '../data/contact';
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -53,10 +55,13 @@ export default function Footer() {
 
         <div>
           <p className="footer-heading">Get in touch</p>
-          <p className="footer-note">
-            Direct phone, email, and WhatsApp details will be added here once confirmed by
-            building management — use the contact form for now.
-          </p>
+          {hasDirectContact ? (
+            <ContactDetails className="footer-contact" itemClassName="footer-contact-item" iconSize={15} />
+          ) : (
+            <p className="footer-note">
+              Questions, viewings or tours: <Link to="/location">send building management a message</Link>.
+            </p>
+          )}
         </div>
       </div>
 

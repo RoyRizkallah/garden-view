@@ -10,11 +10,9 @@ import {
   IconLamp,
   IconLayers,
   IconMapPin,
-  IconPhone,
-  IconMail,
-  IconWhatsapp,
 } from '../components/Icons';
 import LocationMap from '../components/LocationMap';
+import ContactDetails from '../components/ContactDetails';
 import Photo from '../components/Photo';
 import Prologue from '../components/cinematic/Prologue';
 
@@ -88,13 +86,12 @@ export default function Home() {
               <IconLayers size={16} />
             </span>
             <p className="eyebrow">3D Building Explorer</p>
-            <h2>Coming to Garden View</h2>
+            <h2>See Garden View in 3D</h2>
             <p className="home-bento-copy">
-              An interactive 3D view of every block and residence — waiting on real floor plans
-              from building management before it can be built.
+              Every block, floor and residence, modelled from the architect's as-built drawings.
             </p>
             <Link to="/explorer" className="home-bento-link">
-              See What's Coming →
+              Open the 3D Explorer →
             </Link>
           </div>
         </div>
@@ -107,8 +104,7 @@ export default function Home() {
             </p>
             <h2>At the Center of It All</h2>
             <p className="home-bento-copy">
-              In the heart of Beirut Central District. Walking distances and nearby landmarks
-              will be added once confirmed.
+              In the heart of Beirut Central District, the city's historic centre.
             </p>
             <div className="home-bento-map">
               <LocationMap />
@@ -129,20 +125,7 @@ export default function Home() {
             <Link to="/location" className="btn btn-gold" style={{ marginTop: 10 }}>
               Request a Tour
             </Link>
-            <div className="home-bento-contact-list">
-              <div>
-                <IconPhone size={16} />
-                <span>Phone — pending confirmation</span>
-              </div>
-              <div>
-                <IconMail size={16} />
-                <span>Email — pending confirmation</span>
-              </div>
-              <div>
-                <IconWhatsapp size={16} />
-                <span>Chat on WhatsApp — pending</span>
-              </div>
-            </div>
+            <ContactDetails className="home-bento-contact-list" iconSize={16} />
             <svg className="home-bento-leaf-deco" viewBox="0 0 120 120" fill="none">
               <path d="M10 110c30 4 55-20 55-55C40 55 8 78 10 110Z" stroke="currentColor" strokeWidth="1" />
               <path d="M10 110c12-24 25-36 55-50" stroke="currentColor" strokeWidth="1" />
