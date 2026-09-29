@@ -4,7 +4,8 @@ import { IconCheck, IconCalendar, IconWallet, IconUsers } from '../../components
 import CircularProgress from '../CircularProgress';
 import Photo from '../../components/Photo';
 
-const PROJECT_IMAGES = ['/images/exterior-04.jpg', '/images/exterior-10.jpg', '/images/exterior-09.jpg', '/images/exterior-03.jpg'];
+// building-maintenance projects: the plant and spaces they concern, from the professional shoot
+const PROJECT_IMAGES = ['/images/shoot/common-7.jpg', '/images/shoot/common-8.jpg', '/images/shoot/common-5.jpg', '/images/shoot/block-c-4.jpg'];
 // 2-column card grid (24 px gap) in the portal main column (viewport − 264 px sidebar − 2 × 56 px padding)
 const CARD_MEDIA_SIZES = '(max-width: 640px) calc(100vw - 48px), (max-width: 960px) calc(50vw - 36px), calc(50vw - 200px)';
 const STATUS_FILTERS = ['All Statuses', 'Planning', 'In Progress', 'Complete'] as const;

@@ -29,7 +29,7 @@ export default function AdminOverviewPage() {
   return (
     <div className="portal-page">
       <section className="portal-hero">
-        <Photo src="/images/exterior-09.jpg" alt="" sizes={HERO_SIZES} priority />
+        <Photo src="/images/shoot/block-b-4.jpg" alt="" sizes={HERO_SIZES} priority />
         <div className="portal-hero-scrim" />
         <div className="portal-hero-content">
           <p className="eyebrow" style={{ color: '#e9e1cc' }}>

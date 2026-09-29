@@ -351,7 +351,7 @@ export default function Residence() {
   return (
     <div className="portal-page">
       <section className="portal-hero" style={{ minHeight: 150 }}>
-        <img src="/images/exterior-01.jpg" alt="" />
+        <img src="/images/shoot/block-a-2-1440.webp" alt="" />
         <div className="portal-hero-scrim" />
         <div className="portal-hero-content">
           <p className="eyebrow" style={{ color: '#e9e1cc' }}>

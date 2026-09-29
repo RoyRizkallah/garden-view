@@ -47,7 +47,7 @@ export default function Overview() {
   return (
     <div className="portal-page">
       <section className="portal-hero">
-        <Photo src="/images/exterior-07.jpg" alt="" sizes={HERO_SIZES} priority />
+        <Photo src="/images/shoot/common-3.jpg" alt="" sizes={HERO_SIZES} priority />
         <div className="portal-hero-scrim" />
         <div className="portal-hero-content">
           <p className="eyebrow" style={{ color: '#e9e1cc' }}>
@@ -113,7 +113,7 @@ export default function Overview() {
                     </div>
                   </div>
                   <div className="portal-feature-media">
-                    <Photo src="/images/exterior-09.jpg" alt="" sizes="108px" />
+                    <Photo src="/images/shoot/block-a-6.jpg" alt="" sizes="108px" />
                     <span className="portal-feature-ring">
                       <CircularProgress percent={featured.progressPct} size={54} stroke={4} />
                     </span>

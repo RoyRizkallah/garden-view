@@ -43,7 +43,7 @@ export default function Documents() {
   return (
     <div className="portal-page">
       <div className="portal-page-hero-fade">
-        <Photo src="/images/exterior-08.jpg" alt="" sizes={FADE_IMAGE_SIZES} priority />
+        <Photo src="/images/shoot/block-b-2.jpg" alt="" sizes={FADE_IMAGE_SIZES} priority />
         <div className="portal-page-hero-fade-content">
           <p className="eyebrow">
             <IconClipboard size={14} />

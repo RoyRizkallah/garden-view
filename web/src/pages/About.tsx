@@ -13,7 +13,7 @@ export default function About() {
   return (
     <>
       <PageHero
-        image="/images/exterior-06.jpg"
+        image="/images/shoot/block-c-5.jpg"
         eyebrow="About"
         title={
           <>
@@ -56,8 +56,8 @@ export default function About() {
             </Link>
           </div>
           <Photo
-            src="/images/entrance-01.jpg"
-            alt="Garden View entrance"
+            src="/images/shoot/block-c-2.jpg"
+            alt="Block C's covered entrance"
             className="about-image"
             sizes={ABOUT_IMAGE_SIZES}
             eager

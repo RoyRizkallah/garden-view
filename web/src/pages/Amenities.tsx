@@ -8,6 +8,7 @@ import {
   IconSofa,
   IconCar,
   IconShield,
+  IconLamp,
   IconMail,
   IconPhone,
   IconWhatsapp,
@@ -24,6 +25,8 @@ const AMENITY_ICONS = {
   sofa: IconSofa,
   car: IconCar,
   shield: IconShield,
+  building: IconBuilding,
+  lamp: IconLamp,
 };
 
 // Slot widths for `sizes` (1240 px container, 32 px side padding). The showcase grid is
@@ -47,7 +50,7 @@ export default function Amenities() {
   return (
     <>
       <PageHero
-        image="/images/exterior-07.jpg"
+        image="/images/shoot/gym-2.jpg"
         eyebrow="Amenities & Lifestyle"
         title="Designed for Well-Being"
         subtitle="Garden View's shared spaces are designed around residents' everyday needs — blending wellness, comfort, and convenience."
@@ -179,7 +182,7 @@ export default function Amenities() {
 
           <div className="amenities-cta-card">
             <div className="amenities-cta-image">
-              <Photo src="/images/exterior-02.jpg" alt="" sizes={SIZES.cta} />
+              <Photo src="/images/shoot/common-3.jpg" alt="" sizes={SIZES.cta} />
             </div>
             <div className="services-band-inner">
               <div>

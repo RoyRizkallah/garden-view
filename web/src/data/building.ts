@@ -3,147 +3,78 @@ export const BUILDING_FACTS = {
   location: 'Beirut Central District',
   units: 41,
   blocks: 3,
-  levels: 9,
+  // ground + 10 floors above it (the as-built sheets run G, 1–10; B1–B3 are below ground)
+  levels: 11,
 };
 
-// `tag` is the small eyebrow-style label, `caption` the bold line underneath — matches the
-// two-tier caption style on the gallery cards. `category` drives the filter tabs; every real
-// photo we have today is an exterior shot, so Interiors/Amenities/Views stay empty until real
-// photography for those exists (see the note on the gallery page).
+// `tag` is the small eyebrow-style label, `caption` the bold line underneath. Every photo here is
+// from the client's professional shoot (web/public/images/shoot/, built by scripts/build_media.py);
+// the full shoot, with films, lives on the Gallery page (data/photoshoot.ts). Home shows the first
+// three, Residences the first six.
 export const GALLERY_IMAGES = [
-  {
-    src: '/images/exterior-01.jpg',
-    tag: 'Garden View Residences',
-    caption: 'Architectural Elegance in Beirut Central District',
-    category: 'exterior',
-  },
-  {
-    src: '/images/exterior-07.jpg',
-    tag: 'Landscaped Courtyard',
-    caption: 'Green Space at Ground Level',
-    category: 'exterior',
-  },
-  {
-    src: '/images/entrance-01.jpg',
-    tag: 'Main Entrance',
-    caption: 'Covered Arrival Court',
-    category: 'exterior',
-  },
-  {
-    src: '/images/exterior-03.jpg',
-    tag: 'Facade Detail',
-    caption: 'Private Balconies',
-    category: 'exterior',
-  },
-  {
-    src: '/images/exterior-09.jpg',
-    tag: 'Building Silhouette',
-    caption: 'Against the Beirut Skyline',
-    category: 'exterior',
-  },
-  {
-    src: '/images/exterior-02.jpg',
-    tag: 'Balcony Greenery',
-    caption: 'Planted Terraces',
-    category: 'exterior',
-  },
-  {
-    src: '/images/exterior-05.jpg',
-    tag: 'Street-Level View',
-    caption: 'Corner Approach',
-    category: 'exterior',
-  },
-  {
-    src: '/images/exterior-04.jpg',
-    tag: 'Corner Elevation',
-    caption: 'Morning Light',
-    category: 'exterior',
-  },
-  {
-    src: '/images/exterior-10.jpg',
-    tag: 'Facade',
-    caption: 'Midday Light',
-    category: 'exterior',
-  },
-  {
-    src: '/images/exterior-06.jpg',
-    tag: 'Ground Floor',
-    caption: 'Frontage & Landscaping',
-    category: 'exterior',
-  },
-  {
-    src: '/images/exterior-11.jpg',
-    tag: 'Upper Floors',
-    caption: 'Facade Rhythm',
-    category: 'exterior',
-  },
-  {
-    src: '/images/exterior-08.jpg',
-    tag: 'Tree-Lined Street',
-    caption: 'Street Front',
-    category: 'exterior',
-  },
+  { src: '/images/shoot/block-a-1.jpg', tag: 'Block A', caption: 'Planted Façade', category: 'exterior' },
+  { src: '/images/shoot/common-3.jpg', tag: 'Ground Floor', caption: 'Private Garden', category: 'amenities' },
+  { src: '/images/shoot/block-a-3.jpg', tag: 'Block A', caption: 'Entrance Lobby', category: 'interiors' },
+  { src: '/images/shoot/block-b-4.jpg', tag: 'Block B', caption: 'On the Street', category: 'exterior' },
+  { src: '/images/shoot/gym-3.jpg', tag: 'Level B1', caption: 'Indoor Pool', category: 'amenities' },
+  { src: '/images/shoot/block-c-1.jpg', tag: 'Block C', caption: 'Façade in the Trees', category: 'exterior' },
+  { src: '/images/shoot/block-b-2.jpg', tag: 'Block B', caption: 'Stepped Terraces', category: 'exterior' },
+  { src: '/images/shoot/block-c-2.jpg', tag: 'Block C', caption: 'Covered Entrance', category: 'exterior' },
+  { src: '/images/shoot/block-b-3.jpg', tag: 'Block B', caption: 'Lobby Artwork', category: 'interiors' },
+  { src: '/images/shoot/gym-2.jpg', tag: 'Level B1', caption: 'Fitness Studio', category: 'amenities' },
+  { src: '/images/shoot/block-a-2.jpg', tag: 'Block A', caption: 'Planted Balconies', category: 'exterior' },
+  { src: '/images/shoot/block-c-3.jpg', tag: 'Block C', caption: 'Lobby onto the Garden', category: 'interiors' },
 ];
 
-export const GALLERY_CATEGORIES = [
-  { key: 'all', label: 'All' },
-  { key: 'exterior', label: 'Exterior' },
-  { key: 'interiors', label: 'Interiors' },
-  { key: 'amenities', label: 'Amenities' },
-  { key: 'views', label: 'Views' },
-];
-
-// Categories per the project spec's assumed feature set (Section 3.2). Hours and rules are
-// still pending from building management — see the note on the Amenities page.
-// Fitness & Pool, Landscaped Grounds, Parking and Building Access use the client's professional
-// shoot (web/public/images/shoot/). Rooftop and Residents' Lounge still use stock photography
-// standing in for spaces the shoot didn't cover (illustrative, not actual Garden View spaces).
-// The first entry is the page's featured tile, so it has to be a real space.
+// Every amenity here is one the professional shoot shows (and, where a number is given, one the
+// as-built plans confirm: parking capacities are written on the B1–B3 sheets). Rooftop and
+// Residents' Lounge used to be listed with stock photography; the shoot doesn't cover them, so
+// they are left out until real photos exist. The first entry is the page's featured tile.
 export const AMENITY_CATEGORIES = [
   {
     icon: 'dumbbell',
     title: 'Fitness & Pool',
-    description: 'A residents’ fitness studio laid out along an indoor pool.',
+    description: 'A residents’ fitness studio laid out along an indoor pool, lit by a skylight.',
     image: '/images/shoot/gym-2.jpg',
     link: '/gallery#fitness',
   },
   {
     icon: 'leaf',
-    title: 'Rooftop',
-    description: 'A shared rooftop space for residents.',
-    image: '/images/amenity-rooftop.jpg',
-  },
-  {
-    icon: 'sofa',
-    title: "Residents' Lounge",
-    description: 'A shared indoor space for residents to gather.',
-    image: '/images/amenity-lounge.jpg',
-  },
-  {
-    icon: 'leaf',
-    title: 'Landscaped Grounds',
-    description: 'A private planted garden and street-level greenery around the building.',
+    title: 'Private Gardens',
+    description: 'Two planted gardens on the ground floor.',
     image: '/images/shoot/common-3.jpg',
+  },
+  {
+    icon: 'building',
+    title: 'Lobbies',
+    description: 'Each block has its own entrance and lobby, hung with large-format artwork.',
+    image: '/images/shoot/block-b-3.jpg',
   },
   {
     icon: 'car',
     title: 'Parking',
-    description: 'Underground parking behind barrier-controlled entry.',
+    description: '120 spaces across three underground levels.',
     image: '/images/shoot/common-5.jpg',
   },
   {
     icon: 'shield',
-    title: 'Building Access',
-    description: 'Controlled entrance access, watched over from a CCTV security room.',
+    title: 'Security',
+    description: 'A CCTV security room and fire detection throughout.',
     image: '/images/shoot/common-2.jpg',
+  },
+  {
+    icon: 'lamp',
+    title: 'Standby Power',
+    description: 'Standby generators and a central heating plant keep the building running.',
+    image: '/images/shoot/common-7.jpg',
   },
 ] as const;
 
 export const LIFESTYLE_HIGHLIGHTS = [
-  { icon: 'leaf', title: 'Shared Outdoor Space', description: 'Rooftop and courtyard access for residents.' },
+  { icon: 'leaf', title: 'Private Gardens', description: 'Two planted gardens on the ground floor.' },
   { icon: 'shield', title: 'Controlled Access', description: 'Managed entrance for residents and visitors.' },
-  { icon: 'car', title: 'On-site Parking', description: 'Parking available on the property.' },
-  { icon: 'sofa', title: "Residents' Lounge", description: 'Shared indoor space to gather.' },
+  { icon: 'car', title: 'On-site Parking', description: '120 spaces on three underground levels.' },
+  { icon: 'dumbbell', title: 'Indoor Pool', description: 'A pool and fitness studio on level B1.' },
 ];
 
 // Unit counts per block are real, from the owner directory (18 + 6 + 17 = 41).

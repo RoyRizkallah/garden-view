@@ -6,6 +6,8 @@ import {
   IconSofa,
   IconCar,
   IconShield,
+  IconBuilding,
+  IconLamp,
   IconLayers,
   IconMapPin,
   IconPhone,
@@ -26,6 +28,8 @@ const AMENITY_ICONS = {
   sofa: IconSofa,
   car: IconCar,
   shield: IconShield,
+  building: IconBuilding,
+  lamp: IconLamp,
 };
 
 export default function Home() {
@@ -34,8 +38,8 @@ export default function Home() {
       <section className="hero">
         <div className="hero-media">
           <Photo
-            src="/images/exterior-01.jpg"
-            alt="Garden View building exterior at dusk"
+            src="/images/shoot/block-b-4.jpg"
+            alt="Garden View's Block B from the street"
             sizes={COVER_HERO_SIZES}
             priority
           />
@@ -83,8 +87,8 @@ export default function Home() {
         <div className="home-bento-row home-bento-row-3">
           <div className="home-bento-cell home-bento-amenities">
             <Photo
-              src="/images/exterior-07.jpg"
-              alt="Landscaped courtyard at Garden View"
+              src="/images/shoot/gym-3.jpg"
+              alt="The indoor pool at Garden View"
               sizes={AMENITIES_CELL_SIZES}
             />
             <div className="home-bento-amenities-scrim" />

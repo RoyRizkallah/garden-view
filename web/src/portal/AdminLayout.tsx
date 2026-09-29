@@ -42,7 +42,7 @@ export default function AdminLayout() {
       <aside className="portal-sidebar">
         <div className="portal-sidebar-photo">
           {/* the sidebar is a fixed 264 px column */}
-          <Photo src="/images/exterior-01.jpg" alt="" sizes="264px" eager />
+          <Photo src="/images/shoot/block-a-6.jpg" alt="" sizes="264px" eager />
           <div className="portal-sidebar-photo-scrim" />
           <div className="portal-sidebar-brand">
             <strong>Garden View</strong>

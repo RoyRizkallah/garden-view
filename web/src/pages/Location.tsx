@@ -70,8 +70,8 @@ export default function Location() {
 
           <div className="location-photo">
             <Photo
-              src="/images/exterior-09.jpg"
-              alt="Garden View against the Beirut skyline"
+              src="/images/shoot/block-c-1.jpg"
+              alt="Block C among the trees of Beirut Central District"
               sizes={LOCATION_PHOTO_SIZES}
               eager
             />

@@ -31,7 +31,7 @@ export default function Residences() {
   return (
     <>
       <PageHero
-        image="/images/exterior-09.jpg"
+        image="/images/shoot/block-a-1.jpg"
         eyebrow="Beirut Central District"
         title="Residences"
         subtitle="Three residential blocks. Forty-one residences. Designed for privacy, comfort, and everyday living."

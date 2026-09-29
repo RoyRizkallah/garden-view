@@ -64,7 +64,7 @@ function App() {
           path="/virtual-tour"
           element={
             <ComingSoon
-              image="/images/exterior-02.jpg"
+              image="/images/shoot/block-a-3.jpg"
               title="360° Virtual Tour"
               description="An immersive walkthrough of a sample residence. This needs professional 360° photography, which hasn't been captured yet."
             />
