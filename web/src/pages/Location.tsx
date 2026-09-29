@@ -13,14 +13,14 @@ import LocationMap from '../components/LocationMap';
 import Photo from '../components/Photo';
 import { api, ApiError } from '../portal/api';
 
-// the panel's inner column is capped at 460 px; panel padding is 32 px per side on small screens
-const LOCATION_PHOTO_SIZES = '(max-width: 524px) calc(100vw - 64px), 460px';
+// the panel's inner column is capped at 520 px; panel padding is 32 px per side on small screens
+const LOCATION_PHOTO_SIZES = '(max-width: 584px) calc(100vw - 64px), 520px';
 
 const DISTRICT_HIGHLIGHTS = [
-  { icon: IconMapPin, title: 'Prime Address', description: "In Beirut Central District" },
-  { icon: IconCar, title: 'Well Connected', description: "Central to Beirut's main roads" },
-  { icon: IconLeaf, title: 'Green & Open', description: 'Landscaped courtyard and street greenery' },
-  { icon: IconBuilding, title: 'Established District', description: "Beirut's central business core" },
+  { icon: IconMapPin, title: 'Prime Address', description: "Beirut's historic city centre" },
+  { icon: IconLeaf, title: 'Green & Open', description: 'Two private gardens and planted balconies' },
+  { icon: IconCar, title: 'Private Parking', description: '120 spaces on three levels below ground' },
+  { icon: IconBuilding, title: 'Three Blocks', description: '41 residences, each block with its own lobby' },
 ];
 
 export default function Location() {
@@ -64,18 +64,19 @@ export default function Location() {
             <span className="accent">Beirut Central District</span>
           </h1>
           <p className="location-split-copy">
-            Garden View is perfectly situated in Beirut Central District, Lebanon. Everything you
-            need is just steps away — where culture, convenience, and connectivity come together.
+            Garden View stands in Beirut Central District, the city's historic centre: three
+            limestone blocks set around private gardens, among the district's landmark towers.
           </p>
 
-          <div className="location-photo">
+          <figure className="location-photo">
             <Photo
               src="/images/shoot/block-c-1.jpg"
               alt="Block C among the trees of Beirut Central District"
               sizes={LOCATION_PHOTO_SIZES}
               eager
             />
-          </div>
+            <figcaption>Block C from the street</figcaption>
+          </figure>
 
           <div className="district-grid">
             {DISTRICT_HIGHLIGHTS.map((h) => (
@@ -83,8 +84,10 @@ export default function Location() {
                 <span className="district-item-icon">
                   <h.icon size={16} />
                 </span>
-                <strong>{h.title}</strong>
-                <span>{h.description}</span>
+                <div>
+                  <strong>{h.title}</strong>
+                  <span>{h.description}</span>
+                </div>
               </div>
             ))}
           </div>

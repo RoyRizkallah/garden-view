@@ -1731,66 +1731,92 @@ picture > source {
   background: var(--cream);
 }
 .location-split-inner {
-  max-width: 460px;
+  max-width: 520px;
   margin: 0 auto;
   width: 100%;
 }
 .location-heading {
-  margin: 4px 0 10px;
-  font-size: clamp(24px, 2.8vw, 32px);
-  line-height: 1.2;
+  margin: 10px 0 14px;
+  font-size: clamp(30px, 3.2vw, 42px);
+  line-height: 1.12;
 }
 .location-split-copy {
-  opacity: 0.75;
-  margin-bottom: 14px;
-  font-size: 13.5px;
-  line-height: 1.55;
+  opacity: 0.78;
+  margin-bottom: 26px;
+  font-size: 15px;
+  line-height: 1.65;
+  max-width: 470px;
 }
 .location-photo {
-  border-radius: var(--radius-sm);
+  position: relative;
+  border-radius: var(--radius);
   overflow: hidden;
-  margin-bottom: 14px;
+  margin-bottom: 26px;
   box-shadow: var(--shadow);
+  aspect-ratio: 16 / 10;
 }
 .location-photo img {
   width: 100%;
-  height: 84px;
+  height: 100%;
   object-fit: cover;
+}
+.location-photo figcaption {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--white);
+  background: rgba(24, 41, 32, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 .district-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  margin-bottom: 14px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px 24px;
+  margin-bottom: 28px;
+  padding: 22px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 .district-item {
   display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.district-item > div {
+  display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 .district-item-icon {
-  width: 28px;
-  height: 28px;
+  flex: none;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
-  border: 1px solid rgba(201, 167, 105, 0.4);
+  border: 1px solid rgba(201, 167, 105, 0.45);
   color: var(--gold);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 2px;
 }
 .district-item strong {
-  font-size: 12.5px;
+  font-size: 14px;
   font-weight: 600;
 }
 .district-item span {
-  font-size: 11px;
-  opacity: 0.62;
-  line-height: 1.35;
+  font-size: 12.5px;
+  opacity: 0.66;
+  line-height: 1.45;
 }
 .map-card-large {
   margin-bottom: 0;
-  aspect-ratio: 400 / 130;
+  aspect-ratio: 16 / 9;
 }
 .contact-icon-row {
   display: flex;
@@ -2235,5 +2261,11 @@ picture > source {
   .amenities-stats-bar .services-fact {
     padding-right: 18px;
     margin-right: 18px;
+  }
+}
+
+@media (max-width: 560px) {
+  .district-grid {
+    grid-template-columns: 1fr;
   }
 }
