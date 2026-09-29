@@ -13,7 +13,8 @@ services:
     environment:
       POSTGRES_USER: garden_view
       POSTGRES_DB: garden_view
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      # required: Coolify shows these as required variables and refuses to deploy without them
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?}
     volumes:
       - db-data:/var/lib/postgresql/data
     healthcheck:
@@ -21,6 +22,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 20
+      # the first start initialises the database; failed checks during this window don't count
+      start_period: 60s
 
   app:
     build:
@@ -35,10 +38,10 @@ services:
     expose:
       - '4000'
     environment:
-      DATABASE_URL: postgresql://garden_view:${POSTGRES_PASSWORD}@db:5432/garden_view
-      JWT_SECRET: ${JWT_SECRET}
+      DATABASE_URL: postgresql://garden_view:${POSTGRES_PASSWORD:?}@db:5432/garden_view
+      JWT_SECRET: ${JWT_SECRET:?}
       # the site's own address, e.g. gardenview.com (no https://)
-      CLIENT_ORIGIN: https://${DOMAIN}
+      CLIENT_ORIGIN: https://${DOMAIN:?}
     volumes:
       # owners' listing photos: user content, kept outside the image
       - uploads:/app/uploads
