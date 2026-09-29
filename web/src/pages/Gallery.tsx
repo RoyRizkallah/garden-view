@@ -10,6 +10,8 @@ import Photo from '../components/Photo';
 const SIZES = {
   third: '(max-width: 560px) calc(100vw - 64px), (max-width: 900px) calc(50vw - 41px), (max-width: 1240px) 31vw, 380px',
   half: '(max-width: 560px) calc(100vw - 64px), (max-width: 900px) calc(50vw - 41px), (max-width: 1240px) 47vw, 579px',
+  // the film spans 8 of 12 columns (full width ≤ 900 px)
+  film: '(max-width: 900px) calc(100vw - 64px), (max-width: 1240px) 64vw, 780px',
   // the lightbox image is capped at 1320 px inside 40 px of padding
   lightbox: 'min(1320px, calc(100vw - 80px))',
 };
@@ -224,10 +226,12 @@ function FilmTile({ film, title, onPlay }: { film: ShootFilm; title: string; onP
 
   return (
     <button className="shoot-film" onClick={onPlay} aria-label={`Play the ${title} film, ${formatDuration(film.duration)}`}>
+      {/* the still is a lazy, responsive <Photo> under the video rather than a poster attribute:
+          browsers fetch every poster on arrival, at full size, whether it is on screen or not */}
+      <Photo src={film.poster} alt="" sizes={SIZES.film} />
       <video
         ref={ref}
         src={film.loop}
-        poster={posterFor(film)}
         muted
         loop
         playsInline

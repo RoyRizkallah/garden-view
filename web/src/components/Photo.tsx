@@ -12,10 +12,8 @@ for (const [name, meta] of Object.entries(shoot.photos)) {
   PHOTOS[`shoot/${name}`] = { w: meta.w, h: meta.h, v: meta.v as unknown as Variant[] };
 }
 
-// Full-bleed, object-fit: cover heroes are width-bound on landscape screens but height-bound on
-// portrait ones (a 92vh-tall hero on a 390 px phone needs a ~1160 px-wide 3:2 source to cover
-// it), so in portrait we ask for the largest candidate rather than a 480 px one stretched 2.4×.
-export const COVER_HERO_SIZES = '(orientation: portrait) 300vw, 100vw';
+// Cover-hero `sizes` live with the per-route hero list (index.html preloads them).
+export { COVER_HERO_SIZES } from '../data/routeHeroes';
 
 type PhotoProps = Omit<ImgHTMLAttributes<HTMLImageElement>, 'src' | 'srcSet' | 'sizes' | 'loading'> & {
   /** JPEG path, e.g. "/images/shoot/gym-3.jpg". */
@@ -44,12 +42,14 @@ export default function Photo({ src, sizes, priority, eager, alt = '', ...rest }
     />
   );
   if (!meta) return img;
-  const srcSet = meta.v.map(([w, suffix]) => `/images/${name}-${suffix}.webp ${w}w`).join(', ');
+  const srcSet = (ext: string) => meta.v.map(([w, suffix]) => `/images/${name}-${suffix}.${ext} ${w}w`).join(', ');
   return (
     // display: contents (layout.css) — the <picture> adds no box, so the <img> keeps sitting in
     // exactly the grid/flex/absolute slot it had before.
     <picture className="photo">
-      <source type="image/webp" srcSet={srcSet} sizes={sizes} />
+      {/* AVIF first (~40% lighter at the same look), WebP for the rest */}
+      <source type="image/avif" srcSet={srcSet('avif')} sizes={sizes} />
+      <source type="image/webp" srcSet={srcSet('webp')} sizes={sizes} />
       {img}
     </picture>
   );

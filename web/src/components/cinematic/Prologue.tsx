@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { BUILDING_FACTS } from '../../data/building';
 import { IconArrowRight, IconLayers } from '../Icons';
-import Photo, { COVER_HERO_SIZES } from '../Photo';
+import Photo from '../Photo';
+import { COVER_HERO_SIZES } from '../../data/routeHeroes';
 import type { BlockId, PrologueScene } from './prologueScene';
 import './prologue.css';
 
@@ -67,8 +68,36 @@ export default function Prologue() {
     let disposed = false;
     const lowPower = window.matchMedia('(max-width: 900px)').matches || (navigator.hardwareConcurrency ?? 8) <= 4;
 
-    // The model loads after the opening film is on screen, so it never delays the first paint.
-    const load = window.setTimeout(() => {
+    // Nothing heavy competes with the first paint: the opening still (the page's LCP) and the
+    // fonts go first. The opening film starts once the page has loaded and the browser is idle —
+    // and never on a data-saver or 2G/3G connection, where the still stays. The 3D model (three.js
+    // + the massing, ~180 KB) loads as soon as the visitor starts scrolling, or a few idle seconds
+    // after load, whichever comes first.
+    const conn = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
+    const slowLink = !!conn?.saveData || /(^|-)(2g|3g)$/.test(conn?.effectiveType ?? '');
+    const idle = (fn: () => void, timeout: number) =>
+      typeof window.requestIdleCallback === 'function' ? window.requestIdleCallback(fn, { timeout }) : setTimeout(fn, timeout);
+    const timers: number[] = [];
+    const afterLoad = (fn: () => void) => {
+      if (document.readyState === 'complete') fn();
+      else window.addEventListener('load', fn, { once: true });
+    };
+    afterLoad(() => {
+      const v = videos[0];
+      if (v && !slowLink && !disposed) {
+        timers.push(idle(() => {
+          if (disposed) return;
+          v.src = v.dataset.src ?? '';
+          v.play().catch(() => {});
+        }, 1500));
+      }
+      timers.push(window.setTimeout(() => loadModel(), 3000));
+    });
+
+    let modelRequested = false;
+    const loadModel = () => {
+      if (modelRequested || disposed) return;
+      modelRequested = true;
       import('./prologueScene')
         .then(({ createPrologueScene }) => createPrologueScene(canvas, { lowPower }))
         .then((s) => {
@@ -78,7 +107,7 @@ export default function Prologue() {
           s.resize(r.width, r.height);
         })
         .catch(() => !disposed && setSceneFailed(true));
-    }, 350);
+    };
 
     const ro = new ResizeObserver(() => {
       const r = canvas.getBoundingClientRect();
@@ -106,6 +135,7 @@ export default function Prologue() {
       last = now;
       // ease toward the scroll position so a flick of the wheel reads as a camera move
       p += (progress() - p) * (1 - Math.exp(-dt * 7));
+      if (p > 0.012) loadModel();
 
       const film1 = 1 - smooth(0.1, 0.16, p);
       const model = Math.max(win(p, 0.1, 0.16, 0.63, 0.67), smooth(0.8, 0.86, p));
@@ -145,12 +175,17 @@ export default function Prologue() {
       [film1, film2, film3].forEach((o, i) => {
         const v = videos[i];
         if (!v) return;
-        if (o > 0.01 && v.paused) v.play().catch(() => {});
+        if (o > 0.01 && v.paused && v.currentSrc) v.play().catch(() => {});
         else if (o <= 0.01 && !v.paused) v.pause();
       });
       if (!preloaded && p > 0.3) {
         preloaded = true;
         videos.slice(1).forEach((v) => v && (v.preload = 'auto'));
+        // their stills too: nothing from the second half of the film is fetched on arrival
+        ['film2', 'film3'].forEach((k) => {
+          const img = L[k]?.querySelector<HTMLImageElement>('img[data-src]');
+          if (img && !img.src) img.src = img.dataset.src ?? '';
+        });
       }
 
       if (scene && model > 0.002) {
@@ -180,7 +215,7 @@ export default function Prologue() {
 
     return () => {
       disposed = true;
-      window.clearTimeout(load);
+      timers.forEach((t) => window.clearTimeout(t));
       cancelAnimationFrame(raf);
       ro.disconnect();
       scene?.dispose();
@@ -201,7 +236,7 @@ export default function Prologue() {
       <div className="prologue-stage">
         <div ref={set('film1')} className="pl-layer pl-film">
           <Photo src="/images/shoot/film-block-c.jpg" alt="Block C of Garden View from the street" sizes={COVER_HERO_SIZES} priority />
-          {!reduced && <video src={film('block-c').src} muted loop playsInline autoPlay preload="auto" aria-hidden="true" />}
+          {!reduced && <video data-src={film('block-c').src} muted loop playsInline preload="none" aria-hidden="true" />}
         </div>
 
         {!reduced && (
@@ -217,11 +252,11 @@ export default function Prologue() {
               ))}
             </div>
             <div ref={set('film2')} className="pl-layer pl-film" style={{ opacity: 0, visibility: 'hidden' }}>
-              <img src={film('common').poster} alt="" />
+              <img data-src={film('common').poster} alt="" />
               <video src={film('common').src} muted loop playsInline preload="none" aria-hidden="true" />
             </div>
             <div ref={set('film3')} className="pl-layer pl-film" style={{ opacity: 0, visibility: 'hidden' }}>
-              <img src={film('gym').poster} alt="" />
+              <img data-src={film('gym').poster} alt="" />
               <video src={film('gym').src} muted loop playsInline preload="none" aria-hidden="true" />
             </div>
           </>

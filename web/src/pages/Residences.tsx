@@ -11,6 +11,7 @@ import {
   IconMapPin,
   IconWhatsapp,
 } from '../components/Icons';
+import { heroImage } from '../data/routeHeroes';
 
 const GALLERY = GALLERY_IMAGES.slice(0, 6);
 
@@ -31,7 +32,7 @@ export default function Residences() {
   return (
     <>
       <PageHero
-        image="/images/shoot/block-a-1.jpg"
+        image={heroImage('/residences')}
         eyebrow="Beirut Central District"
         title="Residences"
         subtitle="Three residential blocks. Forty-one residences. Designed for privacy, comfort, and everyday living."
@@ -63,7 +64,7 @@ export default function Residences() {
             {BLOCKS.map((block) => (
               <div key={block.name} className="block-tile">
                 <div className="block-tile-media">
-                  <Photo src={block.image} alt="" sizes={BLOCK_TILE_SIZES} eager />
+                  <Photo src={block.image} alt="" sizes={BLOCK_TILE_SIZES} />
                   <div className="block-tile-scrim" />
                   <span className="block-tile-icon">
                     <IconBuilding size={16} />

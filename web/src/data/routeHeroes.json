@@ -1,0 +1,25 @@
+{
+  "coverSizes": "(orientation: portrait) 300vw, 100vw",
+  "routes": {
+    "/residences": {
+      "photo": "block-a-1",
+      "sizes": "cover"
+    },
+    "/amenities": {
+      "photo": "gym-2",
+      "sizes": "cover"
+    },
+    "/about": {
+      "photo": "block-c-5",
+      "sizes": "cover"
+    },
+    "/virtual-tour": {
+      "photo": "block-a-3",
+      "sizes": "cover"
+    },
+    "/location": {
+      "photo": "block-c-1",
+      "sizes": "(max-width: 584px) calc(100vw - 64px), 520px"
+    }
+  }
+}

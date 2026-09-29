@@ -16,7 +16,7 @@ know — pixel sizes, variant widths, durations — goes to web/src/data/photosh
 Captions and ordering live in web/src/data/photoshoot.ts, not here: this script only knows
 about pixels.
 
-    python scripts/build_media.py [--src "D:/garden view/Photoshoot"] [--only photos|films] [--sets block-c,gym]
+    python scripts/build_media.py [--src "D:/garden view/Photoshoot"] [--only photos|films|avif] [--sets block-c,gym]
 """
 from __future__ import annotations
 
@@ -57,6 +57,7 @@ LOOP_LEN = 8.0
 LOOP_XFADE = 1.0
 
 WIDTHS = (480, 960, 1440, 1920)
+AVIF_Q = 58
 
 
 def run(cmd: list[str]) -> None:
@@ -76,7 +77,7 @@ def probe_duration(path: Path) -> float:
 
 
 def write_photo(im: Image.Image, name: str) -> dict:
-    """WebP variants + a JPEG fallback for one image; returns its manifest entry."""
+    """AVIF + WebP variants and a JPEG fallback for one image; returns its manifest entry."""
     im = ImageOps.exif_transpose(im).convert("RGB")
     # a few masters are 4K; nothing on the site is ever drawn wider than 1920 CSS px × DPR 1
     if im.width > WIDTHS[-1]:
@@ -91,6 +92,8 @@ def write_photo(im: Image.Image, name: str) -> dict:
             # downscaling softens; a light unsharp brings back stone texture and window mullions
             v = v.filter(ImageFilter.UnsharpMask(radius=0.8, percent=45, threshold=2))
         v.save(IMG_OUT / f"{name}-{w}.webp", "WEBP", quality=80, method=6)
+        # AVIF at q58 matches the WebP by eye at ~60% of the bytes; browsers that can decode it take it
+        v.save(IMG_OUT / f"{name}-{w}.avif", "AVIF", quality=AVIF_Q, speed=4)
         variants.append([real, str(w)])
         if real == im.width:
             break
@@ -183,7 +186,7 @@ def build_films(src: Path, only: set[str] | None = None) -> tuple[dict, dict]:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--src", default="D:/garden view/Photoshoot")
-    ap.add_argument("--only", choices=["photos", "films"])
+    ap.add_argument("--only", choices=["photos", "films", "avif"])
     ap.add_argument("--sets", help="comma-separated film slugs to rebuild, e.g. block-c,gym")
     args = ap.parse_args()
     src = Path(args.src)
@@ -191,6 +194,23 @@ def main() -> None:
         raise SystemExit(f"shoot folder not found: {src}")
 
     manifest = json.loads(MANIFEST.read_text("utf-8")) if MANIFEST.exists() else {"photos": {}, "films": {}}
+    if args.only == "avif":
+        # add AVIF siblings to every WebP variant already built, from the largest WebP (posters)
+        # or the original photo (shoot images)
+        print("avif:")
+        for f in sorted(src.glob("*.jpeg")) + sorted(src.glob("*.jpg")):
+            m = re.match(r"(.+)\.(\d+)\.JPG\.jpe?g$", f.name, re.I) or re.match(r"(.+)\.(\d+)\.jpe?g$", f.name, re.I)
+            if m and m.group(1) in SETS:
+                name = f"{SETS[m.group(1)]}-{int(m.group(2))}"
+                manifest["photos"][name] = write_photo(Image.open(f), name)
+                print(f"  {name}")
+        for name, meta in manifest["photos"].items():
+            if name.startswith("film-"):
+                largest = IMG_OUT / f"{name}-{meta['v'][-1][1]}.webp"
+                write_photo(Image.open(largest), name)
+                print(f"  {name}")
+        MANIFEST.write_text(json.dumps(manifest, indent=1, sort_keys=True) + "\n", "utf-8")
+        return
     if args.only != "films":
         print("photos:")
         manifest["photos"].update(build_photos(src))

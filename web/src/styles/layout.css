@@ -1407,6 +1407,7 @@ picture > source {
   grid-column: span 6;
 }
 .shoot-film video,
+.shoot-film img,
 .shoot-tile img {
   position: absolute;
   inset: 0;
@@ -1416,6 +1417,7 @@ picture > source {
   transition: transform 0.7s var(--ease);
 }
 .shoot-tile:hover img,
+.shoot-film:hover img,
 .shoot-film:hover video {
   transform: scale(1.04);
 }

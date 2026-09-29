@@ -12,9 +12,8 @@ import {
 import LocationMap from '../components/LocationMap';
 import Photo from '../components/Photo';
 import { api, ApiError } from '../portal/api';
+import { heroImage, heroSizes } from '../data/routeHeroes';
 
-// the panel's inner column is capped at 520 px; panel padding is 32 px per side on small screens
-const LOCATION_PHOTO_SIZES = '(max-width: 584px) calc(100vw - 64px), 520px';
 
 const DISTRICT_HIGHLIGHTS = [
   { icon: IconMapPin, title: 'Prime Address', description: "Beirut's historic city centre" },
@@ -70,10 +69,10 @@ export default function Location() {
 
           <figure className="location-photo">
             <Photo
-              src="/images/shoot/block-c-1.jpg"
+              src={heroImage('/location')}
               alt="Block C among the trees of Beirut Central District"
-              sizes={LOCATION_PHOTO_SIZES}
-              eager
+              sizes={heroSizes('/location')}
+              priority
             />
             <figcaption>Block C from the street</figcaption>
           </figure>

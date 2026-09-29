@@ -28,8 +28,10 @@
   inset: 0;
   background: url('/images/shoot/block-c-1.jpg') center/cover;
   /* browsers without image-set() keep the JPEG */
+  /* drawn at 16% opacity, so a 960 px image is plenty */
   background-image: image-set(
-    url('/images/shoot/block-c-1-1440.webp') type('image/webp'),
+    url('/images/shoot/block-c-1-960.avif') type('image/avif'),
+    url('/images/shoot/block-c-1-960.webp') type('image/webp'),
     url('/images/shoot/block-c-1.jpg') type('image/jpeg')
   );
   opacity: 0.16;

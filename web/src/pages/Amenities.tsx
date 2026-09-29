@@ -18,6 +18,7 @@ import {
   IconLayers,
   IconMapPin,
 } from '../components/Icons';
+import { heroImage } from '../data/routeHeroes';
 
 const AMENITY_ICONS = {
   leaf: IconLeaf,
@@ -50,7 +51,7 @@ export default function Amenities() {
   return (
     <>
       <PageHero
-        image="/images/shoot/gym-2.jpg"
+        image={heroImage('/amenities')}
         eyebrow="Amenities & Lifestyle"
         title="Designed for Well-Being"
         subtitle="Garden View's shared spaces are designed around residents' everyday needs — blending wellness, comfort, and convenience."
@@ -65,7 +66,7 @@ export default function Amenities() {
 
           <div className="amenity-showcase">
             <Link to={featured.link} className="amenity-tile amenity-tile-featured">
-              <Photo src={featured.image} alt="" sizes={SIZES.featured} eager />
+              <Photo src={featured.image} alt="" sizes={SIZES.featured} />
               <div className="amenity-tile-featured-scrim" />
               <span className="amenity-tile-featured-tag">Featured</span>
               <span className="amenity-tile-expand">

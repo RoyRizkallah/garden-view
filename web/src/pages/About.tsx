@@ -4,6 +4,7 @@ import PageHero from '../components/PageHero';
 import HighlightStrip from '../components/HighlightStrip';
 import Photo from '../components/Photo';
 import { IconBuilding, IconLayers, IconArrowRight } from '../components/Icons';
+import { heroImage } from '../data/routeHeroes';
 
 // .about-image is a fixed 460 px tall, object-fit: cover slot at every width (564 px wide on
 // desktop, full-width ≤ 900 px), so a 16:9 source is always height-bound: 460 × 16/9 ≈ 820 px.
@@ -13,7 +14,7 @@ export default function About() {
   return (
     <>
       <PageHero
-        image="/images/shoot/block-c-5.jpg"
+        image={heroImage('/about')}
         eyebrow="About"
         title={
           <>
@@ -60,7 +61,6 @@ export default function About() {
             alt="Block C's covered entrance"
             className="about-image"
             sizes={ABOUT_IMAGE_SIZES}
-            eager
           />
         </div>
       </section>

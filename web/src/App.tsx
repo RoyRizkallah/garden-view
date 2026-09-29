@@ -9,6 +9,7 @@ import Location from './pages/Location';
 import About from './pages/About';
 import ComingSoon from './pages/ComingSoon';
 import ProtectedRoute from './portal/ProtectedRoute';
+import { heroImage } from './data/routeHeroes';
 
 // Loaded on demand so three.js never weighs down the rest of the site.
 const Explorer = lazy(() => import('./pages/Explorer'));
@@ -64,7 +65,7 @@ function App() {
           path="/virtual-tour"
           element={
             <ComingSoon
-              image="/images/shoot/block-a-3.jpg"
+              image={heroImage('/virtual-tour')}
               title="360° Virtual Tour"
               description="An immersive walkthrough of a sample residence. This needs professional 360° photography, which hasn't been captured yet."
             />

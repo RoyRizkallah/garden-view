@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
+import Photo from '../../components/Photo';
 import { api, ApiError, type Furnished, type ListingType, type ListingStatus, type MyResidence } from '../api';
 import type { FloorPlan3DHandle } from '../../components/FloorPlan3D';
 import type { PlanLevelId } from '../../data/floorPlans';
@@ -351,7 +352,7 @@ export default function Residence() {
   return (
     <div className="portal-page">
       <section className="portal-hero" style={{ minHeight: 150 }}>
-        <img src="/images/shoot/block-a-2-1440.webp" alt="" />
+        <Photo src="/images/shoot/block-a-2.jpg" alt="" sizes="100vw" />
         <div className="portal-hero-scrim" />
         <div className="portal-hero-content">
           <p className="eyebrow" style={{ color: '#e9e1cc' }}>
