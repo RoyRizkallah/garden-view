@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { BUILDING_FACTS, GALLERY_IMAGES, AMENITY_CATEGORIES } from '../data/building';
+import { GALLERY_IMAGES, AMENITY_CATEGORIES } from '../data/building';
 import {
   IconLeaf,
   IconDumbbell,
@@ -13,10 +13,10 @@ import {
   IconPhone,
   IconMail,
   IconWhatsapp,
-  IconArrowRight,
 } from '../components/Icons';
 import LocationMap from '../components/LocationMap';
-import Photo, { COVER_HERO_SIZES } from '../components/Photo';
+import Photo from '../components/Photo';
+import Prologue from '../components/cinematic/Prologue';
 
 // Slot widths for `sizes`: the bento sits in the 1240 px container (32 px side padding); the
 // amenities cell is the 1.7fr column of a 1.7fr/1fr/1.15fr row and stacks full-width ≤ 960 px.
@@ -35,53 +35,7 @@ const AMENITY_ICONS = {
 export default function Home() {
   return (
     <>
-      <section className="hero">
-        <div className="hero-media">
-          <Photo
-            src="/images/shoot/block-b-4.jpg"
-            alt="Garden View's Block B from the street"
-            sizes={COVER_HERO_SIZES}
-            priority
-          />
-          <div className="hero-scrim" />
-        </div>
-        <div className="container hero-inner">
-          <p className="eyebrow" style={{ color: '#e9e1cc' }}>
-            {BUILDING_FACTS.location}
-          </p>
-          <h1 className="hero-title">
-            Home at <span className="accent">Garden View</span>
-          </h1>
-          <p className="hero-sub">
-            One residential building, three blocks, forty-one residences — in the heart of
-            Beirut Central District.
-          </p>
-          <div className="hero-cta">
-            <Link to="/residences" className="btn btn-gold">
-              View Residences
-              <IconArrowRight size={14} />
-            </Link>
-            <Link to="/explorer" className="btn btn-ghost">
-              <IconLayers size={15} />
-              Explore in 3D
-            </Link>
-          </div>
-          <div className="hero-stats">
-            <div className="hero-stat">
-              <strong>{BUILDING_FACTS.units}</strong>
-              <span>Residences</span>
-            </div>
-            <div className="hero-stat">
-              <strong>{BUILDING_FACTS.blocks}</strong>
-              <span>Blocks</span>
-            </div>
-            <div className="hero-stat">
-              <strong>{BUILDING_FACTS.levels}</strong>
-              <span>Levels</span>
-            </div>
-          </div>
-        </div>
-      </section>
+      <Prologue />
 
       <section className="home-bento">
         <div className="home-bento-row home-bento-row-3">

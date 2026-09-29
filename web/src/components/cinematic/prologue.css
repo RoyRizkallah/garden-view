@@ -1,0 +1,384 @@
+/* ---------- LANDING PROLOGUE: one pinned, scroll-driven opening ---------- */
+.prologue {
+  position: relative;
+  height: 720vh;
+  background: #0f1a14;
+}
+.prologue.is-still {
+  height: auto;
+}
+.prologue-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  color: var(--white);
+  background: #0f1a14;
+}
+.prologue.is-still .prologue-stage {
+  position: relative;
+}
+
+.pl-layer {
+  position: absolute;
+  inset: 0;
+  will-change: opacity, transform;
+}
+.pl-film img,
+.pl-film video,
+.pl-model canvas,
+.pl-model > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.pl-film::after {
+  /* the films sit under the brand's green, so the cut to the night model is a dissolve, not a jump */
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(15, 26, 20, 0.78) 0%, rgba(15, 26, 20, 0.4) 45%, rgba(15, 26, 20, 0.1) 80%),
+    linear-gradient(0deg, rgba(15, 26, 20, 0.85) 0%, rgba(15, 26, 20, 0) 45%);
+}
+
+.pl-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(120% 90% at 50% 45%, rgba(0, 0, 0, 0) 55%, rgba(5, 10, 7, 0.55) 100%);
+}
+/* a whisper of film grain over everything */
+.pl-vignette::after {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: pl-grain 1.2s steps(6) infinite;
+}
+@keyframes pl-grain {
+  0% { transform: translate(0, 0); }
+  20% { transform: translate(-3%, 2%); }
+  40% { transform: translate(2%, -3%); }
+  60% { transform: translate(-2%, -1%); }
+  80% { transform: translate(3%, 3%); }
+  100% { transform: translate(0, 0); }
+}
+
+.pl-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 4;
+  height: 8vh;
+  background: #050907;
+  pointer-events: none;
+}
+.pl-bar-top {
+  top: 0;
+}
+.pl-bar-bottom {
+  bottom: 0;
+}
+
+/* ---------- captions ---------- */
+.pl-caption {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 15vh;
+  pointer-events: none;
+  will-change: opacity, transform;
+}
+.pl-caption .container {
+  width: 100%;
+}
+.pl-hero {
+  padding-bottom: 12vh;
+  animation: pl-open 1.4s var(--ease) both;
+}
+.pl-hero .eyebrow,
+.pl-hero .pl-title,
+.pl-hero .pl-sub,
+.pl-hero .pl-cta,
+.pl-hero .pl-stats {
+  animation: pl-rise 1.2s var(--ease) both;
+}
+.pl-hero .pl-title { animation-delay: 0.15s; }
+.pl-hero .pl-sub { animation-delay: 0.3s; }
+.pl-hero .pl-cta { animation-delay: 0.42s; }
+.pl-hero .pl-stats { animation-delay: 0.55s; }
+@keyframes pl-rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+@keyframes pl-open {
+  from {
+    opacity: 0;
+  }
+}
+.pl-title {
+  margin-top: 20px;
+  font-size: clamp(46px, 7vw, 104px);
+  line-height: 0.98;
+  letter-spacing: -0.015em;
+}
+.pl-sub {
+  margin-top: 22px;
+  max-width: 480px;
+  font-size: 17px;
+  color: rgba(255, 253, 248, 0.82);
+}
+.pl-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 32px;
+}
+.pl-stats {
+  display: flex;
+  margin-top: 46px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 253, 248, 0.16);
+  max-width: 560px;
+}
+.pl-stats div {
+  padding-right: 40px;
+  margin-right: 40px;
+  border-right: 1px solid rgba(255, 253, 248, 0.16);
+}
+.pl-stats div:last-child {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+.pl-stats strong {
+  display: block;
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 38px;
+  line-height: 1;
+}
+.pl-stats span {
+  display: block;
+  margin-top: 10px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 253, 248, 0.7);
+}
+
+.pl-scene h2 {
+  margin-top: 18px;
+  font-size: clamp(38px, 5.4vw, 80px);
+  line-height: 1.02;
+  max-width: 13ch;
+  text-shadow: 0 2px 30px rgba(0, 0, 0, 0.45);
+}
+.pl-scene p:not(.eyebrow) {
+  margin-top: 18px;
+  max-width: 420px;
+  font-size: 16.5px;
+  color: rgba(255, 253, 248, 0.8);
+  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.6);
+}
+.pl-final {
+  align-items: center;
+  /* a pool of shade behind the closing title, so it reads over the lit building */
+  background: radial-gradient(60% 45% at 50% 50%, rgba(10, 18, 13, 0.62), rgba(10, 18, 13, 0) 100%);
+  padding-bottom: 0;
+  text-align: center;
+}
+.pl-final .eyebrow {
+  justify-content: center;
+}
+.pl-final .eyebrow::after {
+  content: '';
+  width: 26px;
+  height: 1px;
+  background: currentColor;
+}
+.pl-final h2 {
+  margin-inline: auto;
+  max-width: 14ch;
+}
+.pl-final .pl-cta {
+  justify-content: center;
+  margin-top: 36px;
+}
+
+/* ---------- block labels pinned over the model ---------- */
+.pl-block-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 16px 12px;
+  border-radius: 12px;
+  background: rgba(15, 26, 20, 0.72);
+  border: 1px solid rgba(201, 167, 105, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  white-space: nowrap;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+.pl-block-label::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -30px;
+  width: 1px;
+  height: 30px;
+  background: linear-gradient(180deg, rgba(201, 167, 105, 0.8), rgba(201, 167, 105, 0));
+}
+.pl-block-label strong {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 22px;
+  color: var(--gold);
+}
+.pl-block-label span {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 253, 248, 0.8);
+}
+
+/* ---------- chapter rail ---------- */
+.pl-rail {
+  position: absolute;
+  right: 28px;
+  top: 50%;
+  z-index: 6;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.pl-rail button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  width: 170px;
+  height: 18px;
+  color: rgba(255, 253, 248, 0.5);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.pl-rail button span {
+  opacity: 0;
+  transform: translateX(6px);
+  transition: opacity 0.35s var(--ease), transform 0.35s var(--ease), color 0.35s var(--ease);
+}
+.pl-rail button::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 253, 248, 0.55);
+  transition: background 0.35s var(--ease), border-color 0.35s var(--ease), transform 0.35s var(--ease);
+}
+.pl-rail button:hover span,
+.pl-rail button:focus-visible span,
+.pl-rail button.is-active span {
+  opacity: 1;
+  transform: none;
+}
+.pl-rail button.is-active {
+  color: var(--gold);
+}
+.pl-rail button.is-active::after {
+  background: var(--gold);
+  border-color: var(--gold);
+  transform: scale(1.3);
+}
+
+.pl-cue {
+  position: absolute;
+  left: 50%;
+  bottom: 3.2vh;
+  z-index: 6;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(255, 253, 248, 0.7);
+  pointer-events: none;
+}
+.pl-cue i {
+  width: 1px;
+  height: 34px;
+  background: linear-gradient(180deg, var(--gold), rgba(201, 167, 105, 0));
+  animation: pl-cue 2s var(--ease) infinite;
+  transform-origin: top;
+}
+@keyframes pl-cue {
+  0% { transform: scaleY(0); opacity: 1; }
+  60% { transform: scaleY(1); opacity: 1; }
+  100% { transform: scaleY(1); opacity: 0; }
+}
+
+@media (max-width: 900px) {
+  .prologue {
+    height: 640vh;
+  }
+  .pl-rail {
+    right: 12px;
+    gap: 12px;
+  }
+  .pl-rail button {
+    width: 18px;
+  }
+  .pl-rail button span {
+    display: none;
+  }
+  .pl-caption {
+    padding-bottom: 13vh;
+  }
+  .pl-stats div {
+    padding-right: 24px;
+    margin-right: 24px;
+  }
+  .pl-stats strong {
+    font-size: 30px;
+  }
+  .pl-block-label {
+    padding: 7px 11px 9px;
+  }
+  .pl-block-label strong {
+    font-size: 17px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pl-hero,
+  .pl-hero * {
+    animation: none !important;
+  }
+  .pl-vignette::after {
+    animation: none;
+  }
+}
