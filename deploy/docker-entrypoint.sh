@@ -11,4 +11,7 @@ fi
 echo "Applying database migrations..."
 npx prisma migrate deploy
 
+# first admin from ADMIN_EMAIL / ADMIN_PASSWORD, only if the database has none yet
+node dist/bootstrap-admin.js
+
 exec "$@"

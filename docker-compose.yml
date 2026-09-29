@@ -35,6 +35,8 @@ services:
       DATABASE_URL: postgresql://garden_view:${POSTGRES_PASSWORD}@db:5432/garden_view
       JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
       CLIENT_ORIGIN: https://${DOMAIN:?set DOMAIN in .env}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
     volumes:
       # owners' listing photos: user content, kept outside the image and backed up
       - uploads:/app/uploads

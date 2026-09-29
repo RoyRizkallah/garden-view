@@ -8,6 +8,7 @@ import {
   IconBallot,
   IconClipboard,
   IconUsers,
+  IconUser,
   IconMail,
   IconTag,
   IconImage,
@@ -24,6 +25,7 @@ const LINKS = [
   { to: '/admin/listings', label: 'Listings', shortLabel: 'Listings', icon: IconTag },
   { to: '/admin/photos', label: 'Photos', shortLabel: 'Photos', icon: IconImage },
   { to: '/admin/inquiries', label: 'Inquiries', shortLabel: 'Inquiries', icon: IconMail },
+  { to: '/admin/profile', label: 'Profile & Password', shortLabel: 'Profile', icon: IconUser },
 ];
 
 export default function AdminLayout() {

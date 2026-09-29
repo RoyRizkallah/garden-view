@@ -91,6 +91,7 @@ function App() {
           <Route path="listings" element={deferred(AdminListings)} />
           <Route path="photos" element={deferred(AdminPhotos)} />
           <Route path="inquiries" element={deferred(AdminInquiries)} />
+          <Route path="profile" element={deferred(PortalProfile)} />
         </Route>
       </Route>
     </Routes>

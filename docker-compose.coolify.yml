@@ -42,6 +42,9 @@ services:
       JWT_SECRET: ${JWT_SECRET:?}
       # the site's own address, e.g. gardenview.com (no https://)
       CLIENT_ORIGIN: https://${DOMAIN:?}
+      # optional: the first admin, created on start only while no admin exists (remove after)
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
     volumes:
       # owners' listing photos: user content, kept outside the image
       - uploads:/app/uploads
