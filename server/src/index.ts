@@ -20,9 +20,10 @@ const localhostPattern = /^https?:\/\/(localhost|127\.0\.0\.1):\d+$/;
 
 app.use(
   cors({
-    // Vite's dev port shifts (5173, 5174, 5175...) depending on what's free when it starts,
-    // so in dev we allow any localhost origin rather than hardcoding one port.
-    origin: isProd ? process.env.CLIENT_ORIGIN : (origin, callback) => {
+    // In production the site and the API share one origin, so no cross-origin access is needed
+    // at all (CLIENT_ORIGIN can open it to one extra origin). Vite's dev port shifts (5173,
+    // 5174, 5175...), so in dev we allow any localhost origin rather than hardcoding one port.
+    origin: isProd ? process.env.CLIENT_ORIGIN || false : (origin, callback) => {
       if (!origin || localhostPattern.test(origin)) callback(null, true);
       else callback(new Error('Not allowed by CORS'));
     },
