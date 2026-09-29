@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   IconMapPin,
   IconMail,
@@ -22,11 +23,20 @@ const DISTRICT_HIGHLIGHTS = [
   { icon: IconBuilding, title: 'Three Blocks', description: '41 residences, each block with its own lobby' },
 ];
 
+const INTERESTS = ['buying', 'renting', 'tour', 'other'];
+
 export default function Location() {
+  // "Enquire" on a listing lands here as ?interest=buying&unit=3%20A1
+  const [params] = useSearchParams();
+  const presetInterest = INTERESTS.includes(params.get('interest') ?? '') ? params.get('interest')! : '';
+  const presetUnit = params.get('unit')?.slice(0, 20) ?? '';
+  const presetMessage = presetUnit
+    ? `I'm interested in residence ${presetUnit}${presetInterest === 'renting' ? ' (for rent)' : presetInterest === 'buying' ? ' (for sale)' : ''}. `
+    : '';
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [messageLength, setMessageLength] = useState(0);
+  const [messageLength, setMessageLength] = useState(presetMessage.length);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -139,7 +149,7 @@ export default function Location() {
                 </div>
                 <div className="form-field">
                   <label htmlFor="interest">I'm interested in</label>
-                  <select id="interest" name="interest" defaultValue="">
+                  <select id="interest" name="interest" defaultValue={presetInterest}>
                     <option value="" disabled>
                       Select an option
                     </option>
@@ -161,6 +171,7 @@ export default function Location() {
                   rows={2}
                   maxLength={500}
                   placeholder="Share any details or questions…"
+                  defaultValue={presetMessage}
                   onChange={(e) => setMessageLength(e.target.value.length)}
                   required
                 />

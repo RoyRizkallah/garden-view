@@ -14,6 +14,8 @@ import { heroImage } from './data/routeHeroes';
 // Loaded on demand so three.js never weighs down the rest of the site.
 const Explorer = lazy(() => import('./pages/Explorer'));
 const FloorPlans = lazy(() => import('./pages/FloorPlans'));
+const Listings = lazy(() => import('./pages/Listings'));
+const ListingDetail = lazy(() => import('./pages/ListingDetail'));
 
 // Sign-in, the resident portal and the admin portal are only reached by
 // authenticated users, so none of their code ships to public visitors.
@@ -61,6 +63,8 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/explorer" element={deferred(Explorer)} />
         <Route path="/floor-plans" element={deferred(FloorPlans)} />
+        <Route path="/listings" element={deferred(Listings)} />
+        <Route path="/listings/:id" element={deferred(ListingDetail)} />
         <Route
           path="/virtual-tour"
           element={

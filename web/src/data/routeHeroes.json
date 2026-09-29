@@ -20,6 +20,10 @@
     "/location": {
       "photo": "block-c-1",
       "sizes": "(max-width: 584px) calc(100vw - 64px), 520px"
+    },
+    "/listings": {
+      "photo": "block-b-2",
+      "sizes": "cover"
     }
   }
 }

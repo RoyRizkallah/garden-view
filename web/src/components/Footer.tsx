@@ -22,6 +22,9 @@ export default function Footer() {
               <Link to="/residences">Residences</Link>
             </li>
             <li>
+              <Link to="/listings">For Sale &amp; Rent</Link>
+            </li>
+            <li>
               <Link to="/amenities">Amenities</Link>
             </li>
             <li>

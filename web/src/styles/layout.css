@@ -38,6 +38,7 @@ picture > source {
   letter-spacing: 0.02em;
 }
 .logo-text em {
+  white-space: nowrap;
   font-style: normal;
   font-size: 9px;
   letter-spacing: 0.16em;
@@ -70,9 +71,10 @@ picture > source {
 .navbar-links {
   display: flex;
   align-items: center;
-  gap: 28px;
+  gap: clamp(18px, 1.8vw, 28px);
 }
 .navbar-links a {
+  white-space: nowrap;
   color: var(--white);
   font-size: 12px;
   font-weight: 600;
@@ -92,6 +94,7 @@ picture > source {
   display: flex;
   align-items: center;
   gap: 16px;
+  white-space: nowrap;
 }
 .navbar-toggle {
   display: none;
@@ -114,7 +117,8 @@ picture > source {
   display: none;
 }
 
-@media (max-width: 900px) {
+/* the full bar needs ~1180 px; below that the menu opens as a drawer */
+@media (max-width: 1180px) {
   .navbar-links,
   .navbar-actions .navbar-resident-link,
   .navbar-actions .btn {

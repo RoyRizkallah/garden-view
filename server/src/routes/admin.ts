@@ -164,7 +164,7 @@ adminRouter.patch('/votes/:id/close', async (req, res) => {
 // ---------- Requests (all residents) ----------
 adminRouter.get('/requests', async (_req, res) => {
   const requests = await prisma.request.findMany({
-    include: { unit: true, account: { select: { name: true, email: true } } },
+    include: { unit: true, account: { select: { name: true, email: true } }, photos: { orderBy: { order: 'asc' } } },
     orderBy: { createdAt: 'desc' },
   });
   res.json({ requests });
@@ -284,13 +284,13 @@ adminRouter.delete('/block-images/:id', async (req, res) => {
 // ---------- Listing requests (sell / rent) ----------
 adminRouter.get('/listing-requests', async (_req, res) => {
   const listingRequests = await prisma.listingRequest.findMany({
-    include: { unit: true, account: { select: { name: true, email: true } } },
+    include: { unit: true, account: { select: { name: true, email: true } }, photos: { orderBy: { order: 'asc' } } },
     orderBy: { createdAt: 'desc' },
   });
   res.json({ listingRequests });
 });
 
-const listingStatusSchema = z.object({ status: z.enum(['PENDING', 'REVIEWING', 'APPROVED', 'DECLINED']) });
+const listingStatusSchema = z.object({ status: z.enum(['PENDING', 'REVIEWING', 'APPROVED', 'DECLINED', 'WITHDRAWN']) });
 
 adminRouter.patch('/listing-requests/:id', async (req, res) => {
   const parsed = listingStatusSchema.safeParse(req.body);

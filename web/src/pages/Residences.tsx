@@ -113,13 +113,13 @@ export default function Residences() {
               <p className="eyebrow" style={{ color: '#cdbf9e' }}>
                 Current Availability
               </p>
-              <h2>Listing Details Are Being Finalized</h2>
+              <h2>Residences for Sale &amp; Rent</h2>
               <p>
-                We're finalizing details for available residences. Contact us to get early access
-                to floor plans and pricing once confirmed.
+                See the residences their owners are currently offering, each with its block, floor
+                plan and photographs.
               </p>
-              <Link to="/location" className="btn btn-gold" style={{ marginTop: 18 }}>
-                Contact Us About Availability
+              <Link to="/listings" className="btn btn-gold" style={{ marginTop: 18 }}>
+                View Available Residences
                 <IconArrowRight size={14} />
               </Link>
             </div>

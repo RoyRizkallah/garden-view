@@ -1,5 +1,8 @@
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:4000/api';
 
+/** Files the API serves itself (owner-uploaded listing photos: "/uploads/..."), made absolute. */
+export const mediaUrl = (path: string): string => (/^https?:/.test(path) ? path : `${API_URL.replace(/\/api\/?$/, '')}${path}`);
+
 export class ApiError extends Error {}
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
@@ -164,7 +167,8 @@ export type Inquiry = {
 export type BlockImage = { id: string; block: string; url: string; caption: string | null; order: number };
 
 export type ListingType = 'SALE' | 'RENT';
-export type ListingStatus = 'PENDING' | 'REVIEWING' | 'APPROVED' | 'DECLINED';
+export type ListingStatus = 'PENDING' | 'REVIEWING' | 'APPROVED' | 'DECLINED' | 'WITHDRAWN';
+export type ListingPhoto = { id: string; url: string; width: number; height: number; order: number };
 export type Furnished = 'FURNISHED' | 'SEMI_FURNISHED' | 'UNFURNISHED';
 
 export type ListingRequest = {
@@ -174,9 +178,14 @@ export type ListingRequest = {
   availableFrom: string | null;
   leaseDuration: string | null;
   furnished: Furnished | null;
+  /** Shown on the public listing once approved. */
+  description: string | null;
+  /** For building management only. */
   notes: string | null;
   status: ListingStatus;
   createdAt: string;
+  updatedAt: string;
+  photos: ListingPhoto[];
 };
 
 export type AdminListingRequest = ListingRequest & {

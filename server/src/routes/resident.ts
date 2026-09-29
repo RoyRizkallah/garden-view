@@ -2,6 +2,14 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { prisma } from '../db';
 import { requireAuth, requireRole } from '../auth/middleware';
+import {
+  MAX_LISTING_PHOTOS,
+  PhotoError,
+  checkListingPhotos,
+  listingPhotoSchema,
+  removeListingPhotos,
+  saveListingPhotos,
+} from '../listingPhotos';
 
 export const residentRouter = Router();
 
@@ -176,6 +184,7 @@ residentRouter.get('/residence', async (req, res) => {
     prisma.listingRequest.findMany({
       where: { accountId: req.user!.accountId },
       orderBy: { createdAt: 'desc' },
+      include: { photos: { orderBy: { order: 'asc' } } },
     }),
   ]);
 
@@ -186,10 +195,15 @@ const listingRequestSchema = z.object({
   type: z.enum(['SALE', 'RENT']),
   askingPrice: z.number().positive().optional(),
   availableFrom: z.string().optional(),
-  leaseDuration: z.string().optional(),
+  leaseDuration: z.string().max(40).optional(),
   furnished: z.enum(['FURNISHED', 'SEMI_FURNISHED', 'UNFURNISHED']).optional(),
-  notes: z.string().optional(),
+  description: z.string().max(1200).optional(),
+  notes: z.string().max(2000).optional(),
+  photos: z.array(listingPhotoSchema).min(1).max(MAX_LISTING_PHOTOS),
 });
+
+/** A listing still in play: waiting for review, being reviewed, or live on the website. */
+const OPEN_STATUSES = ['PENDING', 'REVIEWING', 'APPROVED'] as const;
 
 residentRouter.post('/listing-requests', async (req, res) => {
   const unitId = await getUnitId(req.user!.accountId);
@@ -199,10 +213,27 @@ residentRouter.post('/listing-requests', async (req, res) => {
   }
   const parsed = listingRequestSchema.safeParse(req.body);
   if (!parsed.success) {
-    res.status(400).json({ error: 'Missing or invalid listing fields' });
+    const photosIssue = parsed.error.issues.some((i) => i.path[0] === 'photos');
+    res.status(400).json({
+      error: photosIssue
+        ? `Add between 1 and ${MAX_LISTING_PHOTOS} photos of your home.`
+        : 'Some listing details are missing or invalid.',
+    });
     return;
   }
-  const { availableFrom, ...rest } = parsed.data;
+  // one listing at a time per home: withdraw the current one before listing again
+  const open = await prisma.listingRequest.findFirst({ where: { unitId, status: { in: [...OPEN_STATUSES] } } });
+  if (open) {
+    res.status(409).json({ error: 'Your home already has a listing in progress. Take it down first to list it again.' });
+    return;
+  }
+  const { availableFrom, photos, ...rest } = parsed.data;
+  try {
+    checkListingPhotos(photos);
+  } catch (err) {
+    res.status(400).json({ error: err instanceof PhotoError ? err.message : 'Could not read the photos.' });
+    return;
+  }
   const listingRequest = await prisma.listingRequest.create({
     data: {
       ...rest,
@@ -211,5 +242,38 @@ residentRouter.post('/listing-requests', async (req, res) => {
       availableFrom: availableFrom ? new Date(availableFrom) : null,
     },
   });
-  res.status(201).json({ listingRequest });
+  try {
+    const saved = await saveListingPhotos(listingRequest.id, photos);
+    await prisma.listingPhoto.createMany({ data: saved.map((p) => ({ ...p, listingRequestId: listingRequest.id })) });
+  } catch (err) {
+    // never leave a listing behind without the photos it was submitted with
+    await prisma.listingRequest.delete({ where: { id: listingRequest.id } });
+    await removeListingPhotos(listingRequest.id);
+    throw err;
+  }
+  const withPhotos = await prisma.listingRequest.findUnique({
+    where: { id: listingRequest.id },
+    include: { photos: { orderBy: { order: 'asc' } } },
+  });
+  res.status(201).json({ listingRequest: withPhotos });
+});
+
+// The owner can take their listing down at any time (sold, let, or changed their mind); it leaves
+// the public page immediately.
+residentRouter.post('/listing-requests/:id/withdraw', async (req, res) => {
+  const listing = await prisma.listingRequest.findUnique({ where: { id: req.params.id } });
+  if (!listing || listing.accountId !== req.user!.accountId) {
+    res.status(404).json({ error: 'Listing not found' });
+    return;
+  }
+  if (!(OPEN_STATUSES as readonly string[]).includes(listing.status)) {
+    res.status(400).json({ error: 'This listing is already closed.' });
+    return;
+  }
+  const listingRequest = await prisma.listingRequest.update({
+    where: { id: listing.id },
+    data: { status: 'WITHDRAWN' },
+    include: { photos: { orderBy: { order: 'asc' } } },
+  });
+  res.json({ listingRequest });
 });

@@ -6,6 +6,7 @@ import { authRouter } from './routes/auth';
 import { residentRouter } from './routes/resident';
 import { adminRouter } from './routes/admin';
 import { publicRouter } from './routes/public';
+import { UPLOADS_DIR } from './listingPhotos';
 
 const app = express();
 
@@ -23,8 +24,20 @@ app.use(
     credentials: true,
   }),
 );
+// a listing arrives with its photos (resized in the browser to a few hundred KB each)
+app.use('/api/resident/listing-requests', express.json({ limit: '40mb' }));
 app.use(express.json());
 app.use(cookieParser());
+
+// owner-uploaded listing photos; names are random and never reused, so they can be cached hard
+app.use(
+  '/uploads',
+  express.static(UPLOADS_DIR, {
+    immutable: true,
+    maxAge: '365d',
+    setHeaders: (res) => res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin'),
+  }),
+);
 
 app.get('/api/health', (_req, res) => {
   res.json({ ok: true });

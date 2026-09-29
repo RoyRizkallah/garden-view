@@ -56,6 +56,7 @@ enum ListingStatus {
   REVIEWING
   APPROVED
   DECLINED
+  WITHDRAWN
 }
 
 model Unit {
@@ -100,10 +101,31 @@ model ListingRequest {
   availableFrom DateTime?
   leaseDuration String?
   furnished     String?
+  /// Shown on the public listing once approved.
+  description   String?
+  /// For building management only; never shown publicly.
   notes         String?
   status        ListingStatus @default(PENDING)
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
+  photos        ListingPhoto[]
+
+  @@index([status])
+  @@index([unitId])
+}
+
+/// A photo the owner attached to their listing, stored under server/uploads/listings/<listingId>/.
+model ListingPhoto {
+  id               String         @id @default(cuid())
+  listingRequestId String
+  listingRequest   ListingRequest @relation(fields: [listingRequestId], references: [id], onDelete: Cascade)
+  url              String
+  width            Int
+  height           Int
+  order            Int            @default(0)
+  createdAt        DateTime       @default(now())
+
+  @@index([listingRequestId])
 }
 
 model Account {

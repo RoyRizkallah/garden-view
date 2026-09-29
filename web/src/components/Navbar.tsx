@@ -5,6 +5,7 @@ import { IconClose } from './Icons';
 
 const LINKS = [
   { to: '/residences', label: 'Residences' },
+  { to: '/listings', label: 'Sale & Rent' },
   { to: '/amenities', label: 'Amenities' },
   { to: '/gallery', label: 'Gallery' },
   { to: '/explorer', label: '3D Explorer' },
