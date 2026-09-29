@@ -7,6 +7,7 @@ dist-ssr/
 # Secrets
 .env
 .env.*
+!.env.example
 
 # Logs / caches
 *.log
@@ -20,3 +21,7 @@ Thumbs.db
 
 # Real owner directory — personal data; imported via the admin tool, never committed
 Garden View - Owner Directory (Cleaned).xlsx
+
+# production data exports and backups (personal data)
+garden-view-units.sql
+backups/

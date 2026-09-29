@@ -8,7 +8,7 @@ import { z } from 'zod';
 // only check that the bytes really are an image of an allowed type and size, and write them to
 // disk under a random name: the file name never comes from the client.
 
-export const UPLOADS_DIR = path.resolve(__dirname, '..', 'uploads');
+export const UPLOADS_DIR = process.env.UPLOADS_DIR ?? path.resolve(__dirname, '..', 'uploads');
 export const MAX_LISTING_PHOTOS = 12;
 const MAX_PHOTO_BYTES = 3 * 1024 * 1024;
 

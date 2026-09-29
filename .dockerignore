@@ -1,0 +1,16 @@
+# The image is built from web/ and server/ only. Everything else in the repository — the
+# owner directory spreadsheet (personal data), the raw drawings, reference material, local
+# uploads and secrets — stays out of the build context.
+*
+!web
+!server
+!deploy/docker-entrypoint.sh
+
+**/node_modules
+**/dist
+**/.env
+**/.env.*
+server/uploads
+web/mockups
+**/*.xlsx
+**/*.log
