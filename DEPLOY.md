@@ -10,6 +10,30 @@ Everything runs from one Docker Compose stack:
 
 Data lives in Docker volumes: `db-data` (the database) and `uploads` (owners' listing photos).
 
+## On a server with Coolify (e.g. Hostinger's "Coolify" VPS image)
+
+Coolify already runs its own proxy on ports 80/443 with automatic HTTPS, so use
+`docker-compose.coolify.yml` (no Caddy) instead of the steps below.
+
+1. **DNS**: point your domain's A record at the VPS IP.
+2. **Code**: push this repository to a private GitHub repository (the films travel with Git LFS).
+3. **Coolify** (Manage panel): *Projects -> New -> Resource -> Private Repository (GitHub App)*,
+   pick the repository and branch `main`, Build Pack **Docker Compose**, Docker Compose Location
+   **`/docker-compose.coolify.yml`**.
+4. **Domain**: on the `app` service set Domains to `https://<your domain>:4000`
+   (`:4000` tells the proxy which container port to use; visitors still use plain https).
+5. **Environment variables** (Coolify lists them): `DOMAIN` (e.g. `gardenview.com`, no https),
+   `POSTGRES_PASSWORD` (`openssl rand -hex 24`), `JWT_SECRET` (`openssl rand -hex 48`), and
+   optionally `GOOGLE_MAPS_API_KEY`.
+6. **Deploy.** Migrations run on start. If the build stops with "is a Git LFS pointer", the films
+   were not fetched: enable Git LFS for the resource in Coolify (or deploy with the plain steps below).
+7. **Units, first admin, backups**: open a terminal on the server (Coolify -> the resource ->
+   *Terminal*, or SSH) and run, in the `app` container, `npm run create-admin`; load the units
+   into the `db` container with `psql` as in step 5 of the plain setup. For backups, enable
+   the VPS provider's daily snapshots and/or a Coolify *Scheduled Task* on `db`.
+
+## Plain VPS (without Coolify)
+
 ## What you need
 
 - A VPS with Ubuntu 22.04/24.04 (or similar), **2 GB RAM or more**, ~10 GB free disk.
