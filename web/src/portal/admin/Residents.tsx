@@ -3,6 +3,7 @@ import { api, ApiError, type ResidentUnit } from '../api';
 import { IconCheck, IconSearch, IconChevronRight, IconUser } from '../../components/Icons';
 import { matchResidence } from '../../data/useUnitPlan';
 import { UNIT_KIND_LABEL } from '../../data/buildingExplorer';
+import BulkAccess from './BulkAccess';
 
 // The owner directory: every registered home, who owns it, and whether they can sign in to the
 // resident portal. One line per home; a line opens to the directory's notes and, for homes
@@ -85,6 +86,8 @@ export default function AdminResidents() {
           </div>
         </div>
       )}
+
+      {units && <BulkAccess units={units} onDone={load} />}
 
       <div className="ad-toolbar">
         <div className="admin-resident-search">

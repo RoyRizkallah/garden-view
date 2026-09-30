@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto';
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
@@ -300,6 +301,65 @@ adminRouter.post('/units/:id/account', async (req, res) => {
   });
 
   res.status(201).json({ account: { id: account.id, name: account.name, email: account.email } });
+});
+
+// Give many owners portal access at once. Each row names a home without an account and the email
+// to sign in with; the server makes a strong temporary password for each, and returns it once so
+// management can send the sign-in details. Rows that cannot be created are reported, not fatal.
+const bulkAccountsSchema = z.object({
+  accounts: z
+    .array(z.object({ unitId: z.string().min(1), email: z.string().email(), name: z.string().max(200).optional() }))
+    .min(1)
+    .max(100),
+});
+
+function temporaryPassword() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+  return Array.from(randomBytes(12), (b) => chars[b % chars.length]).join('');
+}
+
+adminRouter.post('/accounts/bulk', async (req, res) => {
+  const parsed = bulkAccountsSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: 'Each row needs a home and a valid email' });
+    return;
+  }
+  const results: Array<{ unitId: string; email: string; status: 'created' | 'skipped'; reason?: string; password?: string }> = [];
+  const seen = new Set<string>();
+  for (const row of parsed.data.accounts) {
+    const email = row.email.trim().toLowerCase();
+    const skip = (reason: string) => results.push({ unitId: row.unitId, email, status: 'skipped', reason });
+    if (seen.has(email)) {
+      skip('This email is already used for another home in this batch');
+      continue;
+    }
+    const unit = await prisma.unit.findUnique({ where: { id: row.unitId }, include: { account: true } });
+    if (!unit) {
+      skip('Home not found');
+      continue;
+    }
+    if (unit.account) {
+      skip('This home already has an account');
+      continue;
+    }
+    if (await prisma.account.findUnique({ where: { email } })) {
+      skip('An account with this email already exists');
+      continue;
+    }
+    const password = temporaryPassword();
+    await prisma.account.create({
+      data: {
+        email,
+        passwordHash: await bcrypt.hash(password, 10),
+        name: row.name?.trim() || unit.ownerName || `Residence ${unit.number}`,
+        role: 'RESIDENT',
+        unitId: unit.id,
+      },
+    });
+    seen.add(email);
+    results.push({ unitId: unit.id, email, status: 'created', password });
+  }
+  res.status(201).json({ results });
 });
 
 // A resident forgot their password: management sets a new temporary one and sends it to them.

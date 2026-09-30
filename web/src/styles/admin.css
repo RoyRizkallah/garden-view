@@ -577,3 +577,81 @@ li.is-open .ad-chevron {
     flex-direction: column;
   }
 }
+
+/* give owners access (bulk) */
+.ad-bulk {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 22px;
+  margin-bottom: 18px;
+  border-radius: var(--radius);
+  background: var(--white);
+  border: 1px solid var(--gold);
+  font-size: 14px;
+}
+.ad-bulk-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.ad-bulk-head > svg {
+  color: var(--gold-dim);
+}
+.ad-bulk-head strong {
+  display: block;
+  font-size: 15px;
+}
+.ad-bulk-head span {
+  font-size: 13px;
+  color: #7a7968;
+}
+.ad-bulk-head .btn {
+  margin-left: auto;
+}
+.ad-bulk-list {
+  list-style: none;
+  max-height: 340px;
+  overflow-y: auto;
+  border-radius: 10px;
+  border: 1px solid var(--cream);
+}
+.ad-bulk-list li {
+  padding: 8px 12px;
+  font-size: 13px;
+}
+.ad-bulk-list li + li {
+  border-top: 1px solid var(--cream);
+}
+.ad-bulk-list label {
+  display: grid;
+  grid-template-columns: 18px 70px minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+.ad-bulk-list span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ad-bulk-email {
+  color: #7a7968;
+}
+.ad-bulk-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+}
+@media (max-width: 640px) {
+  .ad-bulk-head {
+    flex-wrap: wrap;
+  }
+  .ad-bulk-list label {
+    grid-template-columns: 18px 60px minmax(0, 1fr);
+  }
+  .ad-bulk-email {
+    grid-column: 3;
+  }
+}
