@@ -15,9 +15,7 @@ RUN for f in public/media/*.mp4; do \
       fi; \
     done
 # the API lives on the same origin under /api
-ARG VITE_GOOGLE_MAPS_API_KEY=""
-ENV VITE_API_URL=/api \
-    VITE_GOOGLE_MAPS_API_KEY=$VITE_GOOGLE_MAPS_API_KEY
+ENV VITE_API_URL=/api
 RUN npm run build
 
 # ---------- 2. server ----------

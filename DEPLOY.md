@@ -23,8 +23,7 @@ Coolify already runs its own proxy on ports 80/443 with automatic HTTPS, so use
 4. **Domain**: on the `app` service set Domains to `https://<your domain>:4000`
    (`:4000` tells the proxy which container port to use; visitors still use plain https).
 5. **Environment variables** (Coolify lists them): `DOMAIN` (e.g. `gardenview.com`, no https),
-   `POSTGRES_PASSWORD` (`openssl rand -hex 24`), `JWT_SECRET` (`openssl rand -hex 48`), and
-   optionally `GOOGLE_MAPS_API_KEY`.
+   `POSTGRES_PASSWORD` (`openssl rand -hex 24`), `JWT_SECRET` (`openssl rand -hex 48`).
 6. **Deploy.** Migrations run on start. If the build stops with "is a Git LFS pointer", the films
    were not fetched: enable Git LFS for the resource in Coolify (or deploy with the plain steps below).
 7. **Units, first admin, backups**: open a terminal on the server (Coolify -> the resource ->
@@ -143,8 +142,7 @@ The database and uploaded photos are kept. Visitors see the new version immediat
 
 - **Contact details** (phone, email, WhatsApp, office): `web/src/data/contact.ts`. Each one
   appears on the site once filled in. Then update as above.
-- **Google Maps**: set `GOOGLE_MAPS_API_KEY` in `.env` (restrict the key to your domain in the
-  Google Cloud console), then `docker compose up -d --build`.
+- **Maps**: OpenStreetMap, drawn by CARTO's free basemap. No key or account is needed.
 
 ## Useful commands
 
