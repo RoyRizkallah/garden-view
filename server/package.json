@@ -10,6 +10,7 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "create-admin": "tsx src/create-admin.ts",
+    "sync-owners": "tsx src/sync-owners.ts",
     "import:owners": "tsx src/import-owners.ts"
   },
   "keywords": [],
