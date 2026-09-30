@@ -303,6 +303,45 @@ adminRouter.post('/units/:id/account', async (req, res) => {
   res.status(201).json({ account: { id: account.id, name: account.name, email: account.email } });
 });
 
+// Load or refresh the owner directory (the 41 registered homes and their owners). Used to seed a
+// fresh production database from management's directory; it only adds or updates homes by block
+// and number, never deletes one, and never touches accounts. The data itself is never in the
+// repository (it is personal); it arrives here from the admin's own machine.
+const directorySchema = z.object({
+  units: z
+    .array(
+      z.object({
+        block: z.enum(['A', 'B', 'C']),
+        number: z.string().trim().min(1).max(20),
+        registrationNo: z.string().max(40).nullable().optional(),
+        sizeSqm: z.number().positive().max(2000).nullable().optional(),
+        ownerName: z.string().max(300).nullable().optional(),
+        ownerPhone: z.string().max(300).nullable().optional(),
+        ownerEmail: z.string().max(500).nullable().optional(),
+        dataNotes: z.string().max(1000).nullable().optional(),
+      }),
+    )
+    .min(1)
+    .max(200),
+});
+
+adminRouter.post('/units/import', async (req, res) => {
+  const parsed = directorySchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: 'The directory rows are invalid' });
+    return;
+  }
+  let created = 0;
+  let updated = 0;
+  for (const { block, number, ...details } of parsed.data.units) {
+    const existing = await prisma.unit.findUnique({ where: { block_number: { block, number } } });
+    await prisma.unit.upsert({ where: { block_number: { block, number } }, create: { block, number, ...details }, update: details });
+    if (existing) updated++;
+    else created++;
+  }
+  res.json({ created, updated, total: await prisma.unit.count() });
+});
+
 // Give many owners portal access at once. Each row names a home without an account and the email
 // to sign in with; the server makes a strong temporary password for each, and returns it once so
 // management can send the sign-in details. Rows that cannot be created are reported, not fatal.
