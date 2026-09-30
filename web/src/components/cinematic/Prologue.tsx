@@ -125,6 +125,8 @@ export default function Prologue() {
     let last = performance.now();
     let preloaded = false;
     let lastChapter = -1;
+    let drawnP = -1;
+    let drawnAt = 0;
     const t0 = performance.now();
 
     const tick = (now: number) => {
@@ -188,7 +190,12 @@ export default function Prologue() {
         });
       }
 
-      if (scene && model > 0.002) {
+      // While the scroll moves, every frame is drawn; at rest only the slow ambient drift remains
+      // (a few thousandths of a radian per second), which reads the same at 15 frames a second.
+      const moving = Math.abs(p - drawnP) > 1e-4;
+      if (scene && model > 0.002 && (moving || now - drawnAt >= 1000 / 15)) {
+        drawnP = p;
+        drawnAt = now;
         scene.frame(p, (now - t0) / 1000);
         for (const b of BLOCK_LABELS) {
           const el = L[`label-${b.id}`];

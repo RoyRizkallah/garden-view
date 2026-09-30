@@ -8,6 +8,7 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import type { BlockId, FloorId } from '../data/buildingExplorer';
+import { compileInBackground } from './compileInBackground';
 
 export type BuildingModel3DProps = {
   selectedBlock: BlockId;
@@ -220,6 +221,13 @@ export default function BuildingModel3D(props: BuildingModel3DProps) {
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    // Nothing that casts a shadow moves once the building is up (selection only recolours glass and
+    // shows outlines), so the soft shadow map is drawn when the model changes, not on every frame.
+    renderer.shadowMap.autoUpdate = false;
+    renderer.shadowMap.needsUpdate = true;
+    // The per-program compile check blocks the main thread on the GPU driver (seconds on some
+    // machines) and only produces developer diagnostics.
+    renderer.debug.checkShaderErrors = import.meta.env.DEV;
     renderer.setClearColor(0x0e1a16, 1);
     renderer.domElement.style.display = 'block';
     renderer.domElement.style.position = 'absolute';
@@ -797,8 +805,18 @@ export default function BuildingModel3D(props: BuildingModel3DProps) {
     const massingAbort = new AbortController();
     fetch(MASSING_URL, { signal: massingAbort.signal })
       .then((r) => (r.ok ? (r.json() as Promise<Massing>) : null))
-      .then((m) => {
-        if (m && !disposed) buildComplex(m);
+      .then(async (m) => {
+        if (!m || disposed) return;
+        buildComplex(m);
+        renderer.shadowMap.needsUpdate = true;
+        // compile the building's shaders in the background (KHR_parallel_shader_compile) so the
+        // first frame that shows it doesn't freeze the page while the driver compiles them
+        compiling = true;
+        await compileInBackground(renderer, scene, camera);
+        compiling = false;
+        if (disposed) return;
+        renderer.shadowMap.needsUpdate = true;
+        invalidate();
       })
       .catch(() => {
         // an aborted or failed load leaves the site and sky standing; the page's own
@@ -1090,6 +1108,8 @@ export default function BuildingModel3D(props: BuildingModel3DProps) {
     let offscreen = false;
     let disposed = false;
 
+    /** while the building's shaders compile in the background, the last frame stays on screen */
+    let compiling = false;
     const tick = (now: number): void => {
       raf = 0;
       if (ambientTimer !== 0) {
@@ -1115,8 +1135,10 @@ export default function BuildingModel3D(props: BuildingModel3DProps) {
         if (camera.position.distanceToSquared(flyTo) < 0.25) flyTo = null;
       }
       controls.update(dt); // fires 'change' -> invalidate() while there is still motion
-      composer.render();
-      labelRenderer.render(scene, camera);
+      if (!compiling) {
+        composer.render();
+        labelRenderer.render(scene, camera);
+      }
 
       if (gliding || targetMoving || flyTo !== null || (pending && !controls.autoRotate)) {
         // autoRotate is switched off by the first 'start', so a pending frame with it

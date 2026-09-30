@@ -9,6 +9,7 @@ import type { FurnitureKind, Plan3D, Pt, Ring, Seg } from '../data/floorPlan3d';
 import { bayResidenceCode } from '../data/floorPlan3d';
 import type { StagedPiece } from './floorPlanStaging';
 import { stagePlan } from './floorPlanStaging';
+import { compileInBackground } from './compileInBackground';
 
 export type FloorPlan3DView = 'top' | 'iso';
 export type FloorPlan3DLevelKind = 'parking' | 'residential';
@@ -418,8 +419,49 @@ class Bucket {
     }
     for (const g of this.geoms) g.dispose();
     this.geoms = [];
-    return merged;
+    return merged && keepGroups ? consolidateGroups(merged) : merged;
   }
+}
+
+/**
+ * One draw call per material instead of one per merged source: three.js issues a draw for every
+ * geometry group, and a merge that keeps each source's groups (a wall's cap and sides, per wall)
+ * ends up with hundreds of them. The triangles are reordered so each material's are contiguous,
+ * then described by a single group each. Same triangles, same materials, same picture.
+ * Works on the non-indexed geometry Bucket produces (group ranges are vertex ranges).
+ */
+function consolidateGroups(g: THREE.BufferGeometry): THREE.BufferGeometry {
+  if (g.index || g.groups.length <= 1) return g;
+  const byMaterial = new Map<number, Array<{ start: number; count: number }>>();
+  for (const grp of g.groups) {
+    const mi = grp.materialIndex ?? 0;
+    const list = byMaterial.get(mi) ?? [];
+    list.push({ start: grp.start, count: grp.count });
+    byMaterial.set(mi, list);
+  }
+  const order = [...byMaterial.keys()].sort((a, b) => a - b);
+  for (const name of Object.keys(g.attributes)) {
+    const attr = g.attributes[name] as THREE.BufferAttribute;
+    const size = attr.itemSize;
+    const src = attr.array as Float32Array;
+    const out = new (src.constructor as Float32ArrayConstructor)(src.length);
+    let o = 0;
+    for (const mi of order) {
+      for (const r of byMaterial.get(mi)!) {
+        out.set(src.subarray(r.start * size, (r.start + r.count) * size), o);
+        o += r.count * size;
+      }
+    }
+    g.setAttribute(name, new THREE.BufferAttribute(out, size, attr.normalized));
+  }
+  g.clearGroups();
+  let start = 0;
+  for (const mi of order) {
+    const count = byMaterial.get(mi)!.reduce((n, r) => n + r.count, 0);
+    g.addGroup(start, count, mi);
+    start += count;
+  }
+  return g;
 }
 
 function lineGeometry(verts: number[]): THREE.BufferGeometry | null {
@@ -2298,6 +2340,12 @@ const FloorPlan3D = forwardRef<FloorPlan3DHandle, FloorPlan3DProps>(function Flo
     const pixelRatioFor = (cssWidth: number): number =>
       Math.min(window.devicePixelRatio, cssWidth > PIXEL_RATIO_CAP_W ? PIXEL_RATIO_WIDE : PIXEL_RATIO_MAX);
     const renderer = new THREE.WebGLRenderer({ antialias: true });
+    // The per-program link/compile check blocks the main thread until the GPU driver finishes each
+    // shader (seconds on some machines). It only produces developer diagnostics, so it runs in dev.
+    renderer.debug.checkShaderErrors = import.meta.env.DEV;
+    // The sun is placed once per level and nothing that casts a shadow moves, so the shadow map is
+    // redrawn only when the level or the staging changes, not on every orbiting frame.
+    renderer.shadowMap.autoUpdate = false;
     renderer.setPixelRatio(pixelRatioFor(container.clientWidth));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.05;
@@ -2432,6 +2480,9 @@ const FloorPlan3D = forwardRef<FloorPlan3DHandle, FloorPlan3DProps>(function Flo
     let disposed = false;
     /** The scene or camera changed: the next tick draws the WebGL frame and re-places the labels. */
     let sceneDirty = false;
+    /** Shaders for a new level compile in the background (KHR_parallel_shader_compile); the
+     *  previous frame stays on screen meanwhile instead of the page freezing on the first draw. */
+    let compiling = false;
     /** A tick is booked; nothing is booked while idle (no fly, no water) — the loop restarts on the next event. */
     let rafPending = false;
     let raf = 0;
@@ -2789,7 +2840,15 @@ const FloorPlan3D = forwardRef<FloorPlan3DHandle, FloorPlan3DProps>(function Flo
       builtPlan = next;
       builtKind = kind;
       scene.add(level.group);
+      compiling = true;
+      const compiled = level;
+      compileInBackground(renderer, scene, camera).then(() => {
+          if (level !== compiled) return; // a newer level took over; its own compile clears the flag
+          compiling = false;
+          invalidate(); // the loop renders on demand: ask for the first frame of the new level
+        });
       frameLevel(level);
+      renderer.shadowMap.needsUpdate = true;
       measureLabels(level);
       // the pointer's room index means nothing on a new floor, and a selection only survives if
       // the new sheet carries that code (the page clears its own copy on a level change)
@@ -2819,6 +2878,7 @@ const FloorPlan3D = forwardRef<FloorPlan3DHandle, FloorPlan3DProps>(function Flo
     const setStaging = (visible: boolean): void => {
       if (!level || level.staging.visible === visible) return;
       level.staging.visible = visible;
+      renderer.shadowMap.needsUpdate = true;
       invalidate();
     };
 
@@ -2890,7 +2950,7 @@ const FloorPlan3D = forwardRef<FloorPlan3DHandle, FloorPlan3DProps>(function Flo
       // Water shimmer: only the shared normal map's offset moves — no allocations — and, idle, no
       // faster than IDLE_ANIM_FPS.
       const shimmer = water && now - lastRender >= 1000 / IDLE_ANIM_FPS;
-      if (sceneDirty || shimmer) {
+      if ((sceneDirty || shimmer) && !compiling) {
         if (water && waterNormal) {
           const t = now * 0.001;
           waterNormal.offset.set((t * 0.018) % 1, (t * 0.011) % 1);

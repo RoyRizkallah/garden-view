@@ -19,6 +19,7 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { compileInBackground } from '../compileInBackground';
 
 type Ring = Array<[number, number]>;
 type Level = {
@@ -181,6 +182,11 @@ export async function createPrologueScene(
   renderer.toneMappingExposure = 1.0;
   renderer.shadowMap.enabled = !lowPower;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  // Shadows only change while the storeys rise (0.12-0.34 of the sequence); the map is redrawn then
+  // and whenever the build step changes, not on the other thousands of frames.
+  renderer.shadowMap.autoUpdate = false;
+  // the per-program compile check blocks the main thread on the GPU driver; diagnostics only
+  renderer.debug.checkShaderErrors = import.meta.env.DEV;
 
   const scene = new THREE.Scene();
   scene.background = skyTexture();
@@ -426,13 +432,25 @@ export async function createPrologueScene(
   }
 
   let width = 1;
+  let lastBuild = -1;
   let height = 1;
   const v3 = new THREE.Vector3();
+
+  // Compile every shader in the background (KHR_parallel_shader_compile) before the scene is
+  // handed over, so its first frame doesn't freeze scrolling while the GPU driver compiles.
+  cameraAt(0.2);
+  camera.position.set(0, 60, 200);
+  camera.lookAt(0, 10, 0);
+  await compileInBackground(renderer, scene, camera);
 
   return {
     frame(p, time) {
       // the building rises: storey f grows between build = f and f + 1
       const build = smooth(0.12, 0.33, p) * (TOP + 1);
+      if (Math.abs(build - lastBuild) > 1e-4 || lastBuild < 0) {
+        lastBuild = build;
+        renderer.shadowMap.needsUpdate = true;
+      }
       for (const s of storeys) {
         const g = clamp01(build - s.floor);
         s.group.visible = g > 0.001;
