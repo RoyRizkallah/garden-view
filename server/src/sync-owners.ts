@@ -91,7 +91,8 @@ async function main() {
 
   // 4. the sign-in details, kept on this machine only
   const dir = path.join(os.homedir(), 'Documents', 'Garden View');
-  mkdirSync(dir, { recursive: true });
+  // owner-only: the file holds temporary passwords
+  mkdirSync(dir, { recursive: true, mode: 0o700 });
   const file = path.join(dir, `sign-in-details-${new Date().toISOString().slice(0, 10)}.csv`);
   const esc = (v: string) => `"${v.replace(/"/g, '""')}"`;
   const lines = [['Home', 'Owner', 'Sign-in email', 'Temporary password', 'Sign in at'].map(esc).join(',')];
@@ -99,7 +100,7 @@ async function main() {
     const row = rows.find((x) => x.unitId === r.unitId)!;
     lines.push([row.number, row.owner, r.email, r.password ?? '', `${site}/login`].map(esc).join(','));
   }
-  writeFileSync(file, '﻿' + lines.join('\r\n'), 'utf-8');
+  writeFileSync(file, '﻿' + lines.join('\r\n'), { encoding: 'utf-8', mode: 0o600 });
   console.log(`Created ${created.length} accounts. Sign-in details saved to ${file}`);
 }
 
