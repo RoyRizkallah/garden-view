@@ -14,6 +14,7 @@ import {
   IconLogout,
   IconChevronRight,
   IconCalendar,
+  IconUsers,
   IconWrench,
   IconMenu,
 } from '../components/Icons';
@@ -49,6 +50,7 @@ const GROUPS: { label: string; links: NavLinkItem[] }[] = [
       { to: '/portal/projects', label: 'Project Progress', shortLabel: 'Progress', icon: IconChart },
       { to: '/portal/voting', label: 'Voting', shortLabel: 'Voting', icon: IconBallot },
       { to: '/portal/meetings', label: 'Meetings', shortLabel: 'Meetings', icon: IconCalendar, primary: true },
+      { to: '/portal/people', label: 'Our People', shortLabel: 'People', icon: IconUsers },
       { to: '/portal/documents', label: 'Documents', shortLabel: 'Docs', icon: IconDocument },
     ],
   },
