@@ -2,18 +2,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { api, mediaUrl, type GvDocument } from '../api';
 import { shortDate } from '../format';
 import PageHeader from '../PageHeader';
-import {
-  IconDocument,
-  IconBuilding,
-  IconShield,
-  IconPieChart,
-  IconChevronRight,
-} from '../../components/Icons';
+import { IconDocument, IconMail, IconSparkle, IconChevronRight, IconArrowRight } from '../../components/Icons';
+import { categoryRank } from '../../data/documentCategories';
 
-const CATEGORY_ICON: Record<string, typeof IconBuilding> = {
-  Governance: IconBuilding,
-  Safety: IconShield,
-  Financial: IconPieChart,
+const CATEGORY_ICON: Record<string, typeof IconDocument> = {
+  'Quarterly letters': IconMail,
+  Updates: IconSparkle,
 };
 
 function fileType(url: string) {
@@ -34,6 +28,7 @@ export default function Documents() {
       .catch((err) => setError(err.message));
   }, []);
 
+  // the quarterly letters, then the updates, then anything filed under an older category; newest first
   const grouped = useMemo(() => {
     const map = new Map<string, GvDocument[]>();
     for (const document of documents ?? []) {
@@ -41,16 +36,35 @@ export default function Documents() {
       list.push(document);
       map.set(document.category, list);
     }
-    return Array.from(map.entries());
+    for (const list of map.values()) list.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    return Array.from(map.entries()).sort(([a], [b]) => categoryRank(a) - categoryRank(b));
   }, [documents]);
+
+  const latestLetter = grouped.find(([category]) => category === 'Quarterly letters')?.[1].find((d) => d.fileUrl) ?? null;
 
   return (
     <div className="rs-page">
       <PageHeader
         kicker="Documents"
         title="Building documents"
-        lede="Bylaws, safety guidance, financial summaries and anything else the building shares with residents."
+        lede="The quarterly letters and updates from building management, to open or download."
       />
+
+      {latestLetter && (
+        <a className="rs-letter" href={mediaUrl(latestLetter.fileUrl)} target="_blank" rel="noreferrer">
+          <span className="rs-letter-icon">
+            <IconMail size={22} />
+          </span>
+          <span className="rs-letter-text">
+            <span className="rs-letter-label">Latest quarterly letter</span>
+            <strong>{latestLetter.title}</strong>
+            <span>Published {shortDate(latestLetter.createdAt)}</span>
+          </span>
+          <span className="rs-letter-open">
+            Open <IconArrowRight size={15} />
+          </span>
+        </a>
+      )}
 
       {error && (
         <div className="rs-note">
@@ -73,8 +87,8 @@ export default function Documents() {
           </span>
           <h2>No documents published yet</h2>
           <p>
-            Building management publishes the bylaws, meeting minutes, safety guidelines and financial
-            summaries here. You will be able to open and download each one.
+            Building management publishes the quarterly letters and updates here. You will be able to open
+            and download each one.
           </p>
         </div>
       )}

@@ -2,12 +2,12 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { api, ApiError, mediaUrl, type GvDocument } from '../api';
 import EmptyState from '../EmptyState';
 import { IconDocument } from '../../components/Icons';
+import { DOCUMENT_CATEGORIES, categoryRank } from '../../data/documentCategories';
 
-// Building documents for residents: bylaws, meeting minutes, financial summaries, notices. A PDF
-// (or an image, such as a scanned notice) is uploaded here and appears at once on the residents'
-// Documents page and on their home screen.
+// Building documents for residents: the quarterly letters and updates. A PDF (or an image, such as
+// a scanned letter) is uploaded here and appears at once on the residents' Documents page and on
+// their home screen.
 
-const CATEGORIES = ['Governance', 'Minutes', 'Financial', 'Safety', 'Notices'];
 const MAX_BYTES = 20 * 1024 * 1024;
 
 const readAsDataUrl = (file: File) =>
@@ -61,26 +61,26 @@ export default function AdminDocuments() {
   const grouped = useMemo(() => {
     const map = new Map<string, GvDocument[]>();
     for (const d of documents ?? []) map.set(d.category, [...(map.get(d.category) ?? []), d]);
-    return Array.from(map.entries());
+    return Array.from(map.entries()).sort(([a], [b]) => categoryRank(a) - categoryRank(b));
   }, [documents]);
 
   return (
     <div className="portal-page">
       <p className="eyebrow">Documents</p>
       <h1>Building Documents</h1>
-      <p className="portal-page-lede">Publish bylaws, meeting minutes, financial summaries and notices. Residents can open them from their portal.</p>
+      <p className="portal-page-lede">Publish the quarterly letters and updates. Residents can open them from their portal.</p>
 
       <form className="portal-request-panel" onSubmit={submit}>
         <div className="portal-inline-form">
           <div className="form-row">
             <div className="form-field">
               <label htmlFor="title">Title</label>
-              <input id="title" name="title" required maxLength={140} placeholder="e.g. General assembly minutes, June 2026" />
+              <input id="title" name="title" required maxLength={140} placeholder="e.g. Quarterly letter, Q3 2026" />
             </div>
             <div className="form-field">
               <label htmlFor="category">Category</label>
-              <select id="category" name="category" defaultValue="Governance">
-                {CATEGORIES.map((c) => (
+              <select id="category" name="category" defaultValue={DOCUMENT_CATEGORIES[0]}>
+                {DOCUMENT_CATEGORIES.map((c) => (
                   <option key={c}>{c}</option>
                 ))}
               </select>
