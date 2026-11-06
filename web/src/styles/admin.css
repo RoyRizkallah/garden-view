@@ -60,6 +60,7 @@
   background: var(--white);
   border: 1px solid var(--cream-dark);
   color: var(--ink);
+  box-shadow: 0 18px 40px -28px rgba(24, 41, 32, 0.55);
   transition: border-color 0.25s var(--ease), transform 0.25s var(--ease);
 }
 .ad-kpi:hover {
@@ -110,6 +111,7 @@
   border-radius: var(--radius);
   background: var(--white);
   border: 1px solid var(--cream-dark);
+  box-shadow: 0 18px 40px -28px rgba(24, 41, 32, 0.45);
 }
 .ad-card-head {
   display: flex;
@@ -253,6 +255,40 @@
   background: var(--white);
   border: 1px solid var(--cream-dark);
   overflow: hidden;
+  box-shadow: 0 18px 40px -28px rgba(24, 41, 32, 0.45);
+}
+
+.ad-desk {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 -56px 4px;
+  padding: 18px 56px 14px;
+  background: color-mix(in srgb, var(--cream) 92%, white);
+  border-bottom: 1px solid rgba(24, 41, 32, 0.08);
+}
+.ad-desk strong {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 22px;
+  color: var(--green-dark);
+}
+.ad-desk span {
+  font-size: 13px;
+  color: #7a7968;
+}
+@media (max-width: 960px) {
+  .ad-desk {
+    margin: 0 -20px 4px;
+    padding: 16px 20px 12px;
+  }
+  .ad-desk span {
+    display: none;
+  }
 }
 .ad-directory > li + li {
   border-top: 1px solid var(--cream);

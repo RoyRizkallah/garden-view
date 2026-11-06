@@ -8,6 +8,7 @@ import {
   IconClipboard,
   IconBuilding,
   IconDocument,
+  IconTag,
   IconUser,
   IconLogout,
   IconChevronRight,
@@ -21,6 +22,7 @@ const LINKS = [
   { to: '/portal/voting', label: 'Voting', shortLabel: 'Voting', icon: IconBallot },
   { to: '/portal/requests', label: 'Requests', shortLabel: 'Requests', icon: IconClipboard },
   { to: '/portal/residence', label: 'My Residence', shortLabel: 'Residence', icon: IconBuilding },
+  { to: '/portal/sell-rent', label: 'Sell & Rent', shortLabel: 'Sell', icon: IconTag },
   { to: '/portal/documents', label: 'Documents', shortLabel: 'Docs', icon: IconDocument },
 ];
 

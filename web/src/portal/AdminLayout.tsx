@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ComponentType } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import Photo from '../components/Photo';
@@ -20,20 +20,51 @@ import {
 import { initials } from './names';
 import '../styles/admin.css';
 
-// `primary` links sit in the phone tab bar; the rest open from "More"
-const LINKS = [
-  { to: '/admin', label: 'Overview', shortLabel: 'Overview', icon: IconHome, end: true, primary: true },
-  { to: '/admin/charges', label: 'Charges', shortLabel: 'Charges', icon: IconWallet },
-  { to: '/admin/projects', label: 'Projects', shortLabel: 'Projects', icon: IconChart },
-  { to: '/admin/votes', label: 'Votes', shortLabel: 'Votes', icon: IconBallot },
-  { to: '/admin/requests', label: 'Requests', shortLabel: 'Requests', icon: IconClipboard, primary: true },
-  { to: '/admin/residents', label: 'Residents', shortLabel: 'Residents', icon: IconUsers, primary: true },
-  { to: '/admin/listings', label: 'Listings', shortLabel: 'Listings', icon: IconTag, primary: true },
-  { to: '/admin/documents', label: 'Documents', shortLabel: 'Documents', icon: IconDocument },
-  { to: '/admin/photos', label: 'Photos', shortLabel: 'Photos', icon: IconImage },
-  { to: '/admin/inquiries', label: 'Inquiries', shortLabel: 'Inquiries', icon: IconMail },
-  { to: '/admin/profile', label: 'Profile & Password', shortLabel: 'Profile', icon: IconUser },
+type NavIcon = ComponentType<{ size?: number; className?: string }>;
+type LinkItem = {
+  to: string;
+  label: string;
+  shortLabel: string;
+  icon: NavIcon;
+  end?: boolean;
+  primary?: boolean;
+};
+
+// `primary` links sit in the phone tab bar; the rest open from "More".
+// Desktop groups keep the desk, the building, and the people apart.
+const GROUPS: { label: string; links: LinkItem[] }[] = [
+  {
+    label: 'Today',
+    links: [
+      { to: '/admin', label: 'Overview', shortLabel: 'Overview', icon: IconHome, end: true, primary: true },
+      { to: '/admin/requests', label: 'Requests', shortLabel: 'Requests', icon: IconClipboard, primary: true },
+      { to: '/admin/inquiries', label: 'Inquiries', shortLabel: 'Inquiries', icon: IconMail },
+    ],
+  },
+  {
+    label: 'Building',
+    links: [
+      { to: '/admin/charges', label: 'Charges', shortLabel: 'Charges', icon: IconWallet },
+      { to: '/admin/projects', label: 'Projects', shortLabel: 'Projects', icon: IconChart },
+      { to: '/admin/votes', label: 'Votes', shortLabel: 'Votes', icon: IconBallot },
+      { to: '/admin/documents', label: 'Documents', shortLabel: 'Documents', icon: IconDocument },
+      { to: '/admin/photos', label: 'Photos', shortLabel: 'Photos', icon: IconImage },
+    ],
+  },
+  {
+    label: 'People',
+    links: [
+      { to: '/admin/residents', label: 'Residents', shortLabel: 'Residents', icon: IconUsers, primary: true },
+      { to: '/admin/listings', label: 'Listings', shortLabel: 'Listings', icon: IconTag, primary: true },
+    ],
+  },
+  {
+    label: 'Account',
+    links: [{ to: '/admin/profile', label: 'Profile & Password', shortLabel: 'Profile', icon: IconUser }],
+  },
 ];
+
+const LINKS = GROUPS.flatMap((group) => group.links);
 
 export default function AdminLayout() {
   const { account, logout } = useAuth();
@@ -48,9 +79,11 @@ export default function AdminLayout() {
   }
 
   const initial = initials(account?.name);
+  const current = LINKS.find((link) => (link.end ? pathname === link.to : pathname.startsWith(link.to))) ?? LINKS[0];
+  const today = new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
 
   return (
-    <div className="portal-shell">
+    <div className="portal-shell portal-shell-admin">
       <aside className="portal-sidebar">
         <div className="portal-sidebar-photo">
           {/* the sidebar is a fixed 264 px column */}
@@ -62,17 +95,22 @@ export default function AdminLayout() {
           </div>
         </div>
 
-        <nav className="portal-nav">
-          {LINKS.map((link) => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              end={link.end}
-              className={({ isActive }) => (isActive ? 'is-active' : '')}
-            >
-              <link.icon size={18} />
-              {link.label}
-            </NavLink>
+        <nav className="portal-nav portal-nav-grouped" aria-label="Administration">
+          {GROUPS.map((group) => (
+            <div key={group.label} className="portal-nav-group">
+              <p className="portal-nav-label">{group.label}</p>
+              {group.links.map((link) => (
+                <NavLink
+                  key={link.to}
+                  to={link.to}
+                  end={link.end}
+                  className={({ isActive }) => (isActive ? 'is-active' : '')}
+                >
+                  <link.icon size={18} />
+                  {link.label}
+                </NavLink>
+              ))}
+            </div>
           ))}
         </nav>
 
@@ -98,6 +136,10 @@ export default function AdminLayout() {
       </header>
 
       <main className="portal-main">
+        <div className="ad-desk">
+          <strong>{current.label}</strong>
+          <span>{today}</span>
+        </div>
         <Outlet />
       </main>
 

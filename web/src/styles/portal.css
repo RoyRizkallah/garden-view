@@ -169,7 +169,24 @@
   flex-direction: column;
   gap: 3px;
   flex: 1;
+  min-height: 0;
   padding: 18px 16px;
+  overflow-y: auto;
+}
+.portal-nav-grouped {
+  gap: 0;
+  padding-top: 8px;
+}
+.portal-nav-group + .portal-nav-group {
+  margin-top: 16px;
+}
+.portal-nav-label {
+  margin: 0 0 2px;
+  padding: 0 14px 6px;
+  font-family: var(--font-serif);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gold);
 }
 .portal-nav a {
   display: flex;
@@ -283,6 +300,13 @@
 }
 .portal-shell-resident .portal-main {
   color: var(--white);
+}
+.portal-shell-admin .portal-sidebar-photo {
+  box-shadow: inset 0 -1px 0 rgba(201, 167, 105, 0.45);
+}
+.portal-shell-admin .portal-nav a {
+  padding-top: 8px;
+  padding-bottom: 8px;
 }
 .portal-shell-resident .note-card {
   color: var(--white);
@@ -1884,15 +1908,22 @@
   }
   .portal-tab-bar a {
     flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 3px;
-    padding: 6px 2px;
+    padding: 6px 1px;
     color: var(--white);
     opacity: 0.55;
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 600;
+  }
+  .portal-tab-bar a span {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .portal-tab-bar a.is-active {
     opacity: 1;
@@ -1903,7 +1934,7 @@
 /* ---------- MY RESIDENCE ---------- */
 .portal-residence-summary {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--radius);

@@ -1,12 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import Photo from '../../components/Photo';
 import ResidencePlan from '../../components/ResidencePlan';
-import ListingPanel from './ListingPanel';
 import { api, mediaUrl, type MyResidence } from '../api';
 import { SHOOT_CHAPTERS, formatDuration } from '../../data/photoshoot';
 import { floorsLabel } from '../../data/listings';
 import { matchResidence, residenceLevels } from '../../data/useUnitPlan';
-import { IconLayers, IconImage, IconTag, IconHome } from '../../components/Icons';
+import { IconLayers, IconImage, IconHome } from '../../components/Icons';
 
 const UNMATCHED_COPY = 'Your floor plan will appear here once your residence is matched to the plan set.';
 
@@ -80,17 +79,6 @@ export default function Residence() {
             </p>
           </div>
         </div>
-        <div className="portal-residence-summary-item">
-          <span className="portal-residence-summary-icon">
-            <IconTag size={18} />
-          </span>
-          <div>
-            <p className="portal-residence-summary-label">Sell or Rent</p>
-            <p className="portal-residence-summary-desc">
-              List your home on the website with your own photos and its 3D floor plan.
-            </p>
-          </div>
-        </div>
       </div>
 
       {unit && matched && (
@@ -157,13 +145,6 @@ export default function Residence() {
         </>
       )}
 
-      <div className="portal-doc-category-head" id="list-your-home">
-        <span className="portal-doc-category-icon">
-          <IconTag size={16} />
-        </span>
-        <p>Sell or Rent Your Home</p>
-      </div>
-      {data && <ListingPanel unitCode={unit?.number ?? ''} listings={data.listingRequests} onChange={load} />}
     </div>
   );
 }

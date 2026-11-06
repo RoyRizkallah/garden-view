@@ -120,7 +120,7 @@ export default function Overview() {
         icon: <IconTag size={18} />,
         title: `Your home ${data.listing.type === 'SALE' ? 'for sale' : 'for rent'}`,
         meta: LISTING_STATUS[data.listing.status],
-        to: '/portal/residence#list-your-home',
+        to: '/portal/sell-rent',
         tone: data.listing.status === 'APPROVED' ? 'gold' : undefined,
       });
     }
@@ -185,7 +185,7 @@ export default function Overview() {
             <Link to="/portal/residence" className="btn btn-gold btn-sm">
               <IconLayers size={14} /> Your 3D floor plan
             </Link>
-            <Link to="/portal/residence#list-your-home" className="ph-link">
+            <Link to="/portal/sell-rent" className="ph-link">
               Sell or rent <IconArrowRight size={13} />
             </Link>
           </div>

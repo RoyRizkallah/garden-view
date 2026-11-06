@@ -27,6 +27,7 @@ const PortalVoting = lazy(() => import('./portal/pages/Voting'));
 const PortalRequests = lazy(() => import('./portal/pages/Requests'));
 const PortalDocuments = lazy(() => import('./portal/pages/Documents'));
 const PortalResidence = lazy(() => import('./portal/pages/Residence'));
+const PortalSellRent = lazy(() => import('./portal/pages/SellRent'));
 const PortalProfile = lazy(() => import('./portal/pages/Profile'));
 const AdminLayout = lazy(() => import('./portal/AdminLayout'));
 const AdminOverview = lazy(() => import('./portal/admin/Overview'));
@@ -76,6 +77,7 @@ function App() {
           <Route path="voting" element={deferred(PortalVoting)} />
           <Route path="requests" element={deferred(PortalRequests)} />
           <Route path="residence" element={deferred(PortalResidence)} />
+          <Route path="sell-rent" element={deferred(PortalSellRent)} />
           <Route path="documents" element={deferred(PortalDocuments)} />
           <Route path="profile" element={deferred(PortalProfile)} />
         </Route>
