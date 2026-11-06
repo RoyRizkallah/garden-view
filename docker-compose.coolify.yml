@@ -41,6 +41,8 @@ services:
       # optional: the first admin, created on start only while no admin exists (remove after)
       ADMIN_EMAIL: ${ADMIN_EMAIL:-}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      # Residence directory and login hashes. Set this in Coolify. It is not in the repository.
+      RESIDENTS_SEED_B64: ${RESIDENTS_SEED_B64:-}
     volumes:
       # owners' listing photos: user content, kept outside the image
       - uploads:/app/uploads

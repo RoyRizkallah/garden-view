@@ -25,3 +25,7 @@ Garden View - Owner Directory (Cleaned).xlsx
 # production data exports and backups (personal data)
 garden-view-units.sql
 backups/
+
+# Residence directory and login hashes for deploy. Set RESIDENTS_SEED_B64 on the server.
+server/prisma/data/residents.json
+server/prisma/data/residents.b64.txt

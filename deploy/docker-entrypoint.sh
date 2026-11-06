@@ -1,6 +1,8 @@
 #!/bin/sh
-# Applies any pending database migrations, then starts the server. Migrations are additive and
-# recorded in the database, so running this on every start is safe.
+# Applies any pending database migrations, creates residence logins that are not
+# already there, then starts the server. Migrations are additive and recorded in
+# the database, so running this on every start is safe. Existing logins keep
+# their passwords.
 set -e
 
 if [ -z "$JWT_SECRET" ] || [ ${#JWT_SECRET} -lt 32 ]; then
@@ -10,6 +12,9 @@ fi
 
 echo "Applying database migrations..."
 npx prisma migrate deploy
+
+echo "Creating residence logins that are not already there..."
+node dist/seed-residents.js
 
 # first admin from ADMIN_EMAIL / ADMIN_PASSWORD, only if the database has none yet
 node dist/bootstrap-admin.js
