@@ -1,11 +1,14 @@
 /* ---------- NAVBAR RESIDENT LINK ---------- */
 .navbar-resident-link {
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.03em;
   text-transform: uppercase;
   color: var(--white);
-  opacity: 0.75;
+  opacity: 0.82;
+  white-space: nowrap;
+  padding-bottom: 4px;
+  border-bottom: 1.5px solid transparent;
 }
 .navbar-resident-link:hover {
   opacity: 1;

@@ -67,6 +67,7 @@ picture > source {
   align-items: center;
   justify-content: space-between;
   gap: 24px;
+  flex-wrap: nowrap;
 }
 .navbar-links {
   display: flex;

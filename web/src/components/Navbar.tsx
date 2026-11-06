@@ -50,12 +50,12 @@ export default function Navbar() {
               {link.label}
             </NavLink>
           ))}
-        </nav>
-
-        <div className="navbar-actions">
           <NavLink to="/login" className="navbar-resident-link">
             Resident Login
           </NavLink>
+        </nav>
+
+        <div className="navbar-actions">
           <NavLink to="/location" className="btn btn-outline-gold btn-sm">
             Request a Tour
           </NavLink>
