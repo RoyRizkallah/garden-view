@@ -1,0 +1,310 @@
+/* ==========================================================================
+   Admin portal, in the site's language.
+   Loaded after admin.css. Building management's desk takes the same palette and type as the
+   public site and the resident portal (limestone paper, white cards, steel type, the Garden
+   View green and gold, Archivo), in a calmer treatment suited to a working tool: one green
+   greeting on the home page, plain pages elsewhere, sentence-case labels throughout.
+   Scoped to .portal-shell-admin, so the resident portal and sign-in are untouched.
+   ========================================================================== */
+
+.portal-shell-admin {
+  --a-paper: #faf9f6;
+  --a-stone: #e6e0d4;
+  --a-line: #eee9df;
+  --a-steel: #1e2124;
+  --a-muted: #5b6770;
+  --a-deep: #182920;
+  --a-card-shadow: 0 1px 2px rgba(30, 33, 36, 0.04), 0 14px 34px -20px rgba(30, 33, 36, 0.28);
+
+  --cream: var(--a-paper);
+  --cream-dark: var(--a-stone);
+  --ink: var(--a-steel);
+  --gold-dim: #8f7647;
+  --radius: 14px;
+  --radius-sm: 8px;
+  --shadow: var(--a-card-shadow);
+  --font-serif: 'Archivo', 'Inter', system-ui, sans-serif;
+  --font-sans: 'Archivo', 'Inter', system-ui, sans-serif;
+
+  font-family: var(--font-sans);
+  background: var(--a-paper);
+  color: var(--a-steel);
+}
+.portal-shell-admin .portal-main {
+  background: var(--a-paper);
+  color: var(--a-steel);
+}
+
+/* Display type: Archivo's wide cut */
+.portal-shell-admin h1,
+.portal-shell-admin h2,
+.portal-shell-admin h3 {
+  font-family: var(--font-sans);
+  font-stretch: 125%;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--a-steel);
+}
+.portal-shell-admin .portal-page > h1 {
+  font-size: clamp(28px, 2.8vw, 38px);
+}
+
+/* Labels and buttons: sentence case, no tracked capitals (the brand wordmark keeps its own) */
+.portal-shell-admin :is(p, span, label, button, a, strong, small, th, td, li, div, em, time, h2, h3):not(.portal-sidebar-brand *) {
+  text-transform: none;
+}
+.portal-shell-admin .eyebrow,
+.portal-shell-admin .ad-label,
+.portal-shell-admin .ad-link,
+.portal-shell-admin .form-field label,
+.portal-shell-admin .btn,
+.portal-shell-admin .portal-stat-label,
+.portal-shell-admin .portal-booking-step,
+.portal-shell-admin .portal-badge,
+.portal-shell-admin .portal-charge-table-head,
+.portal-shell-admin .admin-status-select {
+  letter-spacing: 0.01em;
+}
+.portal-shell-admin .eyebrow {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--green);
+}
+.portal-shell-admin .eyebrow::before {
+  background: var(--gold);
+}
+.portal-shell-admin .form-field label,
+.portal-shell-admin .ad-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #3a3f43;
+}
+.portal-shell-admin .ad-link {
+  font-size: 14px;
+  color: var(--green);
+}
+.portal-shell-admin .portal-page-lede {
+  color: var(--a-muted);
+}
+
+/* Buttons */
+.portal-shell-admin .btn {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+}
+.portal-shell-admin .btn-primary {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fffdf8;
+}
+.portal-shell-admin .btn-primary:hover {
+  background: var(--a-deep);
+}
+
+/* Forms */
+.portal-shell-admin .form-field input,
+.portal-shell-admin .form-field select,
+.portal-shell-admin .form-field textarea {
+  background: #fff;
+  border: 1px solid #d6cdbc;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-size: 15px;
+}
+.portal-shell-admin .form-field input:focus,
+.portal-shell-admin .form-field select:focus,
+.portal-shell-admin .form-field textarea:focus {
+  outline: 2px solid var(--green);
+  outline-offset: 1px;
+}
+
+/* ---------- Sidebar: deep green, gold marker ---------- */
+.portal-shell-admin .portal-sidebar {
+  background: var(--a-deep);
+}
+.portal-shell-admin .portal-sidebar-brand strong {
+  font-family: var(--font-sans);
+  font-stretch: 125%;
+  font-weight: 700;
+  font-size: 17px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.portal-shell-admin .portal-nav-label {
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--gold);
+}
+.portal-shell-admin .portal-nav a {
+  font-size: 14.5px;
+  font-weight: 500;
+  color: rgba(255, 253, 248, 0.74);
+  border-radius: 8px;
+}
+.portal-shell-admin .portal-nav a:hover {
+  background: rgba(255, 253, 248, 0.06);
+  color: #fffdf8;
+}
+.portal-shell-admin .portal-nav a.is-active {
+  background: rgba(201, 167, 105, 0.14);
+  color: #fffdf8;
+  border-left-color: var(--gold);
+}
+.portal-shell-admin .portal-nav a.is-active svg {
+  color: var(--gold);
+}
+.portal-shell-admin .portal-avatar {
+  background: var(--gold);
+  color: #131310;
+}
+.portal-shell-admin .portal-sidebar .btn-outline {
+  border-color: rgba(255, 253, 248, 0.28);
+  color: #fffdf8;
+}
+.portal-shell-admin .portal-sidebar .btn-outline:hover {
+  background: rgba(255, 253, 248, 0.08);
+}
+
+/* ---------- The desk bar above each page ---------- */
+.portal-shell-admin .ad-desk {
+  background: rgba(250, 249, 246, 0.96);
+  border-bottom-color: var(--a-line);
+}
+.portal-shell-admin .ad-desk strong {
+  font-family: var(--font-sans);
+  font-stretch: 112%;
+  font-weight: 600;
+  color: var(--a-steel);
+}
+.portal-shell-admin .ad-desk span {
+  color: var(--a-muted);
+}
+
+/* ---------- Home: the greeting as green text beside the building ---------- */
+.portal-shell-admin .portal-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: stretch;
+  min-height: 220px;
+  border-radius: 16px;
+  background:
+    radial-gradient(120% 140% at 0% 0%, rgba(201, 167, 105, 0.12), rgba(201, 167, 105, 0) 55%),
+    var(--a-deep);
+}
+.portal-shell-admin .portal-hero img {
+  position: relative;
+  grid-column: 2;
+  grid-row: 1;
+  inset: auto;
+  width: 100%;
+  height: 100%;
+  min-height: 220px;
+  object-fit: cover;
+}
+.portal-shell-admin .portal-hero-scrim {
+  display: none;
+}
+.portal-shell-admin .portal-hero-content {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: end;
+  padding: 34px 38px;
+}
+.portal-shell-admin .portal-hero .eyebrow {
+  color: var(--gold);
+}
+.portal-shell-admin .portal-hero-content h1 {
+  color: #fffdf8;
+}
+.portal-shell-admin .portal-hero-sub {
+  color: rgba(255, 253, 248, 0.74);
+}
+
+/* ---------- Cards: soft and raised, no hard outlines ---------- */
+.portal-shell-admin .ad-kpi,
+.portal-shell-admin .ad-card,
+.portal-shell-admin .ad-queue,
+.portal-shell-admin .portal-request-panel,
+.portal-shell-admin .portal-stat-card,
+.portal-shell-admin .portal-timeline-card,
+.portal-shell-admin .note-card {
+  border-color: transparent;
+  border-radius: var(--radius);
+  background: #fff;
+  box-shadow: var(--a-card-shadow);
+}
+.portal-shell-admin .note-card {
+  border-left: 3px solid var(--gold);
+  background: #fff;
+}
+
+/* the four home figures as one ledger line */
+.portal-shell-admin .ad-kpis {
+  gap: 0;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: var(--a-card-shadow);
+  overflow: hidden;
+}
+.portal-shell-admin .ad-kpis .ad-kpi {
+  border-radius: 0;
+  box-shadow: none;
+}
+.portal-shell-admin .ad-kpis .ad-kpi + .ad-kpi {
+  border-left: 1px solid var(--a-line);
+}
+.portal-shell-admin .ad-kpi strong {
+  font-family: var(--font-sans);
+  font-stretch: 125%;
+  font-weight: 600;
+}
+
+/* counts and bars in the brand colours */
+.portal-shell-admin .ad-count {
+  background: var(--gold);
+  color: #131310;
+}
+.portal-shell-admin .ad-bar > span {
+  background: var(--green);
+}
+
+/* ---------- Phone ---------- */
+@media (max-width: 900px) {
+  .portal-shell-admin .portal-mobile-bar {
+    background: var(--a-deep);
+  }
+  .portal-shell-admin .portal-mobile-brand {
+    font-family: var(--font-sans);
+    font-stretch: 125%;
+    font-weight: 600;
+  }
+  .portal-shell-admin .portal-hero {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .portal-shell-admin .portal-hero img {
+    grid-column: 1;
+    grid-row: 1;
+    height: 160px;
+    min-height: 0;
+  }
+  .portal-shell-admin .portal-hero-content {
+    grid-row: 2;
+    padding: 22px;
+  }
+  .portal-shell-admin .ad-kpis .ad-kpi + .ad-kpi {
+    border-left: none;
+    border-top: 1px solid var(--a-line);
+  }
+}
+
+/* figure labels without tracking; initials dark on the gold avatar */
+.portal-shell-admin .ad-kpi * {
+  letter-spacing: 0.01em;
+}
+.portal-shell-admin .portal-sidebar .portal-avatar {
+  background: var(--gold);
+  color: #131310;
+}

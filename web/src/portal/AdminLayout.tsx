@@ -21,6 +21,7 @@ import {
 } from '../components/Icons';
 import { initials } from './names';
 import '../styles/admin.css';
+import '../styles/admin-site.css';
 
 type NavIcon = ComponentType<{ size?: number; className?: string }>;
 type LinkItem = {
