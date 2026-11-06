@@ -4,7 +4,7 @@ import { api, type Overview as OverviewData } from '../api';
 import { useAuth } from '../AuthContext';
 import { greetingName } from '../names';
 import { usd, shortDate, dayMonth, monthYear, closesIn } from '../format';
-import CircularProgress from '../CircularProgress';
+import BuildingElevation from '../BuildingElevation';
 import Photo from '../../components/Photo';
 import { matchResidence } from '../../data/useUnitPlan';
 import { UNIT_KIND_LABEL } from '../../data/buildingExplorer';
@@ -23,7 +23,6 @@ import {
   IconTag,
 } from '../../components/Icons';
 
-const HERO_SIZES = '(max-width: 1080px) calc(100vw - 40px), calc(100vw - 384px)';
 const BLOCK_PHOTO: Record<string, string> = {
   A: '/images/shoot/block-a-2.jpg',
   B: '/images/shoot/block-b-2.jpg',
@@ -132,12 +131,15 @@ export default function Overview() {
     }
   }
 
+  const homeLabel = residence?.apartment ?? account?.unit?.number ?? '';
+  const homeFloors = residence?.floors ?? [];
+  const blockPhoto = BLOCK_PHOTO[block] ?? BLOCK_PHOTO.A;
+
   return (
-    <div className="rs-page rs-overview">
-      <section className="rs-hero">
-        <Photo src={BLOCK_PHOTO[block] ?? BLOCK_PHOTO.A} alt="" sizes={HERO_SIZES} priority />
-        <div className="rs-hero-scrim" />
-        <div className="rs-hero-content">
+    <div className="rs-page rs-overview rs-home-v2">
+      {/* the opening: who and where, beside the building with this home lit */}
+      <section className="rs-welcome">
+        <div className="rs-welcome-text">
           <p className="rs-hero-date">
             <IconCalendar size={14} />
             {today}
@@ -146,21 +148,31 @@ export default function Overview() {
             {greeting()}
             {name ? `, ${name}` : ''}
           </h1>
-          <p className="rs-hero-sub">
+          <p className="rs-welcome-sub">
             {residence
               ? `Residence ${residence.apartment} · Block ${residence.block} · ${floorsLabel(residence.floors)}`
               : account?.unit
                 ? `Block ${account.unit.block} · ${account.unit.number}`
                 : 'Garden View'}
           </p>
+          <div className="rs-welcome-actions">
+            <Link to="/portal/residence" className="rs-btn rs-btn-gold">
+              <IconLayers size={15} /> Your 3D floor plan
+            </Link>
+            <Link to="/portal/requests" className="rs-btn rs-btn-ghost-light">
+              <IconClipboard size={15} /> Report a problem
+            </Link>
+          </div>
         </div>
+        {homeLabel && <BuildingElevation block={block} floors={homeFloors} label={homeLabel} />}
       </section>
 
-      <div className="rs-metrics">
-        <Link to="/portal/charges" className={`rs-metric${overdue > 0 ? ' is-alert' : balance <= 0 ? ' is-clear' : ''}`}>
-          <span className="rs-metric-label">Balance due</span>
-          <span className="rs-metric-value">{data ? usd.format(balance) : '—'}</span>
-          <span className="rs-metric-note">
+      {/* the account in one line: three figures, each opening its page */}
+      <div className="rs-ledger">
+        <Link to="/portal/charges" className={`rs-ledger-item${overdue > 0 ? ' is-alert' : balance <= 0 ? ' is-clear' : ''}`}>
+          <span className="rs-ledger-label">Balance due</span>
+          <span className="rs-ledger-value">{data ? usd.format(balance) : '—'}</span>
+          <span className="rs-ledger-note">
             {overdue > 0
               ? `${overdue} ${overdue === 1 ? 'charge is' : 'charges are'} overdue`
               : balance > 0
@@ -168,25 +180,22 @@ export default function Overview() {
                 : "You're up to date"}
           </span>
         </Link>
-
-        <Link to="/portal/charges" className="rs-metric">
-          <span className="rs-metric-label">Next payment</span>
-          <span className="rs-metric-value">{next ? usd.format(next.amount) : '—'}</span>
-          <span className="rs-metric-note">
+        <Link to="/portal/charges" className="rs-ledger-item">
+          <span className="rs-ledger-label">Next payment</span>
+          <span className="rs-ledger-value">{next ? usd.format(next.amount) : '—'}</span>
+          <span className="rs-ledger-note">
             {next ? `${monthYear(next.period)} · due ${dayMonth(next.dueDate)}` : 'No payment scheduled'}
           </span>
         </Link>
-
-        <Link to="/portal/voting" className="rs-metric">
-          <span className="rs-metric-label">Open proposals</span>
-          <span className="rs-metric-value">{data ? data.openVotesCount : '—'}</span>
-          <span className="rs-metric-note">
-            {awaiting > 0
-              ? `${awaiting} waiting for your vote`
-              : data
-                ? 'Nothing waiting for you'
-                : 'Loading'}
+        <Link to="/portal/voting" className="rs-ledger-item">
+          <span className="rs-ledger-label">Open proposals</span>
+          <span className="rs-ledger-value">{data ? data.openVotesCount : '—'}</span>
+          <span className="rs-ledger-note">
+            {awaiting > 0 ? `${awaiting} waiting for your vote` : data ? 'Nothing waiting for you' : 'Loading'}
           </span>
+        </Link>
+        <Link to="/portal/charges" className="rs-ledger-link">
+          Your statement <IconArrowRight size={14} />
         </Link>
       </div>
 
@@ -197,124 +206,121 @@ export default function Overview() {
         </div>
       )}
 
-      <div className="rs-grid rs-grid-home">
-        <section className="rs-card" aria-labelledby="for-you">
-          <div className="rs-card-head">
-            <h2 id="for-you">For you</h2>
-            {data && items.length > 0 && <span className="rs-count">{items.length}</span>}
-          </div>
-
-          {!data && !error && <div className="rs-empty" aria-busy="true"><p>Reading your account…</p></div>}
-
-          {data && items.length === 0 && (
-            <div className="rs-clear">
-              <span className="rs-clear-icon">
-                <IconCheck size={20} />
-              </span>
-              <div>
-                <strong>You&rsquo;re all caught up</strong>
-                <p>Nothing to pay, no proposals waiting for your vote, and no open requests.</p>
-              </div>
+      <div className="rs-home-columns">
+        <div className="rs-home-main">
+          <section className="rs-card rs-attention" aria-labelledby="for-you">
+            <div className="rs-card-head">
+              <h2 id="for-you">Needs your attention</h2>
+              {data && items.length > 0 && <span className="rs-count">{items.length}</span>}
             </div>
-          )}
 
-          {items.length > 0 && (
-            <div className="rs-actions">
-              {items.map((item) => (
-                <Link key={item.key} to={item.to} className={`rs-action${item.tone ? ` is-${item.tone}` : ''}`}>
-                  <span className="rs-action-icon">{item.icon}</span>
-                  <span className="rs-action-text">
-                    <strong>{item.title}</strong>
-                    <span>{item.meta}</span>
-                  </span>
-                  <IconArrowRight size={15} className="rs-action-arrow" />
-                </Link>
-              ))}
-            </div>
-          )}
-        </section>
-
-        <section className="rs-card rs-home" aria-labelledby="your-home">
-          <div className="rs-card-head">
-            <h2 id="your-home">Your home</h2>
-          </div>
-          <p className="rs-home-code">{residence?.apartment ?? account?.unit?.number ?? '—'}</p>
-          {residence && <p className="rs-home-sub">{UNIT_KIND_LABEL[residence.kind].split(' · ')[0]}</p>}
-
-          <dl className="rs-facts">
-            <div>
-              <dt>Block</dt>
-              <dd>{block}</dd>
-            </div>
-            {residence && (
-              <div>
-                <dt>{residence.floors.length > 1 ? 'Floors' : 'Floor'}</dt>
-                <dd>{residence.floors.map((floor) => (floor === 0 ? 'G' : floor)).join(' & ')}</dd>
+            {!data && !error && (
+              <div className="rs-empty" aria-busy="true">
+                <p>Reading your account…</p>
               </div>
             )}
-            {area?.complete && area.netSqm !== undefined && (
-              <div>
-                <dt>Interior</dt>
-                <dd>{formatSqm(area.netSqm)}</dd>
+
+            {data && items.length === 0 && (
+              <div className="rs-clear">
+                <span className="rs-clear-icon">
+                  <IconCheck size={20} />
+                </span>
+                <div>
+                  <strong>You&rsquo;re all caught up</strong>
+                  <p>Nothing to pay, no proposals waiting for your vote, and no open requests.</p>
+                </div>
               </div>
             )}
-            {area?.complete && area.outdoorSqm ? (
-              <div>
-                <dt>Outdoor</dt>
-                <dd>{formatSqm(area.outdoorSqm)}</dd>
+
+            {items.length > 0 && (
+              <div className="rs-actions">
+                {items.map((item) => (
+                  <Link key={item.key} to={item.to} className={`rs-action${item.tone ? ` is-${item.tone}` : ''}`}>
+                    <span className="rs-action-icon">{item.icon}</span>
+                    <span className="rs-action-text">
+                      <strong>{item.title}</strong>
+                      <span>{item.meta}</span>
+                    </span>
+                    <IconArrowRight size={15} className="rs-action-arrow" />
+                  </Link>
+                ))}
               </div>
-            ) : null}
-          </dl>
+            )}
+          </section>
 
-          <div className="rs-home-links">
-            <Link to="/portal/residence" className="rs-btn rs-btn-primary rs-btn-sm">
-              <IconLayers size={14} /> Your 3D floor plan
-            </Link>
-            <Link to="/portal/sell-rent" className="rs-textlink">
-              Sell or rent <IconArrowRight size={13} />
-            </Link>
-          </div>
-        </section>
-      </div>
-
-      {data && (data.recentProjects.length > 0 || data.latestDocuments.length > 0) && (
-        <div className="rs-grid rs-grid-2">
-          {data.recentProjects.length > 0 && (
+          {data && data.recentProjects.length > 0 && (
             <section className="rs-card" aria-labelledby="projects">
               <div className="rs-card-head">
-                <h2 id="projects">Building projects</h2>
+                <h2 id="projects">Works in the building</h2>
                 <Link to="/portal/projects" className="rs-textlink">
                   All projects <IconArrowRight size={12} />
                 </Link>
               </div>
-              <div className="rs-rows">
+              <div className="rs-works">
                 {data.recentProjects.map((project) => (
-                  <div key={project.id} className="rs-project-row">
-                    <CircularProgress percent={project.progressPct} size={44} stroke={4} />
-                    <div>
+                  <Link key={project.id} to="/portal/projects" className="rs-work">
+                    <span className="rs-work-head">
                       <strong>{project.title}</strong>
-                      <span>
-                        {project.category}
-                        {project.eta
-                          ? ` · expected ${new Date(project.eta).toLocaleDateString('en-GB', {
-                              month: 'short',
-                              year: 'numeric',
-                            })}`
-                          : ''}
-                      </span>
-                    </div>
-                  </div>
+                      <span className="rs-work-pct">{project.progressPct}%</span>
+                    </span>
+                    <span className="rs-work-bar" aria-hidden="true">
+                      <span style={{ width: `${Math.min(100, Math.max(0, project.progressPct))}%` }} />
+                    </span>
+                    <span className="rs-work-meta">
+                      {project.category}
+                      {project.eta
+                        ? ` · expected ${new Date(project.eta).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}`
+                        : ''}
+                    </span>
+                  </Link>
                 ))}
               </div>
             </section>
           )}
+        </div>
 
-          {data.latestDocuments.length > 0 && (
+        <aside className="rs-home-side">
+          <section className="rs-card rs-home-card" aria-labelledby="your-home">
+            <div className="rs-home-photo">
+              <Photo src={blockPhoto} alt={`Block ${block} of Garden View`} sizes="(max-width: 1080px) 100vw, 380px" />
+              <span className="rs-home-photo-tag">Block {block}</span>
+            </div>
+            <div className="rs-home-body">
+              <h2 id="your-home">Your home</h2>
+              <p className="rs-home-code">{residence?.apartment ?? account?.unit?.number ?? '—'}</p>
+              {residence && <p className="rs-home-sub">{UNIT_KIND_LABEL[residence.kind].split(' · ')[0]}</p>}
+              <dl className="rs-facts">
+                {residence && (
+                  <div>
+                    <dt>{residence.floors.length > 1 ? 'Floors' : 'Floor'}</dt>
+                    <dd>{residence.floors.map((floor) => (floor === 0 ? 'G' : floor)).join(' & ')}</dd>
+                  </div>
+                )}
+                {area?.complete && area.netSqm !== undefined && (
+                  <div>
+                    <dt>Interior</dt>
+                    <dd>{formatSqm(area.netSqm)}</dd>
+                  </div>
+                )}
+                {area?.complete && area.outdoorSqm ? (
+                  <div>
+                    <dt>Outdoor</dt>
+                    <dd>{formatSqm(area.outdoorSqm)}</dd>
+                  </div>
+                ) : null}
+              </dl>
+              <Link to="/portal/sell-rent" className="rs-textlink">
+                Sell or rent your home <IconArrowRight size={13} />
+              </Link>
+            </div>
+          </section>
+
+          {data && data.latestDocuments.length > 0 && (
             <section className="rs-card" aria-labelledby="documents">
               <div className="rs-card-head">
                 <h2 id="documents">Latest documents</h2>
                 <Link to="/portal/documents" className="rs-textlink">
-                  All documents <IconArrowRight size={12} />
+                  All <IconArrowRight size={12} />
                 </Link>
               </div>
               <div className="rs-rows">
@@ -332,8 +338,8 @@ export default function Overview() {
               </div>
             </section>
           )}
-        </div>
-      )}
+        </aside>
+      </div>
 
       <nav className="rs-quick" aria-label="Shortcuts">
         <Link to="/portal/requests">
@@ -354,13 +360,13 @@ export default function Overview() {
             <span>A plumber, an electrician</span>
           </span>
         </Link>
-        <Link to="/portal/voting">
+        <Link to="/portal/meetings">
           <span className="rs-quick-icon">
-            <IconBallot size={17} />
+            <IconCalendar size={17} />
           </span>
           <span>
-            <strong>Proposals</strong>
-            <span>One vote per home</span>
+            <strong>Meetings</strong>
+            <span>Agendas and minutes</span>
           </span>
         </Link>
         <Link to="/portal/documents">

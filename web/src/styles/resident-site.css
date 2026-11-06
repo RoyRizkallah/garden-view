@@ -1,0 +1,666 @@
+/* ==========================================================================
+   Resident portal, in the public site's language.
+   Loaded after resident.css. It re-points the portal's --r-* tokens at the public palette
+   (limestone paper, white cards, steel type, the Garden View green and gold), sets it in
+   Archivo, and changes the layout in three places: a deep-green sidebar with a gold marker,
+   a green opening panel on every page (as the public pages open on green), and a split home
+   greeting with the figures in a row beneath. Scoped to .rs-shell, so the admin portal and
+   sign-in are untouched.
+   ========================================================================== */
+
+.rs-shell {
+  --r-paper: #faf9f6;
+  --r-paper-2: #f3f0ea;
+  --r-surface: #ffffff;
+  --r-surface-2: #faf9f6;
+  --r-inset: #f3f0ea;
+  --r-ink: #1e2124;
+  --r-ink-2: #3a3f43;
+  --r-muted: #5b6770;
+  --r-faint: #6b757c;
+  --r-line: #e6e0d4;
+  --r-line-2: #eee9df;
+  --r-green: #2f4a3a;
+  --r-green-2: #3d5f4b;
+  --r-green-soft: #e9efe9;
+  --r-green-softer: #f2f5f1;
+  --r-gold: #c9a769;
+  --r-gold-2: #c9a769;
+  --r-gold-ink: #8f7647;
+  --r-gold-soft: #f6eeda;
+  --r-deep: #182920; /* the brand's deep green: sidebar and page openings */
+  --r-shadow: 0 1px 2px rgba(30, 33, 36, 0.04), 0 14px 34px -20px rgba(30, 33, 36, 0.28);
+  --r-shadow-lift: 0 2px 4px rgba(30, 33, 36, 0.05), 0 22px 44px -22px rgba(30, 33, 36, 0.36);
+
+  --font-serif: 'Archivo', 'Inter', system-ui, sans-serif;
+  --font-sans: 'Archivo', 'Inter', system-ui, sans-serif;
+  font-family: var(--font-sans);
+}
+
+/* Display type: Archivo's wide cut, as on the public site. */
+.rs-shell h1,
+.rs-shell h2,
+.rs-shell h3,
+.rs-shell .rs-metric-value,
+.rs-shell .rs-home-code,
+.rs-shell .rs-brand-name {
+  font-stretch: 125%;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* Labels: plain sentence-case captions, not tracked capitals. */
+.rs-shell .rs-brand-place,
+.rs-shell .rs-doc-head p,
+.rs-shell .rs-facts dt,
+.rs-shell .rs-field > span,
+.rs-shell .rs-hero-date,
+.rs-shell .rs-kicker,
+.rs-shell .rs-meta-item span,
+.rs-shell .rs-metric-label,
+.rs-shell .rs-pill,
+.rs-shell .rs-progress-label,
+.rs-shell .rs-project-badge,
+.rs-shell .rs-project-media-text p,
+.rs-shell .rs-select > span,
+.rs-shell .portal-plan-ctl,
+.rs-shell .portal-plan-hint,
+.rs-shell .portal-plan-kicker,
+.rs-shell .portal-plan-label,
+.rs-shell .portal-plan-sheet,
+.rs-shell .rs-summary-label,
+.rs-shell .rs-table-head,
+.rs-shell .rs-textlink,
+.rs-shell .rs-tile-label {
+  text-transform: none;
+  letter-spacing: 0.01em;
+}
+.rs-shell .rs-metric-label,
+.rs-shell .rs-facts dt,
+.rs-shell .rs-tile-label,
+.rs-shell .rs-summary-label,
+.rs-shell .rs-table-head {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* ---------- Sidebar: deep green, gold marker ---------- */
+.rs-shell .rs-side {
+  background: var(--r-deep);
+  border-right: none;
+  color: #fffdf8;
+}
+.rs-shell .rs-brand {
+  border-bottom-color: rgba(255, 253, 248, 0.08);
+}
+.rs-shell .rs-brand-name {
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #fffdf8;
+}
+.rs-shell .rs-brand-place {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 253, 248, 0.6);
+}
+.rs-shell .rs-nav-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--r-gold);
+}
+.rs-shell .rs-nav a {
+  color: rgba(255, 253, 248, 0.74);
+  border-radius: 8px;
+}
+.rs-shell .rs-nav a svg {
+  color: rgba(255, 253, 248, 0.45);
+}
+.rs-shell .rs-nav a:hover {
+  background: rgba(255, 253, 248, 0.06);
+  color: #fffdf8;
+}
+.rs-shell .rs-nav a:hover svg {
+  color: var(--r-gold);
+}
+.rs-shell .rs-nav a.is-active {
+  background: rgba(201, 167, 105, 0.14);
+  color: #fffdf8;
+}
+.rs-shell .rs-nav a.is-active svg {
+  color: var(--r-gold);
+}
+.rs-shell .rs-nav a.is-active::before {
+  background: var(--r-gold);
+}
+.rs-shell .rs-side-foot {
+  border-top-color: rgba(255, 253, 248, 0.08);
+}
+.rs-shell .rs-user:hover,
+.rs-shell .rs-signout:hover {
+  background: rgba(255, 253, 248, 0.06);
+}
+.rs-shell .rs-avatar {
+  background: var(--r-gold);
+  color: #131310;
+}
+.rs-shell .rs-user-text strong {
+  color: #fffdf8;
+}
+.rs-shell .rs-user-text span,
+.rs-shell .rs-user > svg,
+.rs-shell .rs-signout {
+  color: rgba(255, 253, 248, 0.6);
+}
+.rs-shell .rs-signout:hover {
+  color: #fffdf8;
+}
+
+/* ---------- Every page opens on the deep green ---------- */
+.rs-shell .rs-page-head {
+  position: relative;
+  overflow: hidden;
+  align-items: flex-end;
+  padding: 34px 38px 32px;
+  border-radius: 16px;
+  background: var(--r-deep);
+  color: #fffdf8;
+}
+.rs-shell .rs-page-head::after {
+  /* the logo's leaf, drawn in gold at the panel's corner */
+  content: '';
+  position: absolute;
+  right: -18px;
+  bottom: -26px;
+  width: 150px;
+  height: 150px;
+  opacity: 0.14;
+  pointer-events: none;
+  background: no-repeat center / contain
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120' fill='none' stroke='%23c9a769' stroke-width='1.2'%3E%3Cpath d='M10 110c30 4 55-20 55-55C40 55 8 78 10 110Z'/%3E%3Cpath d='M10 110c12-24 25-36 55-50'/%3E%3Cpath d='M35 115c22 2 40-14 40-38-18 0-38 16-40 38Z'/%3E%3C/svg%3E");
+}
+.rs-shell .rs-page-head > * {
+  position: relative;
+  z-index: 1;
+}
+.rs-shell .rs-page-head .rs-kicker {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--r-gold);
+}
+.rs-shell .rs-page-head h1 {
+  color: #fffdf8;
+  font-size: clamp(30px, 3vw, 40px);
+}
+.rs-shell .rs-page-head .rs-lede {
+  color: rgba(255, 253, 248, 0.74);
+}
+.rs-shell .rs-page-head .rs-btn,
+.rs-shell .rs-page-head .rs-btn-primary {
+  background: var(--r-gold);
+  border-color: var(--r-gold);
+  color: #131310;
+}
+
+/* ---------- Home greeting: green text beside the building's photograph ---------- */
+.rs-shell .rs-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  align-items: stretch;
+  min-height: 260px;
+  border-radius: 16px;
+  background: var(--r-deep);
+}
+.rs-shell .rs-hero img {
+  position: relative;
+  grid-column: 2;
+  grid-row: 1;
+  inset: auto;
+  min-height: 260px;
+}
+.rs-shell .rs-hero-scrim {
+  display: none;
+}
+.rs-shell .rs-hero-content {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: end;
+  padding: 36px 40px 38px;
+}
+.rs-shell .rs-hero-date {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--r-gold);
+}
+.rs-shell .rs-hero h1 {
+  font-size: clamp(32px, 3.2vw, 44px);
+}
+.rs-shell .rs-metrics {
+  margin: 16px 0 0;
+}
+.rs-shell .rs-metric {
+  border: none;
+  border-radius: 14px;
+  border-top: 3px solid var(--r-gold);
+}
+.rs-shell .rs-metric:hover {
+  box-shadow: var(--r-shadow-lift);
+}
+
+/* ---------- Cards: soft and raised, no hard outlines ---------- */
+.rs-shell .rs-card,
+.rs-shell .rs-action,
+.rs-shell .rs-quick a,
+.rs-shell .rs-quick > * {
+  border-color: transparent;
+  box-shadow: var(--r-shadow);
+}
+.rs-shell .rs-card {
+  border-radius: 14px;
+}
+
+/* ---------- Phone: green top bar, light tab bar ---------- */
+@media (max-width: 1080px) {
+  .rs-shell .rs-mobile-bar {
+    background: var(--r-deep);
+    border-bottom: none;
+    backdrop-filter: none;
+  }
+  .rs-shell .rs-mobile-brand {
+    font-stretch: 125%;
+    font-weight: 600;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #fffdf8;
+  }
+  .rs-shell .rs-mobile-icon {
+    border-color: rgba(255, 253, 248, 0.2);
+    color: #fffdf8;
+  }
+  .rs-shell .rs-tabs {
+    background: rgba(255, 255, 255, 0.97);
+  }
+  .rs-shell .rs-tabs a,
+  .rs-shell .rs-more-btn {
+    font-size: 10.5px;
+    font-weight: 500;
+  }
+  .rs-shell .rs-tabs a.is-active,
+  .rs-shell .rs-more-btn.is-active {
+    color: var(--r-green);
+    font-weight: 600;
+  }
+}
+
+@media (max-width: 780px) {
+  .rs-shell .rs-page-head {
+    padding: 26px 22px 24px;
+  }
+  .rs-shell .rs-hero {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .rs-shell .rs-hero img {
+    grid-column: 1;
+    grid-row: 1;
+    min-height: 0;
+    height: 170px;
+  }
+  .rs-shell .rs-hero-content {
+    grid-column: 1;
+    grid-row: 2;
+    padding: 22px 22px 24px;
+  }
+  .rs-shell .rs-metric {
+    border-top: none;
+  }
+}
+
+/* ==========================================================================
+   Home, laid out around the building.
+   ========================================================================== */
+
+/* The opening: greeting and residence on the left, the elevation with this home lit on
+   the right; a deep-green panel like the public pages' openings. */
+.rs-shell .rs-welcome {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(260px, 0.85fr);
+  gap: 40px;
+  align-items: center;
+  padding: 40px 44px;
+  border-radius: 18px;
+  background:
+    radial-gradient(120% 140% at 100% 0%, rgba(201, 167, 105, 0.12), rgba(201, 167, 105, 0) 55%),
+    var(--r-deep);
+  color: #fffdf8;
+  overflow: hidden;
+}
+.rs-shell .rs-welcome h1 {
+  margin: 12px 0 0;
+  font-size: clamp(34px, 3.6vw, 50px);
+  line-height: 1.02;
+  color: #fffdf8;
+}
+.rs-shell .rs-welcome-sub {
+  margin-top: 12px;
+  font-size: 15px;
+  color: rgba(255, 253, 248, 0.72);
+}
+.rs-shell .rs-welcome-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 28px;
+}
+.rs-shell .rs-btn-gold {
+  background: var(--r-gold);
+  border: 1px solid var(--r-gold);
+  color: #131310;
+}
+.rs-shell .rs-btn-gold:hover {
+  background: #dab97f;
+  border-color: #dab97f;
+}
+.rs-shell .rs-btn-ghost-light {
+  background: transparent;
+  border: 1px solid rgba(255, 253, 248, 0.32);
+  color: #fffdf8;
+}
+.rs-shell .rs-btn-ghost-light:hover {
+  background: rgba(255, 253, 248, 0.08);
+  border-color: rgba(255, 253, 248, 0.6);
+}
+
+/* the elevation */
+.rs-shell .rs-elev {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.rs-shell .rs-elev svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.rs-shell .rs-elev-floor {
+  fill: rgba(255, 253, 248, 0.05);
+  stroke: rgba(255, 253, 248, 0.16);
+  stroke-width: 0.8;
+}
+.rs-shell .rs-elev-block {
+  fill: rgba(255, 253, 248, 0.1);
+  stroke: rgba(255, 253, 248, 0.3);
+  stroke-width: 0.8;
+}
+.rs-shell .rs-elev-mine {
+  fill: var(--r-gold);
+  stroke: #e3c78f;
+  stroke-width: 0.8;
+  filter: drop-shadow(0 0 6px rgba(201, 167, 105, 0.55));
+}
+.rs-shell .rs-elev-ground {
+  stroke: rgba(201, 167, 105, 0.6);
+  stroke-width: 1;
+}
+.rs-shell .rs-elev-letter {
+  font: 600 11px var(--font-sans);
+  font-stretch: 125%;
+  fill: rgba(255, 253, 248, 0.55);
+}
+.rs-shell .rs-elev figcaption {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.rs-shell .rs-elev figcaption strong {
+  font-stretch: 125%;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--r-gold);
+}
+.rs-shell .rs-elev figcaption span {
+  font-size: 13px;
+  color: rgba(255, 253, 248, 0.6);
+}
+
+/* The account in one line */
+.rs-shell .rs-ledger {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  align-items: stretch;
+  margin-top: 16px;
+  border-radius: 16px;
+  background: var(--r-surface);
+  box-shadow: var(--r-shadow);
+  overflow: hidden;
+}
+.rs-shell .rs-ledger-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 22px 26px;
+  transition: background 0.25s var(--r-ease);
+}
+.rs-shell .rs-ledger-item + .rs-ledger-item {
+  border-left: 1px solid var(--r-line-2);
+}
+.rs-shell .rs-ledger-item:hover {
+  background: var(--r-surface-2);
+}
+.rs-shell .rs-ledger-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--r-muted);
+}
+.rs-shell .rs-ledger-value {
+  font-stretch: 125%;
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--r-ink);
+}
+.rs-shell .rs-ledger-note {
+  font-size: 12.5px;
+  color: var(--r-muted);
+}
+.rs-shell .rs-ledger-item.is-alert .rs-ledger-value,
+.rs-shell .rs-ledger-item.is-alert .rs-ledger-note {
+  color: var(--r-danger);
+}
+.rs-shell .rs-ledger-item.is-clear .rs-ledger-value {
+  color: var(--r-green);
+}
+.rs-shell .rs-ledger-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 28px;
+  border-left: 1px solid var(--r-line-2);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--r-green);
+  white-space: nowrap;
+  transition: background 0.25s var(--r-ease);
+}
+.rs-shell .rs-ledger-link:hover {
+  background: var(--r-green-softer);
+}
+
+/* Two columns: what needs doing, and the home itself */
+.rs-shell .rs-home-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 380px);
+  gap: 18px;
+  margin-top: 18px;
+  align-items: start;
+}
+.rs-shell .rs-home-main,
+.rs-shell .rs-home-side {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+}
+
+/* attention items carry their urgency on the left edge */
+.rs-shell .rs-attention .rs-action {
+  border: none;
+  border-left: 3px solid var(--r-line);
+  border-radius: 10px;
+  background: var(--r-surface-2);
+  box-shadow: none;
+  padding: 14px 16px;
+}
+.rs-shell .rs-attention .rs-action.is-gold {
+  border-left-color: var(--r-gold);
+}
+.rs-shell .rs-attention .rs-action.is-alert {
+  border-left-color: var(--r-danger);
+}
+.rs-shell .rs-attention .rs-action:hover {
+  background: var(--r-green-softer);
+}
+
+/* works in the building: a bar per project */
+.rs-shell .rs-works {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.rs-shell .rs-work {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 4px;
+  border-top: 1px solid var(--r-line-2);
+}
+.rs-shell .rs-work:first-child {
+  border-top: none;
+}
+.rs-shell .rs-work-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+}
+.rs-shell .rs-work-head strong {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--r-ink);
+}
+.rs-shell .rs-work-pct {
+  font-stretch: 125%;
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--r-green);
+}
+.rs-shell .rs-work-bar {
+  position: relative;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--r-paper-2);
+  overflow: hidden;
+}
+.rs-shell .rs-work-bar > span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--r-green), var(--r-green-2));
+}
+.rs-shell .rs-work-meta {
+  font-size: 12.5px;
+  color: var(--r-muted);
+}
+
+/* the home card: the block photograph, then the residence */
+.rs-shell .rs-home-card {
+  padding: 0;
+  overflow: hidden;
+}
+.rs-shell .rs-home-photo {
+  position: relative;
+  height: 170px;
+}
+.rs-shell .rs-home-photo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.rs-shell .rs-home-photo-tag {
+  position: absolute;
+  left: 14px;
+  bottom: 12px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  background: rgba(24, 41, 32, 0.82);
+  color: #fffdf8;
+  font-size: 12px;
+  font-weight: 600;
+}
+.rs-shell .rs-home-body {
+  padding: 22px 24px 24px;
+}
+.rs-shell .rs-home-body h2 {
+  font-size: 15px;
+  font-stretch: 100%;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--r-muted);
+}
+.rs-shell .rs-home-body .rs-home-code {
+  margin-top: 4px;
+  font-size: 44px;
+  line-height: 1;
+  color: var(--r-ink);
+}
+.rs-shell .rs-home-body .rs-facts {
+  margin: 18px 0 16px;
+}
+
+@media (max-width: 1180px) {
+  .rs-shell .rs-home-columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 780px) {
+  .rs-shell .rs-welcome {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 26px;
+    padding: 26px 22px 24px;
+  }
+  .rs-shell .rs-welcome-actions .rs-btn {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+  .rs-shell .rs-ledger {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .rs-shell .rs-ledger-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 2px 14px;
+    padding: 15px 18px;
+  }
+  .rs-shell .rs-ledger-item + .rs-ledger-item {
+    border-left: none;
+    border-top: 1px solid var(--r-line-2);
+  }
+  .rs-shell .rs-ledger-value {
+    grid-row: 1 / span 2;
+    grid-column: 2;
+    align-self: center;
+    font-size: 24px;
+  }
+  .rs-shell .rs-ledger-link {
+    padding: 14px 18px;
+    border-left: none;
+    border-top: 1px solid var(--r-line-2);
+  }
+}

@@ -7,6 +7,7 @@ import './styles/layout.css';
 import './styles/portal.css';
 import './styles/portal-light.css';
 import './styles/resident.css';
+import './styles/resident-site.css';
 import './styles/site.css';
 import App from './App.tsx';
 import { AuthProvider } from './portal/AuthContext.tsx';
