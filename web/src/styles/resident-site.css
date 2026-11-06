@@ -1160,3 +1160,9 @@
 .rs-shell .rs-main {
   max-width: 1560px;
 }
+
+/* Our People and Meetings were capped at 1,080 px; they take the portal width like every page */
+.rs-shell .people-page,
+.rs-shell .talk-page {
+  max-width: none;
+}

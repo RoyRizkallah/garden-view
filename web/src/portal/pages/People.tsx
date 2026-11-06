@@ -120,7 +120,7 @@ export default function People() {
 
     const measure = () => {
       const width = stage.clientWidth;
-      setScale(Math.min(1.08, Math.max(0.72, width / DESIGN_WIDTH)));
+      setScale(Math.min(1.6, Math.max(0.72, width / DESIGN_WIDTH)));
     };
 
     measure();
