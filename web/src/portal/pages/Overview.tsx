@@ -14,8 +14,9 @@ import {
   IconBallot,
   IconClipboard,
   IconDocument,
-  IconArrowRight,
   IconCalendar,
+  IconWrench,
+  IconArrowRight,
   IconCheck,
   IconLayers,
   IconTag,
@@ -301,6 +302,20 @@ export default function Overview() {
           <span>
             <strong>Documents</strong>
             <span>Bylaws, minutes, financials</span>
+          </span>
+        </Link>
+        <Link to="/portal/services">
+          <IconWrench size={18} />
+          <span>
+            <strong>Home services</strong>
+            <span>A plumber, an electrician, a cleaner</span>
+          </span>
+        </Link>
+        <Link to="/portal/meetings">
+          <IconCalendar size={18} />
+          <span>
+            <strong>Meetings</strong>
+            <span>Agendas and notes</span>
           </span>
         </Link>
       </nav>

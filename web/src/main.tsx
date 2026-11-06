@@ -5,6 +5,7 @@ import './styles/fonts.css';
 import './styles/theme.css';
 import './styles/layout.css';
 import './styles/portal.css';
+import './styles/portal-light.css';
 import App from './App.tsx';
 import { AuthProvider } from './portal/AuthContext.tsx';
 

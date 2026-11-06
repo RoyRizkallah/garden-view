@@ -626,3 +626,137 @@ adminRouter.patch('/inquiries/:id', async (req, res) => {
   });
   res.json({ inquiry });
 });
+
+// ---------- Home services ----------
+adminRouter.get('/service-requests', async (_req, res) => {
+  const requests = await prisma.serviceRequest.findMany({
+    include: {
+      unit: { select: { block: true, number: true } },
+      account: { select: { name: true, email: true } },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+  res.json({ requests });
+});
+
+const serviceUpdateSchema = z.object({
+  status: z.enum(['SUBMITTED', 'IN_REVIEW', 'SCHEDULED', 'DONE', 'DECLINED']),
+  managementNote: z.string().trim().max(2000).optional(),
+});
+
+adminRouter.patch('/service-requests/:id', async (req, res) => {
+  const parsed = serviceUpdateSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: 'Invalid service request' });
+    return;
+  }
+  const request = await prisma.serviceRequest.update({
+    where: { id: req.params.id },
+    data: {
+      status: parsed.data.status,
+      ...(parsed.data.managementNote !== undefined ? { managementNote: parsed.data.managementNote || null } : {}),
+    },
+  });
+  res.json({ request });
+});
+
+// ---------- Meetings & agendas ----------
+const agendaItemSchema = z.object({
+  title: z.string().trim().min(1).max(200),
+  detail: z.string().trim().max(1000).optional(),
+});
+
+const meetingSchema = z.object({
+  title: z.string().trim().min(1).max(200),
+  startsAt: z.string().min(1),
+  location: z.string().trim().max(200).optional(),
+  summary: z.string().trim().max(2000).optional(),
+  notes: z.string().trim().max(8000).optional(),
+  status: z.enum(['SCHEDULED', 'HELD', 'CANCELLED']).optional(),
+  agenda: z.array(agendaItemSchema).max(30).default([]),
+});
+
+function meetingData(parsed: z.infer<typeof meetingSchema>) {
+  return {
+    title: parsed.title,
+    startsAt: new Date(parsed.startsAt),
+    location: parsed.location || null,
+    summary: parsed.summary || null,
+    notes: parsed.notes || null,
+    status: parsed.status ?? 'SCHEDULED',
+  };
+}
+
+adminRouter.get('/meetings', async (_req, res) => {
+  const meetings = await prisma.meeting.findMany({
+    include: { agenda: { orderBy: { order: 'asc' } } },
+    orderBy: { startsAt: 'desc' },
+  });
+  res.json({ meetings });
+});
+
+adminRouter.post('/meetings', async (req, res) => {
+  const parsed = meetingSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.issues[0]?.message ?? 'Check the meeting details' });
+    return;
+  }
+  if (Number.isNaN(new Date(parsed.data.startsAt).getTime())) {
+    res.status(400).json({ error: 'Enter a valid date and time' });
+    return;
+  }
+  const meeting = await prisma.meeting.create({
+    data: {
+      ...meetingData(parsed.data),
+      agenda: {
+        create: parsed.data.agenda.map((item, order) => ({
+          title: item.title,
+          detail: item.detail || null,
+          order,
+        })),
+      },
+    },
+    include: { agenda: { orderBy: { order: 'asc' } } },
+  });
+  res.status(201).json({ meeting });
+});
+
+adminRouter.patch('/meetings/:id', async (req, res) => {
+  const parsed = meetingSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.issues[0]?.message ?? 'Check the meeting details' });
+    return;
+  }
+  if (Number.isNaN(new Date(parsed.data.startsAt).getTime())) {
+    res.status(400).json({ error: 'Enter a valid date and time' });
+    return;
+  }
+  const existing = await prisma.meeting.findUnique({ where: { id: req.params.id } });
+  if (!existing) {
+    res.status(404).json({ error: 'Meeting not found' });
+    return;
+  }
+  const meeting = await prisma.$transaction(async (tx) => {
+    await tx.agendaItem.deleteMany({ where: { meetingId: existing.id } });
+    return tx.meeting.update({
+      where: { id: existing.id },
+      data: {
+        ...meetingData(parsed.data),
+        agenda: {
+          create: parsed.data.agenda.map((item, order) => ({
+            title: item.title,
+            detail: item.detail || null,
+            order,
+          })),
+        },
+      },
+      include: { agenda: { orderBy: { order: 'asc' } } },
+    });
+  });
+  res.json({ meeting });
+});
+
+adminRouter.delete('/meetings/:id', async (req, res) => {
+  await prisma.meeting.delete({ where: { id: req.params.id } });
+  res.json({ ok: true });
+});

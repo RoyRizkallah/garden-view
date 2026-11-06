@@ -46,6 +46,29 @@ enum InquiryStatus {
   CLOSED
 }
 
+enum ServiceCategory {
+  ELECTRICIAN
+  PLUMBER
+  AIR_CONDITIONING
+  CLEANING
+  HANDYMAN
+  OTHER
+}
+
+enum ServiceStatus {
+  SUBMITTED
+  IN_REVIEW
+  SCHEDULED
+  DONE
+  DECLINED
+}
+
+enum MeetingStatus {
+  SCHEDULED
+  HELD
+  CANCELLED
+}
+
 enum ListingType {
   SALE
   RENT
@@ -77,6 +100,7 @@ model Unit {
   requests        Request[]
   bookings        AmenityBooking[]
   listingRequests ListingRequest[]
+  serviceRequests ServiceRequest[]
 
   @@unique([block, number])
 }
@@ -142,6 +166,7 @@ model Account {
   requests        Request[]
   bookings        AmenityBooking[]
   listingRequests ListingRequest[]
+  serviceRequests ServiceRequest[]
 }
 
 model Charge {
@@ -256,4 +281,50 @@ model AmenityBooking {
   startTime String
   endTime   String
   createdAt DateTime     @default(now())
+}
+
+/// A resident's request for an outside trade. Garden View coordinates it; the provider is independent.
+model ServiceRequest {
+  id             String          @id @default(cuid())
+  category       ServiceCategory
+  description    String
+  timing         String?
+  status         ServiceStatus   @default(SUBMITTED)
+  managementNote String?
+  unitId         String
+  unit           Unit            @relation(fields: [unitId], references: [id])
+  accountId      String
+  account        Account         @relation(fields: [accountId], references: [id])
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@index([status])
+  @@index([unitId])
+}
+
+/// An owners' meeting, with the agenda residents read beforehand and the notes published afterwards.
+model Meeting {
+  id        String        @id @default(cuid())
+  title     String
+  startsAt  DateTime
+  location  String?
+  summary   String?
+  notes     String?
+  status    MeetingStatus @default(SCHEDULED)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  agenda    AgendaItem[]
+
+  @@index([startsAt])
+}
+
+model AgendaItem {
+  id        String  @id @default(cuid())
+  meetingId String
+  meeting   Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  title     String
+  detail    String?
+  order     Int     @default(0)
+
+  @@index([meetingId])
 }

@@ -28,6 +28,8 @@ const PortalRequests = lazy(() => import('./portal/pages/Requests'));
 const PortalDocuments = lazy(() => import('./portal/pages/Documents'));
 const PortalResidence = lazy(() => import('./portal/pages/Residence'));
 const PortalSellRent = lazy(() => import('./portal/pages/SellRent'));
+const PortalServices = lazy(() => import('./portal/pages/Services'));
+const PortalMeetings = lazy(() => import('./portal/pages/Meetings'));
 const PortalProfile = lazy(() => import('./portal/pages/Profile'));
 const AdminLayout = lazy(() => import('./portal/AdminLayout'));
 const AdminOverview = lazy(() => import('./portal/admin/Overview'));
@@ -38,6 +40,8 @@ const AdminRequests = lazy(() => import('./portal/admin/Requests'));
 const AdminResidents = lazy(() => import('./portal/admin/Residents'));
 const AdminDocuments = lazy(() => import('./portal/admin/Documents'));
 const AdminInquiries = lazy(() => import('./portal/admin/Inquiries'));
+const AdminServices = lazy(() => import('./portal/admin/Services'));
+const AdminMeetings = lazy(() => import('./portal/admin/Meetings'));
 const AdminListings = lazy(() => import('./portal/admin/Listings'));
 const AdminPhotos = lazy(() => import('./portal/admin/Photos'));
 
@@ -76,6 +80,8 @@ function App() {
           <Route path="projects" element={deferred(PortalProjects)} />
           <Route path="voting" element={deferred(PortalVoting)} />
           <Route path="requests" element={deferred(PortalRequests)} />
+          <Route path="services" element={deferred(PortalServices)} />
+          <Route path="meetings" element={deferred(PortalMeetings)} />
           <Route path="residence" element={deferred(PortalResidence)} />
           <Route path="sell-rent" element={deferred(PortalSellRent)} />
           <Route path="documents" element={deferred(PortalDocuments)} />
@@ -95,6 +101,8 @@ function App() {
           <Route path="photos" element={deferred(AdminPhotos)} />
           <Route path="documents" element={deferred(AdminDocuments)} />
           <Route path="inquiries" element={deferred(AdminInquiries)} />
+          <Route path="services" element={deferred(AdminServices)} />
+          <Route path="meetings" element={deferred(AdminMeetings)} />
           <Route path="profile" element={deferred(PortalProfile)} />
         </Route>
       </Route>

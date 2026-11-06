@@ -302,3 +302,66 @@ residentRouter.post('/listing-requests/:id/withdraw', async (req, res) => {
   });
   res.json({ listingRequest });
 });
+
+const SERVICE_CATEGORIES = ['ELECTRICIAN', 'PLUMBER', 'AIR_CONDITIONING', 'CLEANING', 'HANDYMAN', 'OTHER'] as const;
+
+const serviceRequestSchema = z.object({
+  category: z.enum(SERVICE_CATEGORIES),
+  description: z.string().trim().min(8, 'Describe the job in a sentence or two').max(2000),
+  timing: z.string().trim().max(160).optional(),
+});
+
+residentRouter.get('/service-requests', async (req, res) => {
+  const requests = await prisma.serviceRequest.findMany({
+    where: { accountId: req.user!.accountId },
+    orderBy: { createdAt: 'desc' },
+  });
+  res.json({ requests });
+});
+
+residentRouter.post('/service-requests', async (req, res) => {
+  const unitId = await getUnitId(req.user!.accountId);
+  if (!unitId) {
+    res.status(400).json({ error: 'No unit linked to this account' });
+    return;
+  }
+  const parsed = serviceRequestSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.issues[0]?.message ?? 'Describe what you need' });
+    return;
+  }
+  const request = await prisma.serviceRequest.create({
+    data: {
+      category: parsed.data.category,
+      description: parsed.data.description,
+      timing: parsed.data.timing || null,
+      unitId,
+      accountId: req.user!.accountId,
+    },
+  });
+  res.status(201).json({ request });
+});
+
+residentRouter.get('/meetings', async (_req, res) => {
+  const meetings = await prisma.meeting.findMany({
+    include: { agenda: { orderBy: { order: 'asc' } } },
+    orderBy: { startsAt: 'desc' },
+  });
+  res.json({
+    meetings: meetings.map((meeting) => ({
+      id: meeting.id,
+      title: meeting.title,
+      startsAt: meeting.startsAt,
+      location: meeting.location,
+      summary: meeting.summary,
+      status: meeting.status,
+      notes: meeting.status === 'HELD' ? meeting.notes : null,
+      agenda: meeting.agenda.map((item) => ({
+        id: item.id,
+        title: item.title,
+        detail: item.detail,
+        order: item.order,
+      })),
+    })),
+  });
+});

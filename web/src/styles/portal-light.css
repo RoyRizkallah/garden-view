@@ -1,0 +1,640 @@
+/* Resident portal: paper and garden green, with white cards. */
+
+.portal-shell-resident {
+  background: #f4f7f4;
+  color: #243028;
+}
+.portal-shell-resident .portal-sidebar {
+  background: #fff;
+  color: #243028;
+  border-right: 1px solid #e3eee4;
+}
+.portal-shell-resident .portal-sidebar-brand-block {
+  border-bottom-color: #e3eee4;
+}
+.portal-shell-resident .portal-sidebar-brand-block strong,
+.portal-shell-resident .portal-account strong {
+  color: #243028;
+}
+.portal-shell-resident .portal-nav a {
+  color: #3c4d43;
+  opacity: 1;
+}
+.portal-shell-resident .portal-nav a:hover {
+  background: #f3f8f3;
+}
+.portal-shell-resident .portal-nav a.is-active {
+  background: #e7f3e8;
+  color: var(--green);
+  border-left-color: var(--green);
+}
+.portal-shell-resident .portal-sidebar-footer {
+  border-top-color: #e3eee4;
+}
+.portal-shell-resident .portal-avatar {
+  background: #e7f3e8;
+  color: var(--green);
+}
+.portal-shell-resident .portal-sidebar .btn-outline {
+  border-color: #c5d7c8;
+  color: var(--green);
+}
+.portal-shell-resident .portal-sidebar .btn-outline:hover {
+  background: var(--green);
+  color: #fff;
+}
+.portal-shell-resident .portal-main {
+  color: #243028;
+  background: #f4f7f4;
+}
+.portal-shell-resident .portal-page h1 {
+  color: #1c2b22;
+}
+.portal-shell-resident .note-card {
+  color: #243028;
+  background: #fff;
+}
+
+.portal-shell-resident .portal-stat-card,
+.portal-shell-resident .portal-request-panel,
+.portal-shell-resident .portal-timeline-card,
+.portal-shell-resident .portal-project-card,
+.portal-shell-resident .portal-vote-card,
+.portal-shell-resident .portal-profile-card,
+.portal-shell-resident .portal-empty,
+.portal-shell-resident .portal-ledger-row,
+.portal-shell-resident .portal-project-row,
+.portal-shell-resident .portal-bento-action,
+.portal-charge-summary,
+.portal-charge-table,
+.portal-charge-table-head,
+.portal-charge-table-row,
+.portal-residence-summary,
+.portal-doc-row {
+  background: #fff;
+  color: #243028;
+  border-color: #e3eee4;
+}
+.portal-doc-category-icon {
+  background: #e7f3e8;
+  color: var(--green);
+  border-color: #d5e6d6;
+}
+.portal-shell-resident .portal-stat-value,
+.portal-shell-resident .vote-donut-center strong,
+.portal-shell-resident .portal-empty,
+.portal-shell-resident .portal-empty p,
+.lm-how li,
+.lm-how strong,
+.rs-block-lede,
+.portal-residence-summary-desc {
+  color: #243028;
+}
+.lm-how li,
+.rs-block-lede,
+.portal-residence-summary-desc {
+  color: #5d6e64;
+}
+.portal-shell-resident .portal-request-panel input,
+.portal-shell-resident .portal-request-panel select,
+.portal-shell-resident .portal-request-panel textarea {
+  background: #fff;
+  border-color: #d5e3d7;
+  color: #243028;
+}
+.portal-shell-resident .portal-request-panel input::placeholder,
+.portal-shell-resident .portal-request-panel textarea::placeholder {
+  color: #8a978e;
+}
+.portal-residence-summary-item,
+.portal-charge-summary-item,
+.portal-shell-resident .portal-timeline-dot {
+  border-color: #e3eee4;
+}
+.portal-residence-summary-icon {
+  background: #eef6ee;
+  color: var(--green);
+  border-color: #d5e6d6;
+}
+.portal-shell-resident .portal-vote-card-featured {
+  background: linear-gradient(180deg, #f3f8f3, #fff 140px);
+}
+.portal-shell-resident .portal-vote-result,
+.portal-shell-resident .portal-timeline::before {
+  background: #e7f0e8;
+}
+.portal-shell-resident .portal-badge-closed {
+  background: #eef2ee;
+  color: #5d6e64;
+}
+.portal-shell-resident .portal-badge-paid,
+.portal-shell-resident .portal-badge-in_progress,
+.portal-shell-resident .portal-badge-resolved {
+  background: #e5f2e6;
+  color: var(--green);
+}
+
+@media (max-width: 960px) {
+  .portal-shell-resident .portal-mobile-bar {
+    background: #fff;
+    color: #243028;
+    box-shadow: 0 1px 0 #e3eee4;
+  }
+  .portal-shell-resident .portal-mobile-brand {
+    color: #1c2b22;
+  }
+  .portal-shell-resident .portal-mobile-account {
+    border-color: #c5d7c8;
+    color: var(--green);
+  }
+  .portal-shell-resident .portal-tab-bar {
+    background: #fff;
+    box-shadow: 0 -1px 0 #e3eee4;
+  }
+  .portal-shell-resident .portal-tab-bar a,
+  .portal-shell-resident .portal-more-btn {
+    color: #6b7c72;
+    opacity: 1;
+  }
+  .portal-shell-resident .portal-tab-bar a.is-active,
+  .portal-shell-resident .portal-more-btn.is-active {
+    color: var(--green);
+  }
+}
+
+.portal-more-btn {
+  display: none;
+}
+.portal-more {
+  position: fixed;
+  inset: 0;
+  z-index: 140;
+  background: rgba(24, 41, 32, 0.28);
+}
+.portal-more-sheet {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: calc(76px + env(safe-area-inset-bottom));
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  padding: 10px;
+  border-radius: 18px;
+  background: #fff;
+  border: 1px solid #e3eee4;
+}
+.portal-more-sheet a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #243028;
+}
+.portal-more-sheet a.is-active,
+.portal-more-sheet a:hover {
+  background: #e7f3e8;
+  color: var(--green);
+}
+@media (max-width: 960px) {
+  .portal-more-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 6px 2px;
+    font-size: 9px;
+    font-weight: 600;
+    background: none;
+  }
+}
+
+/* ---------- SERVICES ---------- */
+.svc-page h1,
+.mtg-page h1 {
+  margin-bottom: 8px;
+  font-size: clamp(34px, 4vw, 48px);
+  letter-spacing: -0.02em;
+}
+.svc-head,
+.mtg-page .svc-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  padding-top: 36px;
+  margin-bottom: 22px;
+}
+.svc-head p,
+.mtg-page .svc-head p {
+  max-width: 46ch;
+  color: #5d6e64;
+  font-size: 16px;
+}
+.svc-kicker {
+  margin-bottom: 8px;
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #6d8f78;
+}
+.svc-add {
+  width: 46px;
+  height: 46px;
+  flex: none;
+  border-radius: 12px;
+  background: var(--green);
+  color: #fff;
+  font-size: 28px;
+  line-height: 1;
+}
+.svc-add:hover {
+  background: var(--green-dark);
+}
+.svc-promise {
+  display: flex;
+  gap: 14px;
+  padding: 18px 20px;
+  margin-bottom: 22px;
+  border-radius: 16px;
+  background: #e7f3e6;
+  color: #243028;
+}
+.svc-promise strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 16px;
+}
+.svc-promise p {
+  max-width: 78ch;
+  font-size: 14px;
+  line-height: 1.55;
+  color: #3f5347;
+}
+.svc-promise-icon {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: #fff;
+  color: var(--green);
+}
+.svc-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.svc-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-height: 210px;
+  padding: 22px;
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid #e6eee7;
+}
+.svc-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+  border-radius: 12px;
+  background: #eef6ee;
+  color: #3d6a4c;
+}
+.svc-card h2 {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-weight: 500;
+  color: #1c2b22;
+}
+.svc-card p {
+  margin: 6px 0 18px;
+  color: #6b7c72;
+  font-size: 14.5px;
+}
+.svc-card button {
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--green);
+  font-size: 14.5px;
+  font-weight: 600;
+}
+.svc-card button:hover {
+  gap: 10px;
+}
+.svc-yours {
+  margin-top: 28px;
+}
+.svc-yours h2,
+.mtg-section h2 {
+  margin-bottom: 12px;
+  font-size: 22px;
+}
+.svc-yours > p,
+.mtg-empty p {
+  color: #5d6e64;
+}
+.svc-yours ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.svc-yours li {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid #e6eee7;
+}
+.svc-yours strong,
+.svc-yours span,
+.svc-yours em {
+  display: block;
+}
+.svc-yours span,
+.svc-yours em {
+  margin-top: 4px;
+  color: #5d6e64;
+  font-size: 14px;
+}
+.svc-yours em {
+  font-style: normal;
+  color: var(--green);
+}
+.svc-status {
+  flex: none;
+  align-self: flex-start;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #eef6ee;
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 650;
+}
+.svc-status.is-declined {
+  background: #f6eee8;
+  color: #8a5a3c;
+}
+.svc-drawer-back {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: rgba(24, 41, 32, 0.28);
+  display: flex;
+  justify-content: flex-end;
+}
+.svc-drawer {
+  width: min(420px, 100%);
+  height: 100%;
+  overflow: auto;
+  padding: 28px 24px 40px;
+  background: #f7faf7;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.svc-drawer header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.svc-drawer header p {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #6d8f78;
+}
+.svc-drawer h2 {
+  font-size: 28px;
+}
+.svc-drawer label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 650;
+  color: #3c4d43;
+}
+.svc-drawer input,
+.svc-drawer textarea,
+.svc-drawer select {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #d5e3d7;
+  background: #fff;
+  font: inherit;
+  font-weight: 450;
+  color: #243028;
+}
+.svc-error {
+  color: #8a3d32;
+  font-size: 14px;
+}
+
+/* ---------- MEETINGS ---------- */
+.mtg-empty,
+.mtg-card {
+  display: flex;
+  gap: 18px;
+  padding: 20px;
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid #e6eee7;
+}
+.mtg-empty {
+  align-items: center;
+  color: var(--green);
+}
+.mtg-empty strong,
+.mtg-card h3 {
+  color: #1c2b22;
+}
+.mtg-section {
+  margin-top: 8px;
+}
+.mtg-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.mtg-card time {
+  width: 76px;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 0;
+  border-radius: 14px;
+  background: #e7f3e6;
+  color: var(--green);
+}
+.mtg-card time strong {
+  font-family: var(--font-serif);
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 1;
+  color: #1c2b22;
+}
+.mtg-card time span,
+.mtg-card time em {
+  font-size: 12px;
+  font-style: normal;
+}
+.mtg-status {
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6d8f78;
+}
+.mtg-card.is-cancelled .mtg-status {
+  color: #8a5a3c;
+}
+.mtg-card h3 {
+  margin: 4px 0;
+  font-size: 26px;
+  font-weight: 500;
+}
+.mtg-when {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  color: #5d6e64;
+  font-size: 14px;
+}
+.mtg-summary {
+  margin-top: 8px;
+  max-width: 68ch;
+  color: #3c4d43;
+}
+.mtg-agenda {
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: agenda;
+}
+.mtg-agenda li {
+  counter-increment: agenda;
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 4px 10px;
+  padding: 10px 0;
+  border-top: 1px solid #e6eee7;
+}
+.mtg-agenda li::before {
+  content: counter(agenda, decimal-leading-zero);
+  grid-row: span 2;
+  font-family: var(--font-serif);
+  color: #6d8f78;
+}
+.mtg-agenda span {
+  color: #5d6e64;
+  font-size: 14px;
+}
+.mtg-notes {
+  margin-top: 14px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: #f3f8f3;
+  white-space: pre-wrap;
+  color: #243028;
+}
+.mtg-notes p {
+  margin-bottom: 6px;
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #6d8f78;
+}
+
+.svc-admin article,
+.mtg-admin-list article {
+  padding: 16px 0;
+  border-top: 1px solid var(--cream-dark);
+}
+.svc-admin article:first-child,
+.mtg-admin-list article:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+.svc-admin header,
+.mtg-admin-list header,
+.mtg-admin-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+.svc-admin header span,
+.mtg-admin-list header span {
+  display: block;
+  color: #7a7968;
+  font-size: 13px;
+}
+.svc-admin p {
+  margin: 8px 0;
+}
+.svc-admin label,
+.mtg-admin-form .form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.svc-admin select,
+.svc-admin textarea {
+  border: 1px solid var(--cream-dark);
+  border-radius: 10px;
+  padding: 8px 10px;
+  background: #fff;
+}
+.mtg-admin-form,
+.mtg-admin-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.mtg-admin-form h2 {
+  font-size: 22px;
+}
+.mtg-admin-agenda {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.mtg-admin-list ol {
+  margin: 8px 0 0 18px;
+}
+.mtg-admin-list header div:last-child {
+  display: flex;
+  gap: 8px;
+}
+
+@media (max-width: 900px) {
+  .svc-grid {
+    grid-template-columns: 1fr;
+  }
+  .mtg-card,
+  .svc-yours li {
+    flex-direction: column;
+  }
+}

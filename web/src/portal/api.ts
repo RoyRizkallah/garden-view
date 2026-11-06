@@ -90,6 +90,37 @@ export type ResidentRequest = {
   createdAt: string;
 };
 
+export type ServiceCategory = 'ELECTRICIAN' | 'PLUMBER' | 'AIR_CONDITIONING' | 'CLEANING' | 'HANDYMAN' | 'OTHER';
+export type ServiceStatus = 'SUBMITTED' | 'IN_REVIEW' | 'SCHEDULED' | 'DONE' | 'DECLINED';
+export type ServiceRequest = {
+  id: string;
+  category: ServiceCategory;
+  description: string;
+  timing: string | null;
+  status: ServiceStatus;
+  managementNote: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+export type AdminServiceRequest = ServiceRequest & {
+  unit: { block: string; number: string };
+  account: { name: string; email: string };
+};
+
+export type MeetingStatus = 'SCHEDULED' | 'HELD' | 'CANCELLED';
+export type AgendaItem = { id: string; title: string; detail: string | null; order: number };
+export type ResidentMeeting = {
+  id: string;
+  title: string;
+  startsAt: string;
+  location: string | null;
+  summary: string | null;
+  status: MeetingStatus;
+  notes: string | null;
+  agenda: AgendaItem[];
+};
+export type AdminMeeting = ResidentMeeting & { notes: string | null };
+
 export type GvDocument = { id: string; title: string; category: string; fileUrl: string; createdAt: string };
 
 export type AmenitySpace = { id: string; name: string };
