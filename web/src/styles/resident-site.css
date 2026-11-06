@@ -1345,3 +1345,72 @@
     height: 32px;
   }
 }
+
+/* ==========================================================================
+   The team in the garden: medallions in the crowns and on the lawn.
+   ========================================================================== */
+.rs-shell .pt-badge-node {
+  position: absolute;
+  z-index: 2;
+  transform: translate(-50%, -50%);
+}
+.rs-shell .pt-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.rs-shell .pt-badge-avatar {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: rgba(255, 253, 248, 0.92);
+  border: 2px dashed rgba(47, 74, 58, 0.45);
+  color: var(--r-green);
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 6px 14px -6px rgba(24, 41, 32, 0.55);
+  transition: transform 0.25s var(--r-ease);
+}
+.rs-shell .pt-badge-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* in the crowns, the guards hang like gold-ringed medallions */
+.rs-shell .is-security .pt-badge-avatar {
+  border: 2px solid var(--r-gold);
+}
+.rs-shell .pt-badge.is-known .pt-badge-avatar {
+  border-style: solid;
+  background: var(--r-green);
+  color: #fffdf8;
+}
+.rs-shell .pt-badge-label {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(255, 253, 248, 0.94);
+  color: var(--r-ink);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px -2px rgba(24, 41, 32, 0.35);
+}
+.rs-shell a.pt-badge:hover .pt-badge-avatar,
+.rs-shell .pt-badge:hover .pt-badge-avatar {
+  transform: translateY(-2px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .rs-shell .pt-badge:hover .pt-badge-avatar {
+    transform: none;
+  }
+}
+/* on wide screens the team lives in the garden; the grouped list is the phone layout */
+@media (min-width: 881px) {
+  .rs-shell .pt-crew {
+    display: none;
+  }
+}

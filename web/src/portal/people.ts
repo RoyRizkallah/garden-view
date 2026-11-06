@@ -22,6 +22,8 @@ const places = (count: number): TeamMember[] => Array.from({ length: count }, ()
  * The team that runs the building day to day. Each group has one place per person; fill in
  * a member's name and phone (and a photo path, if there is one) when they are known, e.g.
  * replace `...places(9)` with `{ name: 'Georges', phone: '+961 70 000 000' }, ...places(8)`.
+ * Each person also has a spot in the garden (GARDEN_SPOTS in pages/People.tsx); a group that
+ * grows needs a spot added there to appear in the garden (the phone list shows everyone).
  */
 export const TEAM_GROUPS: { role: string; singular: string; plural: string; members: TeamMember[] }[] = [
   { role: 'Security', singular: 'guard', plural: 'guards', members: places(9) },

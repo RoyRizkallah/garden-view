@@ -87,6 +87,46 @@ const GROUP_ICON: Record<string, typeof IconShield> = {
   Concierge: IconConcierge,
 };
 
+/**
+ * Where each team member stands in the garden, in scene units (1000 × 660): the security
+ * guards hang in the three crowns, the cleaners and the concierge stand on the lawn
+ * between the manager and the assistant.
+ */
+const GARDEN_SPOTS: Record<string, [number, number][]> = {
+  Security: [
+    [205, 198], [300, 190], [252, 284],
+    [452, 150], [592, 150], [522, 100],
+    [752, 200], [840, 192], [796, 284],
+  ],
+  Cleaning: [[462, 548], [538, 548]],
+  Concierge: [[500, 620]],
+};
+
+/** A team member as a medallion in the garden: the role until the person is known. */
+function GardenBadge({ member, role }: { member: TeamMember; role: string }) {
+  const Icon = GROUP_ICON[role] ?? IconUser;
+  const known = Boolean(member.name);
+  const first = member.name?.split(' ')[0];
+  const body = (
+    <>
+      <span className="pt-badge-avatar" aria-hidden="true">
+        {member.photo ? <img src={member.photo} alt="" width={88} height={88} loading="lazy" /> : known ? initials(member.name!) : <Icon size={18} />}
+      </span>
+      <span className="pt-badge-label">{known ? first : role}</span>
+    </>
+  );
+  const label = known ? `${member.name}, ${role}` : `${role}: name to come`;
+  return member.phone ? (
+    <a className="pt-badge is-known" href={tel(member.phone)} title={`${label} · ${member.phone}`} aria-label={`Call ${label}`}>
+      {body}
+    </a>
+  ) : (
+    <span className={`pt-badge${known ? ' is-known' : ''}`} title={label} aria-label={label} role="img">
+      {body}
+    </span>
+  );
+}
+
 /** One place in a team group: the person once known, an outlined place until then. */
 function TeamPlace({ member }: { member: TeamMember }) {
   const known = Boolean(member.name);
@@ -307,6 +347,21 @@ export default function People() {
               <div className="pt-node pt-node-manager" style={{ left: '28%', top: '79%' }}>
                 <PersonCard person={manager} />
               </div>
+            )}
+
+            {TEAM_GROUPS.flatMap((group) =>
+              group.members.slice(0, GARDEN_SPOTS[group.role]?.length ?? 0).map((member, index) => {
+                const [x, y] = GARDEN_SPOTS[group.role][index];
+                return (
+                  <div
+                    key={`${group.role}-${index}`}
+                    className={`pt-badge-node is-${group.role.toLowerCase()}`}
+                    style={{ left: `${(x / DESIGN_WIDTH) * 100}%`, top: `${(y / DESIGN_HEIGHT) * 100}%` }}
+                  >
+                    <GardenBadge member={member} role={group.role} />
+                  </div>
+                );
+              }),
             )}
 
             {assistant && (
