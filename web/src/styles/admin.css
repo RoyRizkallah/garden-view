@@ -315,12 +315,6 @@
   color: var(--green);
   background: rgba(74, 107, 86, 0.14);
 }
-.ad-note-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--gold);
-}
 .ad-chevron {
   color: #b3ae9c;
   transition: transform 0.25s var(--ease);

@@ -6,8 +6,8 @@ import { UNIT_KIND_LABEL } from '../../data/buildingExplorer';
 import BulkAccess from './BulkAccess';
 
 // The owner directory: every registered home, who owns it, and whether they can sign in to the
-// resident portal. One line per home; a line opens to the directory's notes and, for homes
-// without an account yet, a form that creates one and hands back ready-to-send sign-in details.
+// resident portal. One line per home; a line opens to the sign-in form for homes without an
+// account yet, and hands back ready-to-send sign-in details.
 
 const BLOCKS = ['All', 'A', 'B', 'C'] as const;
 const ACCESS = ['All', 'Invited', 'Not yet'] as const;
@@ -139,19 +139,12 @@ export default function AdminResidents() {
                   ) : (
                     <span className="ad-pill">No access yet</span>
                   )}
-                  {u.dataNotes && <span className="ad-note-dot" title="The directory has a note on this home" />}
                 </span>
                 <IconChevronRight size={16} className="ad-chevron" />
               </button>
 
               {isOpen && (
                 <div className="ad-detail">
-                  {u.dataNotes && (
-                    <div className="ad-import-note">
-                      <p className="ad-label">Note from the owner directory</p>
-                      <p>{u.dataNotes.replace(/\s*--\s*/g, ' · ')}</p>
-                    </div>
-                  )}
                   {u.registrationNo && (
                     <p className="ad-meta">
                       Registration {u.registrationNo}
