@@ -1,8 +1,8 @@
 import { useLayoutEffect, useRef, useState } from 'react';
-import { PEOPLE, TEAM } from '../people';
+import { PEOPLE, TEAM_GROUPS, type TeamMember } from '../people';
 import { initials } from '../names';
 import PageHeader from '../PageHeader';
-import { IconPhone } from '../../components/Icons';
+import { IconPhone, IconShield, IconSparkle, IconConcierge, IconUser } from '../../components/Icons';
 import '../../styles/people.css';
 
 type PersonLike = { name: string; role: string; phone: string; photo?: string };
@@ -63,18 +63,51 @@ const OVERHANG = [
   ...scatter(400, 30, 90, 36, 34, 2.2, ['#3f5a3a', '#4f6b48', '#5e7a55']),
 ];
 
-/** windows of the wall beyond: [x, y] of each */
-const WINDOWS = [150, 290, 430, 570, 710, 850].flatMap((x) => [
-  [x, 36],
-  [x, 150],
-]);
+/** windows of the wall beyond, [x, y], every 140 units across the visible width */
+function windowsFor(extra: number): [number, number][] {
+  const first = 150 - Math.ceil(extra / 140) * 140;
+  const out: [number, number][] = [];
+  for (let x = first; x < DESIGN_WIDTH + extra; x += 140) out.push([x, 36], [x, 150]);
+  return out;
+}
 
-/** the hedge along the kerb: [x, half-width, tone] */
-const HEDGE = Array.from({ length: 24 }, (_, index) => [
-  index * 44 + 10,
-  32 + (index % 3) * 4,
-  index % 2 ? '#4f6a4c' : '#5b7756',
-] as [number, number, string]);
+/** the hedge along the kerb, [x, half-width, tone], across the visible width */
+function hedgeFor(extra: number): [number, number, string][] {
+  const first = 10 - Math.ceil(extra / 44) * 44;
+  const out: [number, number, string][] = [];
+  for (let x = first, index = 0; x < DESIGN_WIDTH + extra + 44; x += 44, index += 1) {
+    out.push([x, 32 + (Math.abs(index) % 3) * 4, index % 2 ? '#4f6a4c' : '#5b7756']);
+  }
+  return out;
+}
+
+const GROUP_ICON: Record<string, typeof IconShield> = {
+  Security: IconShield,
+  Cleaning: IconSparkle,
+  Concierge: IconConcierge,
+};
+
+/** One place in a team group: the person once known, an outlined place until then. */
+function TeamPlace({ member }: { member: TeamMember }) {
+  const known = Boolean(member.name);
+  return (
+    <li className={`pt-place${known ? '' : ' is-open'}`}>
+      <span className="pt-place-avatar" aria-hidden="true">
+        {member.photo ? <img src={member.photo} alt="" width={80} height={80} loading="lazy" /> : known ? initials(member.name!) : <IconUser size={16} />}
+      </span>
+      <span className="pt-place-text">
+        <strong>{member.name ?? 'Name to come'}</strong>
+        {member.phone ? (
+          <a href={tel(member.phone)}>
+            <IconPhone size={11} /> {member.phone}
+          </a>
+        ) : (
+          <span>Details to come</span>
+        )}
+      </span>
+    </li>
+  );
+}
 
 function PersonCard({ person, lead = false }: { person: PersonLike; lead?: boolean }) {
   const Heading = lead ? 'h2' : 'h3';
@@ -110,17 +143,21 @@ export default function People() {
   const callPerson = manager ?? chairman;
 
   const stageRef = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(1);
+  const [view, setView] = useState({ scale: 1, extra: 0 });
+  const { scale, extra } = view;
+  const span = DESIGN_WIDTH + 2 * extra;
 
-  // The garden is drawn at a fixed 1000 × 660 so the trees, lawn and cards
-  // stay in register; the whole canvas is then scaled as one piece.
+  // The garden is drawn at a fixed 1000 × 660 so the trees, lawn and cards stay in register,
+  // and the canvas is scaled as one piece, up to 1.3×. On a wider stage the backdrop (wall,
+  // hedge, kerb, lawn) extends by `extra` units on each side so the scene always fills it.
   useLayoutEffect(() => {
     const stage = stageRef.current;
     if (!stage) return;
 
     const measure = () => {
       const width = stage.clientWidth;
-      setScale(Math.min(1.6, Math.max(0.72, width / DESIGN_WIDTH)));
+      const next = Math.min(1.3, Math.max(0.72, width / DESIGN_WIDTH));
+      setView({ scale: next, extra: Math.max(0, (width / next - DESIGN_WIDTH) / 2) });
     };
 
     measure();
@@ -145,7 +182,13 @@ export default function People() {
       <div className="pt-stage-wrap">
         <div className="pt-stage" ref={stageRef} style={{ height: DESIGN_HEIGHT * scale }}>
           <div className="pt-canvas" style={{ transform: `scale(${scale})` }}>
-            <svg className="pt-tree pt-garden" viewBox={`0 0 ${DESIGN_WIDTH} ${DESIGN_HEIGHT}`} fill="none" aria-hidden="true">
+            <svg
+              className="pt-tree pt-garden"
+              viewBox={`${-extra} 0 ${span} ${DESIGN_HEIGHT}`}
+              style={{ left: -extra, width: span }}
+              fill="none"
+              aria-hidden="true"
+            >
               <defs>
                 <linearGradient id="gw-wall" x1="0" y1="0" x2="0" y2={GROUND_Y} gradientUnits="userSpaceOnUse">
                   <stop stopColor="#f4f0e7" />
@@ -174,29 +217,29 @@ export default function People() {
               </defs>
 
               {/* the building's limestone wall, with its windows, beyond the garden */}
-              <rect width={DESIGN_WIDTH} height={GROUND_Y} fill="url(#gw-wall)" />
+              <rect x={-extra} width={span} height={GROUND_Y} fill="url(#gw-wall)" />
               <g className="pt-g-windows" fill="#d8cfbd" opacity="0.6">
-                {WINDOWS.map(([x, y], index) => (
+                {windowsFor(extra).map(([x, y], index) => (
                   <g key={index}>
                     <rect x={x} y={y} width="62" height="74" rx="2" />
                     <path d={`M${x + 31} ${y}V${y + 74}`} stroke="#efe9dc" strokeWidth="2" />
                   </g>
                 ))}
               </g>
-              <rect width={DESIGN_WIDTH} height={GROUND_Y} fill="url(#gw-sun)" />
+              <rect x={-extra} width={span} height={GROUND_Y} fill="url(#gw-sun)" />
 
               {/* clipped hedge on a stone kerb */}
               <g className="pt-g-hedge">
-                {HEDGE.map(([x, rx, tone], index) => (
+                {hedgeFor(extra).map(([x, rx, tone], index) => (
                   <ellipse key={index} cx={x} cy={GROUND_Y - 22} rx={rx} ry="24" fill={tone} />
                 ))}
               </g>
-              <rect y={GROUND_Y - 8} width={DESIGN_WIDTH} height="14" fill="#d9cdb6" />
-              <rect y={GROUND_Y - 8} width={DESIGN_WIDTH} height="3" fill="#efe7d6" />
+              <rect x={-extra} y={GROUND_Y - 8} width={span} height="14" fill="#d9cdb6" />
+              <rect x={-extra} y={GROUND_Y - 8} width={span} height="3" fill="#efe7d6" />
 
               {/* the lawn */}
-              <rect y={GROUND_Y + 6} width={DESIGN_WIDTH} height={DESIGN_HEIGHT - GROUND_Y} fill="url(#gw-lawn)" />
-              <rect y={GROUND_Y + 6} width={DESIGN_WIDTH} height={DESIGN_HEIGHT - GROUND_Y} fill="url(#gw-clover)" />
+              <rect x={-extra} y={GROUND_Y + 6} width={span} height={DESIGN_HEIGHT - GROUND_Y} fill="url(#gw-lawn)" />
+              <rect x={-extra} y={GROUND_Y + 6} width={span} height={DESIGN_HEIGHT - GROUND_Y} fill="url(#gw-clover)" />
 
               {/* the garden's trees: shadows, trunks, then silvery crowns */}
               {GARDEN_TREES.map((tree, index) => (
@@ -232,6 +275,7 @@ export default function People() {
               ))}
 
               {/* the old trunk that frames the view from the left, its branch reaching across the top */}
+              <g transform={`translate(${-extra} 0)`}>
               <g transform="scale(0.6 1)">
                 <path
                   d="M0 660V0H58C70 40 64 90 80 140C92 178 118 196 132 236C146 276 128 330 136 380C144 432 166 470 160 520C154 572 128 610 132 660Z"
@@ -251,6 +295,7 @@ export default function People() {
                     transform={`translate(${leaf.x.toFixed(1)} ${leaf.y.toFixed(1)}) rotate(${leaf.rotation.toFixed(1)}) scale(${leaf.scale.toFixed(2)})`}
                   />
                 ))}
+              </g>
               </g>
             </svg>
 
@@ -293,16 +338,39 @@ export default function People() {
         <p className="pt-m-root">Garden View · Beirut Central District</p>
       </div>
 
-      {TEAM.length > 0 && (
-        <section className="pt-team" aria-labelledby="wider-team">
-          <h2 id="wider-team">The wider team</h2>
-          <div className="pt-team-grid">
-            {TEAM.map((person) => (
-              <PersonCard key={person.name} person={person} />
-            ))}
-          </div>
-        </section>
-      )}
+      <section className="pt-crew" aria-labelledby="the-team">
+        <div className="pt-crew-head">
+          <h2 id="the-team">The team on the ground</h2>
+          <p>
+            {TEAM_GROUPS.reduce((sum, group) => sum + group.members.length, 0)} people look after the building every
+            day. Their names and numbers are added here as they are confirmed.
+          </p>
+        </div>
+        <div className="pt-crew-groups">
+          {TEAM_GROUPS.map((group) => {
+            const Icon = GROUP_ICON[group.role] ?? IconUser;
+            const count = group.members.length;
+            return (
+              <article key={group.role} className={`pt-crew-group is-${group.role.toLowerCase()}`}>
+                <header>
+                  <span className="pt-crew-icon">
+                    <Icon size={18} />
+                  </span>
+                  <h3>{group.role}</h3>
+                  <span className="pt-crew-count">
+                    {count} {count === 1 ? group.singular : group.plural}
+                  </span>
+                </header>
+                <ul className="pt-places">
+                  {group.members.map((member, index) => (
+                    <TeamPlace key={`${group.role}-${index}`} member={member} />
+                  ))}
+                </ul>
+              </article>
+            );
+          })}
+        </div>
+      </section>
 
       <p className="pt-note">
         For anything else, the manager&rsquo;s office is your first point of contact.

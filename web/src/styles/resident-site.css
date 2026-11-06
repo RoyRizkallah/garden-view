@@ -1166,3 +1166,182 @@
 .rs-shell .talk-page {
   max-width: none;
 }
+
+/* ==========================================================================
+   Our People: the team on the ground, one place per person.
+   ========================================================================== */
+.rs-shell .pt-crew {
+  margin-top: 28px;
+}
+.rs-shell .pt-crew-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 10px 32px;
+  margin-bottom: 16px;
+}
+.rs-shell .pt-crew-head h2 {
+  font-size: clamp(24px, 2.4vw, 32px);
+}
+.rs-shell .pt-crew-head p {
+  max-width: 52ch;
+  font-size: 14.5px;
+  color: var(--r-muted);
+}
+/* security (nine) takes the wide column; cleaning and concierge stack beside it */
+.rs-shell .pt-crew-groups {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  gap: 16px;
+}
+.rs-shell .pt-crew-group {
+  padding: 22px 24px 24px;
+  border-radius: 16px;
+  background: var(--r-surface);
+  box-shadow: var(--r-shadow);
+}
+.rs-shell .pt-crew-group.is-security {
+  grid-row: 1 / span 2;
+  background:
+    radial-gradient(120% 140% at 100% 0%, rgba(201, 167, 105, 0.12), rgba(201, 167, 105, 0) 55%),
+    var(--r-deep);
+  color: #fffdf8;
+}
+.rs-shell .pt-crew-group header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.rs-shell .pt-crew-group h3 {
+  font-size: 19px;
+  color: inherit;
+}
+.rs-shell .pt-crew-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--r-green-soft);
+  color: var(--r-green);
+}
+.rs-shell .is-security .pt-crew-icon {
+  background: rgba(201, 167, 105, 0.16);
+  color: var(--r-gold);
+}
+.rs-shell .pt-crew-count {
+  margin-left: auto;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--r-gold-soft);
+  color: var(--r-gold-ink);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.rs-shell .is-security .pt-crew-count {
+  background: var(--r-gold);
+  color: #131310;
+}
+.rs-shell .pt-places {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.rs-shell .pt-place {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 12px;
+  border-radius: 12px;
+  background: var(--r-surface-2);
+}
+.rs-shell .is-security .pt-place {
+  background: rgba(255, 253, 248, 0.06);
+}
+.rs-shell .pt-place-avatar {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--r-green);
+  color: #fffdf8;
+  font-size: 13px;
+  font-weight: 700;
+}
+.rs-shell .pt-place-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* a place not yet filled: an outlined seat */
+.rs-shell .pt-place.is-open .pt-place-avatar {
+  background: transparent;
+  border: 1.5px dashed var(--r-line);
+  color: var(--r-faint);
+}
+.rs-shell .is-security .pt-place.is-open .pt-place-avatar {
+  border-color: rgba(255, 253, 248, 0.3);
+  color: rgba(255, 253, 248, 0.55);
+}
+.rs-shell .pt-place-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.35;
+}
+.rs-shell .pt-place-text strong {
+  font-size: 14px;
+  font-weight: 600;
+}
+.rs-shell .pt-place-text span,
+.rs-shell .pt-place-text a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.5px;
+  color: var(--r-muted);
+}
+.rs-shell .pt-place.is-open .pt-place-text strong {
+  color: var(--r-faint);
+  font-weight: 500;
+}
+.rs-shell .is-security .pt-place-text strong {
+  color: #fffdf8;
+}
+.rs-shell .is-security .pt-place.is-open .pt-place-text strong,
+.rs-shell .is-security .pt-place-text span,
+.rs-shell .is-security .pt-place-text a {
+  color: rgba(255, 253, 248, 0.6);
+}
+@media (max-width: 1080px) {
+  .rs-shell .pt-crew-groups {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .rs-shell .pt-crew-group.is-security {
+    grid-row: auto;
+  }
+}
+
+@media (max-width: 560px) {
+  .rs-shell .pt-places {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .rs-shell .pt-place {
+    padding: 10px;
+    gap: 9px;
+  }
+  .rs-shell .pt-place-avatar {
+    width: 32px;
+    height: 32px;
+  }
+}
