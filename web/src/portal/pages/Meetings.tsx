@@ -55,15 +55,18 @@ export default function Meetings() {
 
   return (
     <div className="portal-page talk-page">
-      <header className="svc-head">
+      <header className="svc-head talk-head">
         <div>
           <p className="svc-kicker">Good conversations start with clarity</p>
-          <h1>Time to talk.</h1>
-          <p>Book a management meeting and see what is on the building agenda.</p>
+          <div className="talk-title-row">
+            <h1>Time to talk.</h1>
+            <button type="button" className="talk-book" onClick={() => setOpen(true)}>
+              <span aria-hidden="true">+</span>
+              Book a meeting
+            </button>
+          </div>
+          <p>Book a management meeting and see what’s on the building agenda.</p>
         </div>
-        <button type="button" className="talk-book" onClick={() => setOpen(true)}>
-          + Book a meeting
-        </button>
       </header>
 
       {error && <div className="note-card">{error}</div>}
@@ -74,17 +77,14 @@ export default function Meetings() {
             <h2>Transparent agenda</h2>
             <span>Beirut time · GMT+2</span>
           </header>
-          <p className="talk-note">
-            <IconCalendar size={14} />
-            The building agenda is published by management. A private booking stays off this list.
-          </p>
           {meetings && upcoming.length === 0 && past.length === 0 && (
-            <p className="talk-empty">Nothing is on the agenda yet.</p>
+            <p className="talk-empty">Nothing is published yet. Meetings appear here once management adds them.</p>
           )}
           <ul>
             {upcoming.map((meeting) => (
               <AgendaRow key={meeting.id} meeting={meeting} open={openId === meeting.id} onToggle={() => setOpenId(openId === meeting.id ? null : meeting.id)} />
             ))}
+            {past.length > 0 && upcoming.length > 0 && <li className="talk-earlier">Earlier</li>}
             {past.map((meeting) => (
               <AgendaRow key={meeting.id} meeting={meeting} open={openId === meeting.id} onToggle={() => setOpenId(openId === meeting.id ? null : meeting.id)} />
             ))}
@@ -95,7 +95,11 @@ export default function Meetings() {
           <span className="talk-aside-icon">
             <IconCalendar size={18} />
           </span>
-          <h2>A focused conversation. Time set aside for you.</h2>
+          <h2>
+            A focused conversation.
+            <br />
+            Time set aside for you.
+          </h2>
           <p>Choose a 30-minute slot, add your topic, and Anthony Aour receives it on WhatsApp.</p>
           <ul>
             <li><IconCheck size={15} /> Weekdays · 09:00–15:30</li>
@@ -123,9 +127,13 @@ function AgendaRow({ meeting, open, onToggle }: { meeting: ResidentMeeting; open
           <span>{date.month}</span>
         </time>
         <span className="talk-row-copy">
-          <em>{date.time}{meeting.location ? ` · ${meeting.location}` : ''}</em>
+          <span className="talk-when">
+            {date.time}
+            {meeting.location ? ` · ${meeting.location}` : ''}
+            {meeting.status === 'HELD' ? ' · Held' : ''}
+          </span>
           <strong>{meeting.title}</strong>
-          {meeting.summary && <span>{meeting.summary}</span>}
+          {meeting.summary && <em>{meeting.summary}</em>}
         </span>
       </button>
       {open && (
@@ -200,11 +208,11 @@ function BookingDialog({ onClose }: { onClose: () => void }) {
             <p>Meet management</p>
             <h2>Let’s make time.</h2>
           </div>
-          <button type="button" aria-label="Close" onClick={onClose}>
+          <button type="button" className="talk-x" aria-label="Close" onClick={onClose}>
             <IconClose size={18} />
           </button>
         </header>
-        <p className="talk-dialog-lede">Choose a 30-minute slot. All times are local to Beirut. It opens WhatsApp to Anthony Aour with this request written out.</p>
+        <p className="talk-dialog-lede">Choose a 30-minute slot. All times are local to Beirut.</p>
 
         <label>
           Choose a date

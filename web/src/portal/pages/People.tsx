@@ -10,51 +10,52 @@ export default function People() {
     <div className="portal-page people-page">
       <header className="svc-head">
         <div>
-          <p className="svc-kicker">The people who look after the building</p>
+          <p className="svc-kicker">The building</p>
           <h1>Our people.</h1>
-          <p>Who to call, from the chairman down to the team on the floor.</p>
+          <p>Who looks after Garden View, and how to reach them.</p>
         </div>
       </header>
 
-      <article className="people-lead">
-        <p>{chairman.role}</p>
-        <h2>{chairman.name}</h2>
-        <a href={tel(chairman.phone)}>
-          <IconPhone size={16} />
-          {chairman.phone}
-        </a>
-      </article>
+      <section className="dir">
+        <article className="dir-lead">
+          <div>
+            <p>{chairman.role}</p>
+            <h2>{chairman.name}</h2>
+          </div>
+          <a className="dir-call" href={tel(chairman.phone)}>
+            <IconPhone size={15} />
+            {chairman.phone}
+          </a>
+        </article>
 
-      <div className="people-row">
-        {officers.map((person) => (
-          <article key={person.name} className="people-card">
-            <p>{person.role}</p>
-            <h2>{person.name}</h2>
-            <a href={tel(person.phone)}>
-              <IconPhone size={15} />
-              {person.phone}
-            </a>
-          </article>
-        ))}
-      </div>
+        <ul>
+          {officers.map((person) => (
+            <li key={person.name}>
+              <div>
+                <p>{person.role}</p>
+                <strong>{person.name}</strong>
+              </div>
+              <a className="dir-call" href={tel(person.phone)}>
+                <IconPhone size={15} />
+                {person.phone}
+              </a>
+            </li>
+          ))}
+          {TEAM.map((person) => (
+            <li key={person.name}>
+              <div>
+                <p>{person.role}</p>
+                <strong>{person.name}</strong>
+              </div>
+              <a className="dir-call" href={tel(person.phone)}>
+                <IconPhone size={15} />
+                {person.phone}
+              </a>
+            </li>
+          ))}
+        </ul>
 
-      <section className="people-team">
-        <h2>The team</h2>
-        {TEAM.length === 0 ? (
-          <p>The rest of the Garden View team will be listed here.</p>
-        ) : (
-          <ul>
-            {TEAM.map((person) => (
-              <li key={person.name}>
-                <div>
-                  <strong>{person.name}</strong>
-                  <span>{person.role}</span>
-                </div>
-                <a href={tel(person.phone)}>{person.phone}</a>
-              </li>
-            ))}
-          </ul>
-        )}
+        {TEAM.length === 0 && <p className="dir-later">The rest of the team will be added here.</p>}
       </section>
     </div>
   );
