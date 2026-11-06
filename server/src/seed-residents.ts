@@ -72,6 +72,8 @@ export async function seedResidents() {
   if (!rows) return;
   let accountsCreated = 0;
   let accountsUnchanged = 0;
+  let accountsCorrected = 0;
+  let accountsSkipped = 0;
 
   for (const row of rows) {
     const unit = await prisma.unit.upsert({
@@ -100,15 +102,58 @@ export async function seedResidents() {
 
     const existing = await prisma.account.findUnique({ where: { unitId: unit.id } });
     if (existing) {
+      if (existing.email !== row.account.email) {
+        const taken = await prisma.account.findUnique({ where: { email: row.account.email } });
+        if (!taken || taken.id === existing.id) {
+          await prisma.account.update({
+            where: { id: existing.id },
+            data: {
+              email: row.account.email,
+              passwordHash: row.account.passwordHash,
+              name: row.account.name,
+            },
+          });
+          console.log(`${row.block}-${row.number} now signs in as ${row.account.email}.`);
+          accountsCorrected += 1;
+          continue;
+        }
+      }
       accountsUnchanged += 1;
       continue;
     }
 
-    const emailTaken = await prisma.account.findUnique({ where: { email: row.account.email } });
+    const emailTaken = await prisma.account.findUnique({
+      where: { email: row.account.email },
+      include: { unit: true },
+    });
     if (emailTaken) {
-      throw new Error(
-        `Login ${row.account.email} already belongs to another account, so ${row.block}-${row.number} was not created.`,
-      );
+      const holder = emailTaken.unit
+        ? rows.find((item) => item.block === emailTaken.unit!.block && item.number === emailTaken.unit!.number)
+        : undefined;
+      const holderWantsAnotherEmail = holder && holder.account.email !== emailTaken.email;
+      if (holderWantsAnotherEmail && holder) {
+        const destinationTaken = await prisma.account.findUnique({ where: { email: holder.account.email } });
+        if (!destinationTaken || destinationTaken.id === emailTaken.id) {
+          await prisma.account.update({
+            where: { id: emailTaken.id },
+            data: {
+              email: holder.account.email,
+              passwordHash: holder.account.passwordHash,
+              name: holder.account.name,
+            },
+          });
+          console.log(`${holder.block}-${holder.number} now signs in as ${holder.account.email}.`);
+          accountsCorrected += 1;
+        } else {
+          console.log(`Skipped ${row.block}-${row.number}: ${row.account.email} is already used.`);
+          accountsSkipped += 1;
+          continue;
+        }
+      } else {
+        console.log(`Skipped ${row.block}-${row.number}: ${row.account.email} is already used.`);
+        accountsSkipped += 1;
+        continue;
+      }
     }
 
     await prisma.account.create({
@@ -124,7 +169,7 @@ export async function seedResidents() {
   }
 
   console.log(
-    `Resident seed complete. ${rows.length} residences, ${accountsCreated} logins created, ${accountsUnchanged} left unchanged.`,
+    `Resident seed complete. ${rows.length} residences, ${accountsCreated} logins created, ${accountsCorrected} corrected, ${accountsUnchanged} left unchanged, ${accountsSkipped} skipped.`,
   );
 }
 
