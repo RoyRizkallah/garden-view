@@ -1414,3 +1414,345 @@
     display: none;
   }
 }
+
+/* ==========================================================================
+   The family tree: each team hangs from a lower branch as a plaque and medallions.
+   ========================================================================== */
+.rs-shell .pt-cluster-node {
+  position: absolute;
+  z-index: 2;
+  transform: translateX(-50%);
+}
+.rs-shell .pt-cluster {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.rs-shell .pt-cluster-plaque {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px 7px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 2px 4px rgba(24, 41, 32, 0.12), 0 14px 26px -16px rgba(24, 41, 32, 0.6);
+  white-space: nowrap;
+}
+.rs-shell .pt-cluster-plaque strong {
+  font-size: 14.5px;
+  font-weight: 600;
+  font-stretch: 112%;
+  color: var(--r-ink);
+}
+.rs-shell .pt-cluster-icon {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--r-green-soft);
+  color: var(--r-green);
+}
+.rs-shell .is-security .pt-cluster-icon {
+  background: var(--r-deep);
+  color: var(--r-gold);
+}
+.rs-shell .pt-cluster-count {
+  display: grid;
+  place-items: center;
+  min-width: 24px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: var(--r-gold);
+  color: #131310;
+  font-size: 12px;
+  font-weight: 700;
+}
+.rs-shell .pt-cluster-badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  max-width: 172px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.rs-shell .pt-cluster-note {
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: rgba(24, 41, 32, 0.55);
+  color: rgba(255, 253, 248, 0.9);
+  font-size: 11.5px;
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   Garden Tree: the family tree, laid out in percent of a stage that fits the window.
+   ========================================================================== */
+.rs-shell .ft-stage {
+  --ground: 30%;
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  background: #e5ddcc;
+  box-shadow: var(--r-shadow);
+  isolation: isolate;
+}
+/* the limestone wall, sunlit, with its windows */
+.rs-shell .ft-wall {
+  position: absolute;
+  inset: 0 0 calc(100% - var(--ground)) 0;
+  background:
+    radial-gradient(70% 120% at 85% 0%, rgba(246, 230, 194, 0.75), rgba(246, 230, 194, 0) 70%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='230'%3E%3Cg fill='%23d8cfbd' fill-opacity='.6'%3E%3Crect x='44' y='26' width='62' height='74' rx='2'/%3E%3Crect x='44' y='136' width='62' height='74' rx='2'/%3E%3C/g%3E%3Cpath d='M75 26v74M75 136v74' stroke='%23efe9dc' stroke-width='2'/%3E%3C/svg%3E")
+      repeat-x 0 0 / 150px 230px,
+    linear-gradient(#f4f0e7, #e5ddcc);
+}
+/* the clipped hedge on its stone kerb */
+.rs-shell .ft-hedge {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(var(--ground) - 40px);
+  height: 54px;
+  background:
+    linear-gradient(#efe7d6, #efe7d6) 0 40px / 100% 3px no-repeat,
+    linear-gradient(#d9cdb6, #d9cdb6) 0 43px / 100% 11px no-repeat,
+    radial-gradient(28px 22px at 22px 22px, #5b7756 96%, transparent 100%) 0 0 / 44px 44px repeat-x,
+    radial-gradient(26px 20px at 22px 24px, #4f6a4c 96%, transparent 100%) 22px 2px / 44px 44px repeat-x;
+}
+/* the lawn of small round leaves */
+.rs-shell .ft-lawn {
+  position: absolute;
+  inset: calc(var(--ground) + 14px) 0 0 0;
+  background:
+    radial-gradient(3.2px 2.4px at 4px 4px, rgba(157, 182, 133, 0.5) 98%, transparent) 0 0 / 16px 12px,
+    radial-gradient(3px 2.2px at 12px 9px, rgba(63, 92, 55, 0.38) 98%, transparent) 0 0 / 16px 12px,
+    linear-gradient(#7d9868, #617f50 45%, #4a6a40);
+}
+/* two garden trees in the background, by the hedge */
+.rs-shell .ft-side-crown {
+  position: absolute;
+  top: 2%;
+  height: calc(var(--ground) - 6%);
+  width: auto;
+  aspect-ratio: 2 / 1;
+  opacity: 0.9;
+}
+.rs-shell .ft-side-crown.is-left {
+  left: -3%;
+}
+.rs-shell .ft-side-crown.is-right {
+  right: -3%;
+}
+/* the family tree: trunk up the middle, crown behind the chairman, branches out */
+.rs-shell .ft-trunk {
+  position: absolute;
+  left: 50%;
+  top: 18%;
+  bottom: 0;
+  width: 46px;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, #5d5143, #857561 55%, #64574a);
+  clip-path: polygon(38% 0, 62% 0, 100% 100%, 0 100%);
+}
+.rs-shell .ft-crown {
+  position: absolute;
+  left: 50%;
+  top: -3%;
+  height: 34%;
+  width: auto;
+  aspect-ratio: 2 / 1;
+  transform: translateX(-50%);
+}
+.rs-shell .ft-branches {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.rs-shell .ft-branches path {
+  fill: none;
+  stroke: #6b5c49;
+  stroke-width: 7px;
+  stroke-linecap: round;
+}
+.rs-shell .ft-branches path.is-upper {
+  stroke-width: 9px;
+}
+
+/* people and teams sit on the tree, centred on their points */
+.rs-shell .ft-node {
+  position: absolute;
+  z-index: 2;
+  transform: translateX(-50%);
+}
+.rs-shell .ft-chairman {
+  left: 50%;
+  top: 4%;
+}
+.rs-shell .ft-stage .pt-card {
+  border-color: transparent;
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 2px 4px rgba(24, 41, 32, 0.12), 0 24px 40px -22px rgba(24, 41, 32, 0.65);
+}
+.rs-shell .ft-chairman .pt-card {
+  border-top: 3px solid var(--r-gold);
+}
+
+/* a team: its plaque, then a card per person (name and phone) */
+.rs-shell .ft-team {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.rs-shell .ft-team.is-security {
+  width: min(45%, 640px);
+}
+.rs-shell .ft-team.is-cleaning {
+  width: min(20%, 240px);
+}
+.rs-shell .ft-team.is-concierge {
+  width: min(18%, 230px);
+}
+.rs-shell .ft-team-plaque {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px 6px 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 2px 4px rgba(24, 41, 32, 0.12), 0 14px 26px -16px rgba(24, 41, 32, 0.6);
+  white-space: nowrap;
+}
+.rs-shell .ft-team-plaque strong {
+  font-size: 14.5px;
+  font-weight: 600;
+  font-stretch: 112%;
+}
+.rs-shell .ft-team-icon {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--r-green-soft);
+  color: var(--r-green);
+}
+.rs-shell .is-security .ft-team-icon {
+  background: var(--r-deep);
+  color: var(--r-gold);
+}
+.rs-shell .ft-team-count {
+  display: grid;
+  place-items: center;
+  min-width: 24px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: var(--r-gold);
+  color: #131310;
+  font-size: 12px;
+  font-weight: 700;
+}
+.rs-shell .ft-members {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.rs-shell .is-security .ft-members {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.rs-shell .ft-member {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 1px 2px rgba(24, 41, 32, 0.1), 0 10px 20px -14px rgba(24, 41, 32, 0.55);
+}
+.rs-shell .ft-member-avatar {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--r-green);
+  color: #fffdf8;
+  font-size: 12px;
+  font-weight: 700;
+}
+.rs-shell .ft-member-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.rs-shell .ft-member.is-open .ft-member-avatar {
+  background: var(--r-surface-2);
+  border: 1.5px dashed rgba(47, 74, 58, 0.4);
+  color: var(--r-green);
+}
+.rs-shell .is-security .ft-member .ft-member-avatar {
+  box-shadow: 0 0 0 2px var(--r-gold);
+}
+.rs-shell .ft-member-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.3;
+}
+.rs-shell .ft-member-text strong,
+.rs-shell .ft-member-text span,
+.rs-shell .ft-member-text a {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rs-shell .ft-member-text strong {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--r-ink);
+}
+.rs-shell .ft-member-text span,
+.rs-shell .ft-member-text a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  color: var(--r-muted);
+}
+.rs-shell .ft-member.is-open .ft-member-text strong {
+  color: var(--r-faint);
+  font-weight: 500;
+}
+
+/* phones keep the scrolling list; on desktop the tree carries everyone */
+@media (min-width: 881px) {
+  .rs-shell .people-page .pt-crew,
+  .rs-shell .people-page .pt-mobile {
+    display: none;
+  }
+  .rs-shell .people-page .rs-page-head {
+    margin-bottom: 18px;
+  }
+}
+
+/* Garden Tree fits the window: the page ends with the tree */
+@media (min-width: 881px) {
+  .rs-shell .rs-main:has(.people-page) {
+    padding-bottom: 24px;
+  }
+}
