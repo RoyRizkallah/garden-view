@@ -1542,3 +1542,10 @@ body:has(> #root > .site) {
   }
 }
 
+/* the inquiry thank-you, with the WhatsApp fallback beneath */
+.site .location-sent {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}

@@ -11,6 +11,7 @@ import LocationMap from '../components/LocationMap';
 import { contactItems } from '../components/contactItems';
 import Photo from '../components/Photo';
 import { api, ApiError } from '../portal/api';
+import { ANTHONY_WHATSAPP } from '../portal/people';
 import { heroImage, heroSizes } from '../data/routeHeroes';
 
 
@@ -22,7 +23,29 @@ const DISTRICT_HIGHLIGHTS = [
 ];
 
 const INTERESTS = ['buying', 'renting', 'tour', 'other'];
+const INTEREST_LABEL: Record<string, string> = {
+  buying: 'Buying a residence',
+  renting: 'Renting a residence',
+  tour: 'Scheduling a tour',
+  other: 'Other inquiry',
+};
 const directContact = contactItems(18);
+
+/** The inquiry as a WhatsApp message to building management (Anthony), as meeting requests are sent. */
+function whatsappUrl(form: FormData): string {
+  const value = (key: string) => String(form.get(key) ?? '').trim();
+  const lines = [
+    'Garden View — website inquiry',
+    '',
+    `From: ${value('name')}`,
+    `Email: ${value('email')}`,
+    `Phone: ${value('phone') || '—'}`,
+    `Interested in: ${INTEREST_LABEL[value('interest')] ?? '—'}`,
+    '',
+    value('message'),
+  ];
+  return `https://wa.me/${ANTHONY_WHATSAPP}?text=${encodeURIComponent(lines.join('\n'))}`;
+}
 
 export default function Location() {
   // "Enquire" on a listing lands here as ?interest=buying&unit=3%20A1
@@ -36,12 +59,18 @@ export default function Location() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [messageLength, setMessageLength] = useState(presetMessage.length);
+  const [whatsapp, setWhatsapp] = useState<string | null>(null);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setSubmitting(true);
     setError(null);
     const form = new FormData(e.currentTarget);
+    // Open WhatsApp now, inside the click: a window opened after the save below would be
+    // blocked as a pop-up. The inquiry is still saved so it also lands in the admin Inquiries.
+    const url = whatsappUrl(form);
+    setWhatsapp(url);
+    window.open(url, '_blank', 'noopener,noreferrer');
     try {
       await api.post('/public/inquiries', {
         name: form.get('name'),
@@ -118,9 +147,16 @@ export default function Location() {
           </div>
 
           {submitted ? (
-            <div className="note-card" style={{ marginTop: 24 }}>
-              Thanks — your inquiry has been sent to building management. We'll get back to you
-              soon.
+            <div className="note-card location-sent" style={{ marginTop: 24 }}>
+              <p>
+                Thanks. Your inquiry is with building management, and WhatsApp has opened with it
+                ready for Anthony: press Send there and he receives it straight away.
+              </p>
+              {whatsapp && (
+                <a className="btn btn-primary btn-sm" href={whatsapp} target="_blank" rel="noreferrer">
+                  WhatsApp didn't open? Send it here
+                </a>
+              )}
             </div>
           ) : (
             <form className="contact-form" onSubmit={handleSubmit}>
@@ -170,7 +206,7 @@ export default function Location() {
               </div>
               {error && <div className="note-card">{error}</div>}
               <button type="submit" className="btn btn-primary btn-block btn-sm" disabled={submitting}>
-                {submitting ? 'Sending…' : 'Send Inquiry'}
+                {submitting ? 'Sending…' : 'Send inquiry on WhatsApp'}
                 <IconArrowRight size={16} />
               </button>
             </form>
