@@ -14,7 +14,8 @@ echo "Applying database migrations..."
 npx prisma migrate deploy
 
 echo "Creating residence logins that are not already there..."
-node dist/seed-residents.js
+# A bad or missing seed must not stop the website from starting.
+node dist/seed-residents.js || echo "Resident seed failed. The website will still start."
 
 # first admin from ADMIN_EMAIL / ADMIN_PASSWORD, only if the database has none yet
 node dist/bootstrap-admin.js

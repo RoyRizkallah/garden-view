@@ -24,16 +24,25 @@ type ResidentSeed = {
   };
 };
 
-function loadSeed(): ResidentSeed[] | null {
+function seedText(): string | null {
   const b64 = process.env.RESIDENTS_SEED_B64?.trim();
   const inline = process.env.RESIDENTS_SEED_JSON?.trim();
   const fromEnvFile = process.env.RESIDENTS_SEED_FILE?.trim();
   const fallback = path.join(process.cwd(), 'prisma', 'data', 'residents.json');
-  let raw: string | null = null;
-  if (b64) raw = Buffer.from(b64, 'base64').toString('utf8');
-  else if (inline) raw = inline;
-  else if (fromEnvFile && existsSync(fromEnvFile)) raw = readFileSync(fromEnvFile, 'utf8');
-  else if (existsSync(fallback)) raw = readFileSync(fallback, 'utf8');
+  if (b64) {
+    if (b64.startsWith('[')) return b64;
+    const decoded = Buffer.from(b64, 'base64').toString('utf8').trim();
+    if (decoded.startsWith('[')) return decoded;
+    throw new Error('RESIDENTS_SEED_B64 is neither the residence JSON nor its base64 line.');
+  }
+  if (inline) return inline;
+  if (fromEnvFile && existsSync(fromEnvFile)) return readFileSync(fromEnvFile, 'utf8');
+  if (existsSync(fallback)) return readFileSync(fallback, 'utf8');
+  return null;
+}
+
+function loadSeed(): ResidentSeed[] | null {
+  const raw = seedText();
   if (!raw) {
     console.log(
       'Resident seed skipped. Set RESIDENTS_SEED_B64 on the server to create residence logins. That value is not stored in the repository.',
@@ -109,8 +118,8 @@ export async function seedResidents() {
 if (require.main === module) {
   seedResidents()
     .catch((err) => {
-      console.error(err);
-      process.exitCode = 1;
+      console.error(err instanceof Error ? err.message : err);
+      console.error('Resident seed failed. The website will still start.');
     })
     .finally(() => prisma.$disconnect());
 }
