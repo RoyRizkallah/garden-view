@@ -6,49 +6,75 @@ import { IconPhone } from '../../components/Icons';
 import '../../styles/people.css';
 
 type PersonLike = { name: string; role: string; phone: string; photo?: string };
-type LeafCluster = { cx: number; cy: number; rx: number; ry: number; count: number };
 
 const tel = (phone: string) => `tel:${phone.replace(/[^\d+]/g, '')}`;
 
 const DESIGN_WIDTH = 1000;
 const DESIGN_HEIGHT = 660;
+/** where the stone kerb meets the lawn */
+const GROUND_Y = 372;
 
 /**
- * The crown is built from overlapping clusters rather than one dome: each is
- * scattered on the golden angle, so the silhouette is irregular and dense.
+ * Our People is drawn as the building's private garden (after the photograph of it, without
+ * using the photograph): the limestone wall and its windows beyond, a clipped hedge on a stone
+ * kerb, three olive-like trees with silvery crowns, a lawn of small round leaves, and the old
+ * trunk that frames the view from the left. The people stand in the garden on their cards.
  */
-const CLUSTERS: LeafCluster[] = [
-  { cx: 505, cy: 138, rx: 128, ry: 78, count: 33 },
-  { cx: 390, cy: 196, rx: 112, ry: 76, count: 29 },
-  { cx: 612, cy: 202, rx: 116, ry: 78, count: 29 },
-  { cx: 326, cy: 288, rx: 96, ry: 66, count: 25 },
-  { cx: 674, cy: 292, rx: 98, ry: 68, count: 25 },
-  { cx: 500, cy: 268, rx: 132, ry: 78, count: 33 },
-  { cx: 432, cy: 330, rx: 82, ry: 54, count: 19 },
-  { cx: 568, cy: 334, rx: 82, ry: 54, count: 19 },
+const GARDEN_TREES = [
+  { x: 520, top: 168, rx: 190, trunk: 16 },
+  { x: 268, top: 222, rx: 128, trunk: 11 },
+  { x: 800, top: 214, rx: 140, trunk: 12 },
 ];
 
-const LEAF_COLORS = ['#5f7d68', '#6f8a76', '#7f9a82', '#93a793', '#a9bca4'];
+type Leaf = { x: number; y: number; rotation: number; scale: number; color: string };
+const OLIVE = ['#6c8466', '#7d927a', '#94a68f', '#a9b8a1', '#5d7659', '#b7c4ad'];
 
-const FOLIAGE = CLUSTERS.map((cluster, clusterIndex) => ({
-  ...cluster,
-  leaves: Array.from({ length: cluster.count }, (_, index) => {
-    const angle = index * 2.399963 + clusterIndex * 0.8;
-    const radius = Math.sqrt((index + 0.5) / cluster.count);
-    const x = cluster.cx + Math.cos(angle) * cluster.rx * radius;
-    const y = cluster.cy + Math.sin(angle) * cluster.ry * radius;
-    const rotation = (angle * 180) / Math.PI + 90 + ((index % 5) - 2) * 10;
-    const scale = 0.64 + radius * 0.34 + ((index % 3) - 1) * 0.04;
-    const gold = (index + clusterIndex * 3) % 23 === 0;
+/** leaves scattered on the golden angle, so a crown reads dense and irregular */
+function scatter(cx: number, cy: number, rx: number, ry: number, count: number, seed: number, palette: string[]): Leaf[] {
+  return Array.from({ length: count }, (_, index) => {
+    const angle = index * 2.399963 + seed;
+    const radius = Math.sqrt((index + 0.5) / count);
     return {
-      x,
-      y,
-      rotation,
-      scale,
-      color: gold ? '#c9b07a' : LEAF_COLORS[(index + clusterIndex) % LEAF_COLORS.length],
+      x: cx + Math.cos(angle) * rx * radius,
+      y: cy + Math.sin(angle) * ry * radius,
+      rotation: (angle * 180) / Math.PI + 90 + ((index % 5) - 2) * 12,
+      scale: 0.7 + radius * 0.4,
+      color: palette[(index + Math.round(seed * 3)) % palette.length],
     };
-  }),
-}));
+  });
+}
+
+const CROWNS = GARDEN_TREES.flatMap((tree, treeIndex) => {
+  const ry = tree.rx * 0.56;
+  const cy = tree.top + 6;
+  return [
+    { cx: tree.x - tree.rx * 0.38, cy: cy + ry * 0.2, rx: tree.rx * 0.6, ry: ry * 0.72 },
+    { cx: tree.x + tree.rx * 0.36, cy: cy + ry * 0.16, rx: tree.rx * 0.62, ry: ry * 0.74 },
+    { cx: tree.x, cy: cy - ry * 0.18, rx: tree.rx * 0.72, ry: ry * 0.8 },
+  ].map((blob, blobIndex) => ({
+    ...blob,
+    leaves: scatter(blob.cx, blob.cy, blob.rx, blob.ry, Math.round(blob.rx / 2.6), treeIndex * 1.7 + blobIndex, OLIVE),
+  }));
+});
+
+/** the overhanging branch's leaves, darker, in the top-left corner */
+const OVERHANG = [
+  ...scatter(250, 46, 150, 52, 64, 0.4, ['#3f5a3a', '#4f6b48', '#5e7a55', '#33492f']),
+  ...scatter(400, 30, 90, 36, 34, 2.2, ['#3f5a3a', '#4f6b48', '#5e7a55']),
+];
+
+/** windows of the wall beyond: [x, y] of each */
+const WINDOWS = [150, 290, 430, 570, 710, 850].flatMap((x) => [
+  [x, 36],
+  [x, 150],
+]);
+
+/** the hedge along the kerb: [x, half-width, tone] */
+const HEDGE = Array.from({ length: 24 }, (_, index) => [
+  index * 44 + 10,
+  32 + (index % 3) * 4,
+  index % 2 ? '#4f6a4c' : '#5b7756',
+] as [number, number, string]);
 
 function PersonCard({ person, lead = false }: { person: PersonLike; lead?: boolean }) {
   const Heading = lead ? 'h2' : 'h3';
@@ -86,8 +112,8 @@ export default function People() {
   const stageRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
 
-  // The illustration is drawn at a fixed 1000 × 660 so branches, foliage and
-  // plaques stay in register; the whole canvas is then scaled as one piece.
+  // The garden is drawn at a fixed 1000 × 660 so the trees, lawn and cards
+  // stay in register; the whole canvas is then scaled as one piece.
   useLayoutEffect(() => {
     const stage = stageRef.current;
     if (!stage) return;
@@ -119,169 +145,127 @@ export default function People() {
       <div className="pt-stage-wrap">
         <div className="pt-stage" ref={stageRef} style={{ height: DESIGN_HEIGHT * scale }}>
           <div className="pt-canvas" style={{ transform: `scale(${scale})` }}>
-            <svg className="pt-tree" viewBox={`0 0 ${DESIGN_WIDTH} ${DESIGN_HEIGHT}`} fill="none" aria-hidden="true">
+            <svg className="pt-tree pt-garden" viewBox={`0 0 ${DESIGN_WIDTH} ${DESIGN_HEIGHT}`} fill="none" aria-hidden="true">
               <defs>
-                <linearGradient
-                  id="pt-trunk-fill"
-                  x1="500"
-                  y1="342"
-                  x2="500"
-                  y2="600"
-                  gradientUnits="userSpaceOnUse"
-                >
-                  <stop stopColor="#b08a48" stopOpacity="0.2" />
-                  <stop offset="1" stopColor="#8fa38e" stopOpacity="0.09" />
+                <linearGradient id="gw-wall" x1="0" y1="0" x2="0" y2={GROUND_Y} gradientUnits="userSpaceOnUse">
+                  <stop stopColor="#f4f0e7" />
+                  <stop offset="1" stopColor="#e5ddcc" />
                 </linearGradient>
-                <radialGradient id="pt-halo" cx="0.5" cy="0.5" r="0.5">
-                  <stop stopColor="#c9a769" stopOpacity="0.16" />
-                  <stop offset="1" stopColor="#c9a769" stopOpacity="0" />
+                <radialGradient id="gw-sun" cx="0.82" cy="0.05" r="0.75">
+                  <stop stopColor="#f6e6c2" stopOpacity="0.75" />
+                  <stop offset="1" stopColor="#f6e6c2" stopOpacity="0" />
                 </radialGradient>
-                <radialGradient id="pt-cluster" cx="0.5" cy="0.5" r="0.5">
-                  <stop stopColor="#b9cdb2" stopOpacity="0.55" />
-                  <stop offset="1" stopColor="#b9cdb2" stopOpacity="0" />
-                </radialGradient>
+                <linearGradient id="gw-lawn" x1="0" y1={GROUND_Y} x2="0" y2={DESIGN_HEIGHT} gradientUnits="userSpaceOnUse">
+                  <stop stopColor="#7d9868" />
+                  <stop offset="0.45" stopColor="#617f50" />
+                  <stop offset="1" stopColor="#4a6a40" />
+                </linearGradient>
+                {/* the ground-cover: small round leaves, as in the garden */}
+                <pattern id="gw-clover" width="16" height="12" patternUnits="userSpaceOnUse">
+                  <ellipse cx="4" cy="4" rx="3.2" ry="2.4" fill="#9db685" opacity="0.5" />
+                  <ellipse cx="12" cy="9" rx="3" ry="2.2" fill="#3f5c37" opacity="0.38" />
+                  <ellipse cx="11" cy="2.5" rx="1.8" ry="1.3" fill="#c2d2a8" opacity="0.32" />
+                </pattern>
+                <linearGradient id="gw-bark" x1="0" y1="0" x2="1" y2="0">
+                  <stop stopColor="#5d5143" />
+                  <stop offset="0.55" stopColor="#857561" />
+                  <stop offset="1" stopColor="#64574a" />
+                </linearGradient>
               </defs>
 
-              <ellipse cx="500" cy="230" rx="340" ry="220" fill="url(#pt-halo)" />
-              <ellipse cx="500" cy="642" rx="188" ry="13" fill="#1e3a2c" opacity="0.07" />
-
-              <g className="pt-roots" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" opacity="0.55">
-                <path d="M488 598C458 614 422 626 382 634" />
-                <path d="M512 598C542 614 578 626 618 634" />
-                <path d="M500 600V640" />
-                <path d="M480 600C464 620 442 632 416 642" />
-                <path d="M520 600C536 620 558 632 584 642" />
-              </g>
-
-              <path
-                className="pt-trunk"
-                d="M476 600C480 540 478 482 482 440C486 400 492 370 497 340H503C508 370 514 400 518 440C522 482 520 540 524 600Z"
-              />
-
-              <g className="pt-bark" stroke="currentColor" strokeLinecap="round" opacity="0.22">
-                <path d="M500 578C496 520 503 456 499 402" />
-                <path d="M489 532C486 488 490 444 488 408" />
-                <path d="M511 490C514 454 510 418 512 386" />
-              </g>
-
-              <g className="pt-limbs" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-                <path className="pt-line" pathLength={1} d="M498 348C470 322 445 300 420 280" style={{ animationDelay: '0.18s' }} />
-                <path className="pt-line" pathLength={1} d="M502 348C530 322 555 300 580 280" style={{ animationDelay: '0.18s' }} />
-                <path className="pt-line" pathLength={1} d="M500 336C490 300 485 270 482 240" style={{ animationDelay: '0.26s' }} />
-                <path className="pt-line" pathLength={1} d="M500 336C510 300 515 270 518 240" style={{ animationDelay: '0.26s' }} />
-                <path className="pt-line" pathLength={1} d="M420 280C390 262 365 245 342 228" style={{ animationDelay: '0.34s' }} />
-                <path className="pt-line" pathLength={1} d="M580 280C610 262 635 245 658 228" style={{ animationDelay: '0.34s' }} />
-                <path className="pt-line" pathLength={1} d="M482 240C470 215 455 195 440 175" style={{ animationDelay: '0.42s' }} />
-                <path className="pt-line" pathLength={1} d="M518 240C530 215 545 195 560 175" style={{ animationDelay: '0.42s' }} />
-                <path className="pt-line" pathLength={1} d="M500 330C500 295 500 260 500 220" style={{ animationDelay: '0.22s' }} />
-                <path className="pt-line" pathLength={1} d="M342 228C322 215 305 205 288 198" style={{ animationDelay: '0.48s' }} />
-                <path className="pt-line" pathLength={1} d="M658 228C678 215 695 205 712 198" style={{ animationDelay: '0.48s' }} />
-                <path className="pt-line" pathLength={1} d="M468 330C450 326 432 321 414 316" style={{ animationDelay: '0.5s' }} />
-                <path className="pt-line" pathLength={1} d="M532 330C550 326 568 321 586 316" style={{ animationDelay: '0.5s' }} />
-
-                <path
-                  className="pt-line pt-limb-low"
-                  pathLength={1}
-                  d="M496 442C452 430 402 412 352 400C340 397 334 395 330 392"
-                  style={{ animationDelay: '0.12s' }}
-                />
-                <path
-                  className="pt-line pt-limb-low"
-                  pathLength={1}
-                  d="M504 446C548 434 598 414 648 402C660 399 666 397 670 394"
-                  style={{ animationDelay: '0.12s' }}
-                />
-                <path
-                  className="pt-line"
-                  pathLength={1}
-                  d="M330 394C330 420 330 444 330 468"
-                  style={{ animationDelay: '0.45s' }}
-                />
-                <path
-                  className="pt-line"
-                  pathLength={1}
-                  d="M670 396C670 422 670 446 670 468"
-                  style={{ animationDelay: '0.45s' }}
-                />
-              </g>
-
-              <g className="pt-foliage-blobs" fill="url(#pt-cluster)">
-                {CLUSTERS.map((cluster, index) => (
-                  <ellipse
-                    key={index}
-                    cx={cluster.cx}
-                    cy={cluster.cy}
-                    rx={cluster.rx * 1.08}
-                    ry={cluster.ry * 1.14}
-                    style={{ animationDelay: `${0.2 + index * 0.05}s` }}
-                  />
-                ))}
-              </g>
-
-              <g className="pt-leaf-cluster" style={{ animationDelay: '0.35s' }}>
-                {FOLIAGE[0].leaves.map((leaf, index) => (
-                  <g
-                    key={index}
-                    transform={`translate(${leaf.x.toFixed(1)} ${leaf.y.toFixed(1)}) rotate(${leaf.rotation.toFixed(1)}) scale(${leaf.scale.toFixed(2)})`}
-                  >
-                    <path d="M-10 0C-5 -7 5 -7 10 0C5 7 -5 7 -10 0Z" fill={leaf.color} opacity="0.88" />
-                    <path d="M-8 0H8" stroke="#fffdf8" strokeWidth="0.6" opacity="0.4" />
+              {/* the building's limestone wall, with its windows, beyond the garden */}
+              <rect width={DESIGN_WIDTH} height={GROUND_Y} fill="url(#gw-wall)" />
+              <g className="pt-g-windows" fill="#d8cfbd" opacity="0.6">
+                {WINDOWS.map(([x, y], index) => (
+                  <g key={index}>
+                    <rect x={x} y={y} width="62" height="74" rx="2" />
+                    <path d={`M${x + 31} ${y}V${y + 74}`} stroke="#efe9dc" strokeWidth="2" />
                   </g>
                 ))}
               </g>
+              <rect width={DESIGN_WIDTH} height={GROUND_Y} fill="url(#gw-sun)" />
 
-              {FOLIAGE.slice(1).map((cluster, clusterIndex) => (
-                <g
-                  key={clusterIndex}
-                  className="pt-leaf-cluster"
-                  style={{ animationDelay: `${0.42 + clusterIndex * 0.06}s` }}
-                >
-                  {cluster.leaves.map((leaf, index) => (
-                    <g
-                      key={index}
+              {/* clipped hedge on a stone kerb */}
+              <g className="pt-g-hedge">
+                {HEDGE.map(([x, rx, tone], index) => (
+                  <ellipse key={index} cx={x} cy={GROUND_Y - 22} rx={rx} ry="24" fill={tone} />
+                ))}
+              </g>
+              <rect y={GROUND_Y - 8} width={DESIGN_WIDTH} height="14" fill="#d9cdb6" />
+              <rect y={GROUND_Y - 8} width={DESIGN_WIDTH} height="3" fill="#efe7d6" />
+
+              {/* the lawn */}
+              <rect y={GROUND_Y + 6} width={DESIGN_WIDTH} height={DESIGN_HEIGHT - GROUND_Y} fill="url(#gw-lawn)" />
+              <rect y={GROUND_Y + 6} width={DESIGN_WIDTH} height={DESIGN_HEIGHT - GROUND_Y} fill="url(#gw-clover)" />
+
+              {/* the garden's trees: shadows, trunks, then silvery crowns */}
+              {GARDEN_TREES.map((tree, index) => (
+                <ellipse
+                  key={`shadow-${index}`}
+                  cx={tree.x + 24}
+                  cy={GROUND_Y + 22}
+                  rx={tree.rx * 0.7}
+                  ry="16"
+                  fill="#2f4a2c"
+                  opacity="0.28"
+                />
+              ))}
+              {GARDEN_TREES.map((tree, index) => (
+                <path
+                  key={`trunk-${index}`}
+                  d={`M${tree.x - tree.trunk} ${GROUND_Y + 14}C${tree.x - tree.trunk * 0.6} ${tree.top + 90} ${tree.x - 8} ${tree.top + 60} ${tree.x - 4} ${tree.top + 20}H${tree.x + 4}C${tree.x + 10} ${tree.top + 60} ${tree.x + tree.trunk * 0.6} ${tree.top + 90} ${tree.x + tree.trunk} ${GROUND_Y + 14}Z`}
+                  fill="url(#gw-bark)"
+                />
+              ))}
+              {CROWNS.map((crown, index) => (
+                <g key={`crown-${index}`}>
+                  <ellipse cx={crown.cx} cy={crown.cy} rx={crown.rx} ry={crown.ry} fill="#6f8668" opacity="0.92" />
+                  {crown.leaves.map((leaf, leafIndex) => (
+                    <path
+                      key={leafIndex}
+                      d="M-9 0C-4.5 -6 4.5 -6 9 0C4.5 6 -4.5 6 -9 0Z"
+                      fill={leaf.color}
                       transform={`translate(${leaf.x.toFixed(1)} ${leaf.y.toFixed(1)}) rotate(${leaf.rotation.toFixed(1)}) scale(${leaf.scale.toFixed(2)})`}
-                    >
-                      <path d="M-10 0C-5 -7 5 -7 10 0C5 7 -5 7 -10 0Z" fill={leaf.color} opacity="0.88" />
-                      <path d="M-8 0H8" stroke="#fffdf8" strokeWidth="0.6" opacity="0.4" />
-                    </g>
+                    />
                   ))}
                 </g>
               ))}
 
-              <g className="pt-hangers" stroke="#b08a48" strokeWidth="1.1" fill="#fffdf8">
-                <circle cx="330" cy="392" r="3.4" />
-                <circle cx="670" cy="394" r="3.4" />
+              {/* the old trunk that frames the view from the left, its branch reaching across the top */}
+              <g transform="scale(0.6 1)">
+                <path
+                  d="M0 660V0H58C70 40 64 90 80 140C92 178 118 196 132 236C146 276 128 330 136 380C144 432 166 470 160 520C154 572 128 610 132 660Z"
+                  fill="#4d4235"
+                />
+                <path d="M24 660C30 560 22 470 40 380C54 312 40 240 54 170" stroke="#6d5f4d" strokeWidth="5" strokeLinecap="round" opacity="0.6" />
+                <path d="M92 660C98 600 86 540 100 470C112 410 96 350 108 290" stroke="#3a3128" strokeWidth="4" strokeLinecap="round" opacity="0.55" />
               </g>
-
-              <g className="pt-ground-leaves" fill="#93a793" opacity="0.55">
-                <path d="M430 636C435 629 445 629 450 636C445 643 435 643 430 636Z" transform="rotate(-18 440 636)" />
-                <path d="M470 644C475 637 485 637 490 644C485 651 475 651 470 644Z" transform="rotate(14 480 644)" />
-                <path d="M540 642C545 635 555 635 560 642C555 649 545 649 540 642Z" transform="rotate(-10 550 642)" />
-                <path d="M580 632C585 625 595 625 600 632C595 639 585 639 580 632Z" transform="rotate(24 590 632)" />
-              </g>
-
-              <g className="pt-seeds" fill="#b08a48" opacity="0.6">
-                <circle cx="288" cy="198" r="2.6" />
-                <circle cx="712" cy="198" r="2.6" />
-                <circle cx="330" cy="468" r="2.4" />
-                <circle cx="670" cy="468" r="2.4" />
-                <circle cx="414" cy="316" r="2.2" />
-                <circle cx="586" cy="316" r="2.2" />
+              <path d="M44 120C120 70 220 46 340 30C380 24 420 22 460 24" stroke="#4d4235" strokeWidth="26" strokeLinecap="round" />
+              <path d="M200 60C230 30 270 12 310 0" stroke="#4d4235" strokeWidth="12" strokeLinecap="round" />
+              <g className="pt-g-overhang">
+                {OVERHANG.map((leaf, index) => (
+                  <path
+                    key={index}
+                    d="M-9 0C-4.5 -6 4.5 -6 9 0C4.5 6 -4.5 6 -9 0Z"
+                    fill={leaf.color}
+                    transform={`translate(${leaf.x.toFixed(1)} ${leaf.y.toFixed(1)}) rotate(${leaf.rotation.toFixed(1)}) scale(${leaf.scale.toFixed(2)})`}
+                  />
+                ))}
               </g>
             </svg>
 
-            <div className="pt-node pt-node-chairman" style={{ left: '50%', top: '18.2%' }}>
+            <div className="pt-node pt-node-chairman" style={{ left: '52%', top: '50%' }}>
               <PersonCard person={chairman} lead />
             </div>
 
             {manager && (
-              <div className="pt-node pt-node-manager" style={{ left: '33%', top: '78.8%' }}>
+              <div className="pt-node pt-node-manager" style={{ left: '28%', top: '79%' }}>
                 <PersonCard person={manager} />
               </div>
             )}
 
             {assistant && (
-              <div className="pt-node pt-node-assistant" style={{ left: '67%', top: '78.8%' }}>
+              <div className="pt-node pt-node-assistant" style={{ left: '76%', top: '79%' }}>
                 <PersonCard person={assistant} />
               </div>
             )}
