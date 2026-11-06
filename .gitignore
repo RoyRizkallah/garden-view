@@ -26,6 +26,7 @@ Garden View - Owner Directory (Cleaned).xlsx
 garden-view-units.sql
 backups/
 
-# Residence directory and login hashes for deploy. Set RESIDENTS_SEED_B64 on the server.
+# Residence directory key for deploy. The encrypted seed is committed; this key is not.
 server/prisma/data/residents.json
 server/prisma/data/residents.b64.txt
+server/prisma/data/residents.seed-key.txt

@@ -35,8 +35,8 @@ services:
       CLIENT_ORIGIN: https://${DOMAIN:?set DOMAIN in .env}
       ADMIN_EMAIL: ${ADMIN_EMAIL:-}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
-      # Residence directory and login hashes. Not stored in the repository.
-      RESIDENTS_SEED_B64: ${RESIDENTS_SEED_B64:-}
+      # Unlocks prisma/data/residents.seed. The key is not in the repository.
+      RESIDENTS_SEED_KEY: ${RESIDENTS_SEED_KEY:-}
     volumes:
       # owners' listing photos: user content, kept outside the image and backed up
       - uploads:/app/uploads

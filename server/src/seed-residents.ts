@@ -1,8 +1,9 @@
 // Idempotent production seed. Creates each residence and its portal login when missing.
 // Existing logins keep their password, so a later deploy does not undo a password change.
-// The directory and password hashes are supplied at deploy time (RESIDENTS_SEED_B64).
-// They are not stored in this repository.
+// The directory is stored encrypted in prisma/data/residents.seed. Coolify supplies
+// RESIDENTS_SEED_KEY at runtime. The key is not in this repository.
 import 'dotenv/config';
+import { createDecipheriv } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { prisma } from './db';
@@ -24,7 +25,19 @@ type ResidentSeed = {
   };
 };
 
+function decryptBundled(keyHex: string): string {
+  const file = path.join(process.cwd(), 'prisma', 'data', 'residents.seed');
+  const key = Buffer.from(keyHex, 'hex');
+  if (key.length !== 32) throw new Error('RESIDENTS_SEED_KEY must be 64 hex characters.');
+  const payload = Buffer.from(readFileSync(file, 'utf8').trim(), 'base64');
+  const decipher = createDecipheriv('aes-256-gcm', key, payload.subarray(0, 12));
+  decipher.setAuthTag(payload.subarray(12, 28));
+  return Buffer.concat([decipher.update(payload.subarray(28)), decipher.final()]).toString('utf8');
+}
+
 function seedText(): string | null {
+  const key = process.env.RESIDENTS_SEED_KEY?.trim();
+  if (key) return decryptBundled(key);
   const b64 = process.env.RESIDENTS_SEED_B64?.trim();
   const inline = process.env.RESIDENTS_SEED_JSON?.trim();
   const fromEnvFile = process.env.RESIDENTS_SEED_FILE?.trim();
@@ -45,7 +58,7 @@ function loadSeed(): ResidentSeed[] | null {
   const raw = seedText();
   if (!raw) {
     console.log(
-      'Resident seed skipped. Set RESIDENTS_SEED_B64 on the server to create residence logins. That value is not stored in the repository.',
+      'Resident seed skipped. Set RESIDENTS_SEED_KEY on the server to create residence logins. The key is not stored in the repository.',
     );
     return null;
   }

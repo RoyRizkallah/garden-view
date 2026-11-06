@@ -24,8 +24,8 @@ Coolify already runs its own proxy on ports 80/443 with automatic HTTPS, so use
    (`:4000` tells the proxy which container port to use; visitors still use plain https).
 5. **Environment variables** (Coolify lists them): `DOMAIN` (e.g. `gardenview.com`, no https),
    `POSTGRES_PASSWORD` (`openssl rand -hex 24`), `JWT_SECRET` (`openssl rand -hex 48`),
-   and `RESIDENTS_SEED_B64` (the residence directory and login hashes, kept in Coolify only).
-6. **Deploy.** Migrations run on start. When `RESIDENTS_SEED_B64` is set, residence logins that
+   and `RESIDENTS_SEED_KEY` (64 hex characters, kept in Coolify only; it unlocks the encrypted residence directory).
+6. **Deploy.** Migrations run on start. When `RESIDENTS_SEED_KEY` is set, residence logins that
    are not already in the database are created. Existing passwords are left as they are.
    If the build stops with "is a Git LFS pointer", the films
    were not fetched: enable Git LFS for the resource in Coolify (or deploy with the plain steps below).
