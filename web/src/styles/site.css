@@ -1555,3 +1555,160 @@ body:has(> #root > .site) {
   align-items: flex-start;
   gap: 14px;
 }
+
+/* ==========================================================================
+   Floor plans (the level detail view): a light page like the 3D explorer's, the plan
+   window keeping its dark ground for the model and the controls drawn over it.
+   plans.css colours through theme tokens, so the page re-points them at the light palette
+   and the stage puts the original values back.
+   ========================================================================== */
+.site .plans-page {
+  --white: var(--steel);
+  --cream: var(--steel);
+  --stone: var(--glass);
+  --gold: var(--green);
+  --gold-dim: var(--limestone-2);
+  --charcoal: var(--paper);
+  background: var(--paper);
+  color: var(--steel);
+}
+.site .plans-stage {
+  --white: #fffdf8;
+  --cream: #f5f0e4;
+  --stone: #cdbf9e;
+  --gold: #c9a769;
+  --gold-dim: #8f7647;
+  --charcoal: #131310;
+  border: none;
+  border-radius: var(--radius);
+  box-shadow: var(--card-shadow);
+}
+
+/* labels in sentence case */
+.site .plans-breadcrumb,
+.site .plans-stat span,
+.site .plans-step-label,
+.site .plans-range span,
+.site .plans-empty-sheet,
+.site .plans-level-kicker,
+.site .plans-tag,
+.site .plans-amenities-label,
+.site .plans-block-name,
+.site .plans-unit-note,
+.site .plans-selected-kicker,
+.site .plans-selected-scope,
+.site .plans-unit-stack,
+.site .plans-sheet-chip,
+.site .plans-mode-btn,
+.site .plans-switch,
+.site .plans-ctl-text,
+.site .plans-ctl-reset,
+.site .plans-hint {
+  text-transform: none;
+  letter-spacing: 0.01em;
+}
+.site .plans-step-label,
+.site .plans-level-kicker,
+.site .plans-amenities-label {
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+/* the quiet greys that were cream on green */
+.site .plans-breadcrumb,
+.site .plans-breadcrumb .sep,
+.site .plans-pill.is-basement,
+.site .plans-amenities-label,
+.site .plans-block-count,
+.site .plans-unit-note,
+.site .plans-selected-kicker,
+.site .plans-selected-caption,
+.site .plans-bay-chip.is-static,
+.site .plans-empty-sheet {
+  color: var(--glass);
+}
+
+/* lines and panels on the light page */
+.site .plans-stat + .plans-stat {
+  border-left-color: var(--limestone-2);
+}
+.site .plans-rail-divider,
+.site .plans-range::before,
+.site .plans-range span::after {
+  background: var(--limestone-2);
+}
+.site .plans-pill {
+  background: #fff;
+  border-color: var(--limestone-2);
+  border-radius: 3px;
+}
+.site .plans-pill.is-selected {
+  box-shadow: none;
+}
+.site .plans-pill.is-basement {
+  background: transparent;
+}
+.site .plans-level,
+.site .plans-selected {
+  background: #fff;
+  border: none;
+  border-radius: var(--radius);
+  box-shadow: var(--card-shadow);
+}
+.site .plans-selected {
+  border-top: 3px solid var(--gold);
+}
+.site .plans-level-count,
+.site .plans-amenities,
+.site .plans-unit-row,
+.site .plans-unit-item,
+.site .plans-facts {
+  border-color: var(--limestone);
+}
+.site .plans-unit-row:hover,
+.site .plans-unit-row.is-interactive:hover {
+  background: rgba(47, 74, 58, 0.04);
+  border-color: transparent;
+}
+.site .plans-unit-row.is-interactive.is-selected {
+  background: rgba(47, 74, 58, 0.06);
+  border-color: rgba(47, 74, 58, 0.4);
+}
+.site .plans-amenity {
+  background: var(--paper);
+  border-color: var(--limestone-2);
+}
+.site .plans-tag,
+.site .plans-unit-stack,
+.site .plans-bay-chip,
+.site .plans-empty-icon {
+  border-color: rgba(47, 74, 58, 0.4);
+}
+.site .plans-tag.is-muted {
+  border-color: var(--limestone-2);
+}
+.site .plans-level-note {
+  border-color: var(--limestone-2);
+  background: var(--paper);
+}
+.site .plans-level::-webkit-scrollbar-thumb {
+  background: var(--limestone-2);
+}
+.site .plans-level {
+  scrollbar-color: var(--limestone-2) transparent;
+}
+.site .plans-block-badge {
+  color: #fffdf8;
+}
+
+/* buttons on the light page: green, as across the site */
+.site .plans-page .btn-primary:hover,
+.site .plans-page .btn-gold:hover {
+  background: var(--green-dark);
+  border-color: var(--green-dark);
+}
+.site .plans-page .btn-outline:hover,
+.site .plans-page .btn-outline-gold:hover {
+  background: var(--green);
+  color: var(--paper);
+}
