@@ -1111,3 +1111,52 @@
     margin-left: 0;
   }
 }
+
+/* ==========================================================================
+   Our People in the garden: the scene draws its own wall, hedge, trees and lawn.
+   ========================================================================== */
+.rs-shell .pt-stage {
+  border: none;
+  border-radius: 18px;
+  background: #e5ddcc;
+}
+.rs-shell .pt-garden {
+  color: inherit;
+}
+/* cards stand in the garden: white, with a soft shadow on the lawn */
+.rs-shell .pt-stage .pt-card {
+  border-color: transparent;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 2px 4px rgba(24, 41, 32, 0.12), 0 24px 40px -22px rgba(24, 41, 32, 0.65);
+}
+.rs-shell .pt-stage .pt-card.is-lead {
+  border-top: 3px solid var(--r-gold);
+}
+.rs-shell .pt-ground,
+.rs-shell .pt-m-root {
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-size: 13px;
+}
+/* phone: the cards on a lawn-green panel under a band of hedge */
+@media (max-width: 880px) {
+  .rs-shell .pt-mobile {
+    padding: 34px 18px 22px;
+    border-radius: 18px;
+    background:
+      radial-gradient(60px 22px at 30px 0, #5b7756 98%, transparent) 0 0 / 60px 24px repeat-x,
+      repeating-radial-gradient(circle at 4px 4px, rgba(157, 182, 133, 0.35) 0 2px, transparent 2.5px 9px),
+      linear-gradient(#7d9868, #4a6a40);
+  }
+  .rs-shell .pt-m-line {
+    background: rgba(255, 253, 248, 0.35);
+  }
+  .rs-shell .pt-m-root {
+    color: rgba(255, 253, 248, 0.8);
+  }
+}
+
+/* wide screens: the portal uses the room (text columns keep their own measure) */
+.rs-shell .rs-main {
+  max-width: 1560px;
+}

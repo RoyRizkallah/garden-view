@@ -17,6 +17,8 @@
   --steel: #1e2124; /* balustrade black: type */
   --glass: #5b6770; /* window glass grey: secondary text */
 
+  /* content width: wide screens use the room, text columns keep their own measure */
+  --site-max: 1520px;
   --font-site: 'Archivo', 'Inter', system-ui, sans-serif;
   /* One family across the public site: pages that name the old faces get Archivo too. */
   --font-serif: var(--font-site);
@@ -40,6 +42,10 @@
 /* Overscroll and short pages show paper, not the portal's cream. */
 body:has(> #root > .site) {
   background: #faf9f6;
+}
+
+.site .container {
+  max-width: var(--site-max);
 }
 
 .site :focus-visible {
@@ -299,7 +305,7 @@ body:has(> #root > .site) {
   align-self: center;
   max-width: none;
   margin: 0;
-  padding: 72px 56px 64px max(32px, calc((100vw - 1240px) / 2 + 32px));
+  padding: 72px 56px 64px max(32px, calc((100vw - var(--site-max)) / 2 + 32px));
 }
 .site .page-hero-inner h1 {
   font-size: clamp(40px, 4.6vw, 64px);
@@ -323,7 +329,7 @@ body:has(> #root > .site) {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 72px 56px 64px max(32px, calc((100vw - 1240px) / 2 + 32px));
+  padding: 72px 56px 64px max(32px, calc((100vw - var(--site-max)) / 2 + 32px));
 }
 .site .home-hero-title {
   font-size: clamp(44px, 5.2vw, 76px);
@@ -1238,7 +1244,7 @@ body:has(> #root > .site) {
 
 /* ---------- Home tiles below the opening (live Home markup) ---------- */
 .site .home-bento {
-  padding-inline: max(32px, calc((100vw - 1240px) / 2 + 32px));
+  padding-inline: max(32px, calc((100vw - var(--site-max)) / 2 + 32px));
 }
 .site .home-bento-amenities {
   position: relative;
