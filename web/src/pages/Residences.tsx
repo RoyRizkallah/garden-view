@@ -107,7 +107,7 @@ export default function Residences() {
         <div className="container">
           <div className="availability-card">
             <div>
-              <p className="eyebrow" style={{ color: '#cdbf9e' }}>
+              <p className="eyebrow">
                 Current Availability
               </p>
               <h2>Residences for Sale &amp; Rent</h2>

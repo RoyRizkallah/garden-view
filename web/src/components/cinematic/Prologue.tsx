@@ -280,7 +280,7 @@ export default function Prologue() {
         {/* the opening title */}
         <div ref={set('hero')} className="pl-caption pl-hero">
           <div className="container">
-            <p className="eyebrow" style={{ color: '#e9e1cc' }}>
+            <p className="eyebrow">
               {BUILDING_FACTS.location}
             </p>
             <h1 className="pl-title">

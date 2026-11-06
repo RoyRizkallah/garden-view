@@ -37,7 +37,7 @@ export default function Navbar() {
     <header className={`navbar ${scrolled ? 'is-scrolled' : ''} ${open ? 'is-open' : ''}`}>
       <div className="container navbar-inner">
         <NavLink to="/" className="navbar-brand" onClick={close}>
-          <Logo />
+          <Logo variant="dark" />
         </NavLink>
 
         <nav className="navbar-links">
@@ -51,13 +51,13 @@ export default function Navbar() {
             </NavLink>
           ))}
           <NavLink to="/login" className="navbar-resident-link">
-            Resident Login
+            Resident login
           </NavLink>
         </nav>
 
         <div className="navbar-actions">
-          <NavLink to="/location" className="btn btn-outline-gold btn-sm">
-            Request a Tour
+          <NavLink to="/location" className="btn btn-primary btn-sm">
+            Request a tour
           </NavLink>
           <button
             className="navbar-toggle"
@@ -89,11 +89,11 @@ export default function Navbar() {
           ))}
         </nav>
         <div className="navbar-drawer-actions">
-          <NavLink to="/login" className="btn btn-outline btn-on-dark btn-block" onClick={close}>
-            Resident Login
+          <NavLink to="/login" className="btn btn-outline btn-block" onClick={close}>
+            Resident login
           </NavLink>
-          <NavLink to="/location" className="btn btn-gold btn-block" onClick={close}>
-            Request a Tour
+          <NavLink to="/location" className="btn btn-primary btn-block" onClick={close}>
+            Request a tour
           </NavLink>
         </div>
       </div>

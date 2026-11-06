@@ -26,7 +26,7 @@ export default function PageHero({
         <div className="page-hero-scrim" />
       </div>
       <div className="container page-hero-inner">
-        <p className="eyebrow" style={{ color: '#e9e1cc' }}>
+        <p className="eyebrow">
           {eyebrow}
         </p>
         <h1>{title}</h1>

@@ -185,7 +185,7 @@ export default function Amenities() {
             </div>
             <div className="services-band-inner">
               <div>
-                <p className="eyebrow" style={{ color: '#cdbf9e' }}>
+                <p className="eyebrow">
                   Get in touch
                 </p>
                 <h2>Experience Garden View Lifestyle</h2>

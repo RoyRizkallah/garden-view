@@ -45,7 +45,7 @@ export default function Home() {
             />
             <div className="home-bento-amenities-scrim" />
             <div className="home-bento-amenities-top">
-              <p className="eyebrow" style={{ color: '#e9e1cc' }}>
+              <p className="eyebrow">
                 Curated Amenities
               </p>
               <h2>Everyday Spaces, Shared Well</h2>
@@ -115,7 +115,7 @@ export default function Home() {
           </div>
 
           <div className="home-bento-cell home-bento-contact">
-            <p className="eyebrow" style={{ color: '#cdbf9e' }}>
+            <p className="eyebrow">
               Get in Touch
             </p>
             <h2>Experience Garden View</h2>

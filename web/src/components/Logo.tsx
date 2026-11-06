@@ -20,6 +20,7 @@ export default function Logo({ variant = 'light' }: LogoProps) {
         />
       </picture>
       <span className="logo-text" style={{ color }}>
+        <strong>Garden View</strong>
         <em>Beirut Central District</em>
       </span>
     </span>

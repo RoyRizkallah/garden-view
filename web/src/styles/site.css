@@ -1,0 +1,1544 @@
+/* ============================================================
+   Public site — "Limestone" direction.
+   Light pages in the building's own materials (limestone and white render, the black
+   steel of the balustrades, the grey of the window glass), with the Garden View green
+   kept as the brand: buttons, links and active states on the light pages, and the deep
+   green (with its gold) for the footer, the scroll-driven opening and the 3D viewers.
+
+   Everything here is scoped to `.site` (the public Layout wrapper), so the resident
+   portal and sign-in keep theme.css/layout.css/portal.css untouched. Loaded last.
+   The brand tokens (--green, --green-dark, --gold) come unchanged from theme.css.
+   ============================================================ */
+
+.site {
+  --paper: #faf9f6; /* white render: page ground */
+  --limestone: #e6e0d4; /* facade stone: bands, panels */
+  --limestone-2: #d6cdbc; /* stone joint: rules and borders */
+  --steel: #1e2124; /* balustrade black: type */
+  --glass: #5b6770; /* window glass grey: secondary text */
+
+  --font-site: 'Archivo', 'Inter', system-ui, sans-serif;
+  /* One family across the public site: pages that name the old faces get Archivo too. */
+  --font-serif: var(--font-site);
+  --font-sans: var(--font-site);
+  --font-mono: var(--font-site);
+  --nav-h: 68px;
+
+  --ink: #1e2124;
+  --cream: var(--paper);
+  --cream-dark: var(--limestone);
+  --radius: 4px;
+  --radius-sm: 3px;
+  --shadow: 0 24px 60px -30px rgba(30, 33, 36, 0.35);
+
+  font-family: var(--font-site);
+  background: var(--paper);
+  color: var(--steel);
+  min-height: 100vh;
+}
+
+/* Overscroll and short pages show paper, not the portal's cream. */
+body:has(> #root > .site) {
+  background: #faf9f6;
+}
+
+.site :focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 3px;
+}
+
+/* ---------- Type ---------- */
+/* Display: Archivo at its widest cut, like lettering cut into stone. */
+.site h1,
+.site h2,
+.site h3,
+.site .serif {
+  font-family: var(--font-site);
+  font-stretch: 125%;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.04;
+  text-wrap: balance;
+}
+.site h3 {
+  font-stretch: 112%;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+}
+.site .accent {
+  color: inherit;
+}
+
+/* Labels read as plain sentence-case captions, not tracked capitals. */
+.site .eyebrow {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--glass);
+}
+.site .eyebrow::before {
+  display: none;
+}
+.site .eyebrow-icon {
+  color: var(--green);
+}
+
+/* ---------- Buttons ---------- */
+.site .btn {
+  border-radius: var(--radius-sm);
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 13px 22px;
+}
+.site .btn:hover {
+  transform: none;
+  box-shadow: none;
+}
+.site .btn-primary,
+.site .btn-gold,
+.site .btn-clay {
+  background: var(--green);
+  color: var(--paper);
+  border: 1.5px solid var(--green);
+}
+.site .btn-primary:hover,
+.site .btn-gold:hover,
+.site .btn-clay:hover {
+  background: var(--green-dark);
+  border-color: var(--green-dark);
+}
+.site .btn-outline,
+.site .btn-outline-gold,
+.site .btn-ghost,
+.site .btn-on-dark {
+  background: transparent;
+  color: var(--green);
+  border: 1.5px solid var(--green);
+}
+.site .btn-outline:hover,
+.site .btn-outline-gold:hover,
+.site .btn-ghost:hover,
+.site .btn-on-dark:hover {
+  background: var(--green);
+  color: var(--paper);
+}
+.site .btn-sm {
+  padding: 9px 16px;
+  font-size: 14px;
+}
+
+/* Text link: green, underlined. */
+.site .home-link,
+.site .amenity-tile-link,
+.site .lightbox-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-site);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--green);
+  border-bottom: 1.5px solid currentColor;
+  padding-bottom: 1px;
+}
+.site .home-link:hover,
+.site .amenity-tile-link:hover,
+.site .lightbox-toggle:hover {
+  color: var(--steel);
+}
+
+/* ---------- Sections and shared cards ---------- */
+/* Information pages are light, and so are the gallery, sale & rent and the 3D explorer's page.
+   The floor-plan viewer, the 3D window and the opening keep the brand's deep green. */
+.site .section-dark,
+.site .amenities-dark-section,
+.site .services-band {
+  background: var(--paper);
+  color: var(--steel);
+}
+.site .section-head p,
+.site .section-dark .section-head p {
+  color: var(--glass);
+  opacity: 1;
+}
+.site .note-card,
+.site .section-dark .note-card {
+  border: 1px solid var(--limestone-2);
+  background: rgba(230, 224, 212, 0.45);
+  color: var(--steel);
+  opacity: 1;
+}
+
+/* ---------- Logo ---------- */
+.site .logo-mark {
+  height: 36px;
+  border-radius: 3px;
+  box-shadow: none;
+}
+.site .logo-text strong {
+  font-family: var(--font-site);
+  font-stretch: 125%;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.site .logo-text em {
+  font-size: 12px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: inherit;
+  opacity: 0.7;
+}
+
+/* ---------- Navbar: a solid paper bar, always ---------- */
+.site .navbar,
+.site .navbar.is-scrolled {
+  background: var(--paper);
+  border-bottom: 1px solid var(--limestone);
+  box-shadow: none;
+  padding: 14px 0;
+}
+.site .navbar.is-scrolled .logo-mark {
+  height: 36px;
+}
+.site .navbar-links {
+  gap: 26px;
+}
+.site .navbar-links a {
+  color: var(--glass);
+  font-size: 14.5px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  opacity: 1;
+}
+.site .navbar-links a:hover,
+.site .navbar-links a.is-active {
+  color: var(--steel);
+  border-bottom-color: var(--green);
+}
+.site .navbar-resident-link {
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--steel);
+  font-size: 14.5px;
+  font-weight: 500;
+}
+.site .navbar-toggle span {
+  background: var(--steel);
+}
+@media (max-width: 900px) {
+  .site .navbar-drawer {
+    background: var(--paper);
+  }
+  .site .navbar-drawer-close {
+    color: var(--steel);
+  }
+  .site .navbar-drawer-links a {
+    color: var(--steel);
+    border-bottom-color: var(--limestone);
+    opacity: 1;
+  }
+  .site .navbar-drawer-links a.is-active {
+    color: var(--green);
+  }
+}
+
+/* ---------- Hero stats (Residences, About) ---------- */
+.site .hero-stats {
+  border-top: 1px solid var(--limestone-2);
+}
+.site .hero-stat {
+  border-right-color: var(--limestone-2);
+}
+.site .hero-stat strong {
+  font-family: var(--font-site);
+  font-stretch: 125%;
+  font-weight: 600;
+  font-size: 36px;
+  line-height: 1.1;
+}
+.site .hero-stat span {
+  font-size: 14px;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--glass);
+  opacity: 1;
+}
+
+/* ---------- Interior page hero: text on paper, photograph beside it ---------- */
+.site .page-hero {
+  display: grid;
+  grid-template-columns: 1fr 1.05fr;
+  align-items: stretch;
+  min-height: 0;
+  padding-top: var(--nav-h);
+  background: var(--paper);
+  color: var(--steel);
+}
+.site .page-hero-media {
+  position: relative;
+  order: 2;
+  min-height: 460px;
+}
+.site .page-hero-media img {
+  position: absolute;
+  inset: 0;
+}
+.site .page-hero-scrim {
+  display: none;
+}
+.site .page-hero-inner {
+  order: 1;
+  align-self: center;
+  max-width: none;
+  margin: 0;
+  padding: 72px 56px 64px max(32px, calc((100vw - 1240px) / 2 + 32px));
+}
+.site .page-hero-inner h1 {
+  font-size: clamp(40px, 4.6vw, 64px);
+  margin: 10px 0 20px;
+}
+.site .page-hero-sub {
+  color: var(--glass);
+  opacity: 1;
+  font-size: 18px;
+  max-width: 40ch;
+}
+
+/* ---------- Home ---------- */
+.site .home-hero {
+  display: grid;
+  grid-template-columns: 1fr 1.08fr;
+  padding-top: var(--nav-h);
+  min-height: min(860px, 100vh);
+}
+.site .home-hero-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 72px 56px 64px max(32px, calc((100vw - 1240px) / 2 + 32px));
+}
+.site .home-hero-title {
+  font-size: clamp(44px, 5.2vw, 76px);
+  line-height: 0.98;
+  letter-spacing: -0.025em;
+  max-width: 11.5ch;
+}
+.site .home-hero-sub {
+  margin-top: 28px;
+  font-size: 19px;
+  color: var(--glass);
+  max-width: 36ch;
+}
+.site .home-hero .hero-cta {
+  margin: 38px 0 0;
+  gap: 12px;
+}
+.site .home-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px 56px;
+  margin-top: 64px;
+  padding-top: 26px;
+  border-top: 1px solid var(--limestone-2);
+}
+.site .home-facts dt {
+  font-stretch: 125%;
+  font-weight: 600;
+  font-size: 40px;
+  line-height: 1;
+}
+.site .home-facts dd {
+  margin-top: 8px;
+  font-size: 14px;
+  color: var(--glass);
+}
+.site .home-hero-photo {
+  position: relative;
+  margin: 0;
+  min-height: 420px;
+}
+.site .home-hero-photo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 38% 50%;
+}
+
+.site .home-section {
+  padding: 112px 0;
+}
+.site .home-section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px 40px;
+  flex-wrap: wrap;
+  margin-bottom: 40px;
+}
+.site .home-section h2 {
+  font-size: clamp(30px, 3.4vw, 44px);
+  max-width: 16ch;
+}
+.site .home-section-head p {
+  max-width: 44ch;
+  color: var(--glass);
+  font-size: 17px;
+}
+
+/* Blocks strip: column widths are the residence counts (set inline from BLOCKS). */
+.site .home-blocks {
+  display: grid;
+  gap: 6px;
+  height: 440px;
+}
+.site .home-block {
+  position: relative;
+  overflow: hidden;
+  border-bottom: 3px solid var(--green);
+}
+.site .home-block img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s var(--ease);
+}
+.site .home-block:hover img {
+  transform: scale(1.03);
+}
+.site .home-block-tag {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 40px 20px 18px;
+  background: linear-gradient(transparent, rgba(20, 22, 24, 0.66));
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+}
+.site .home-block-tag strong {
+  font-stretch: 125%;
+  font-size: 22px;
+  font-weight: 600;
+}
+.site .home-block-tag span {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+/* Floor picker: a lift panel beside the real plan sheet. */
+.site .home-plans {
+  background: var(--limestone);
+}
+.site .home-plans-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 340px) 84px minmax(0, 1fr);
+  gap: 44px;
+  align-items: start;
+}
+.site .home-plans-intro p {
+  margin-top: 20px;
+  color: #4b5459;
+  font-size: 17px;
+}
+.site .home-plans-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 18px;
+  margin-top: 32px;
+}
+.site .home-plans-floors {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.site .home-plans-floors button {
+  height: 38px;
+  border: 1px solid var(--limestone-2);
+  background: var(--paper);
+  color: var(--steel);
+  border-radius: 2px;
+  font-family: var(--font-site);
+  font-stretch: 125%;
+  font-weight: 600;
+  font-size: 14px;
+}
+.site .home-plans-floors button:hover {
+  border-color: var(--steel);
+}
+.site .home-plans-floors button.is-parking {
+  background: transparent;
+  color: var(--glass);
+}
+.site .home-plans-floors button.is-active {
+  background: var(--green);
+  border-color: var(--green);
+  color: var(--paper);
+}
+.site .home-plans-sheet {
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  padding: 28px 32px;
+  height: 640px;
+  overflow: hidden;
+}
+.site .home-plans-sheet-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 13px;
+  color: var(--glass);
+}
+.site .home-plans-sheet-head strong {
+  font-stretch: 125%;
+  font-size: 18px;
+  color: var(--steel);
+}
+.site .home-plans-sheet img {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  object-fit: contain;
+  margin-top: 12px;
+  transform: scale(1.25);
+}
+.site .home-plans-missing {
+  margin: auto;
+  color: var(--glass);
+}
+
+/* The original bento, on light ground. */
+.site .home-bento {
+  background: var(--paper);
+  padding: 112px 0;
+}
+.site .home-bento-row {
+  gap: 16px;
+}
+.site .home-bento-row-3 {
+  margin-bottom: 16px;
+}
+.site .home-bento-cell {
+  background: #fff;
+  color: var(--steel);
+  border: 1px solid var(--limestone);
+  border-radius: var(--radius);
+  padding: 28px 28px 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+.site .home-bento-cell h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.1;
+  margin: 0;
+}
+.site .home-bento-copy {
+  font-size: 15px;
+  color: var(--glass);
+  opacity: 1;
+}
+.site .home-bento-cell .home-link {
+  margin-top: auto;
+}
+.site .home-bento-amenities {
+  padding: 0;
+  gap: 0;
+}
+.site .home-bento-amenities img {
+  height: 200px;
+}
+.site .home-bento-amenities-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 18px;
+  padding: 24px 28px 30px;
+  width: 100%;
+}
+.site .home-amenity-icons {
+  width: 100%;
+}
+.site .home-amenity-icons li {
+  color: var(--steel);
+  font-size: 13px;
+  opacity: 1;
+}
+.site .home-amenity-icons li svg,
+.site .home-bento-explorer-badge,
+.site .home-bento-contact-list svg {
+  color: var(--green);
+}
+.site .home-bento-thumbs {
+  width: 100%;
+  margin: 0;
+}
+.site .home-bento-thumbs img {
+  height: 96px;
+  border-radius: 2px;
+}
+.site .home-bento-explorer-badge {
+  display: none;
+}
+.site .home-bento-map {
+  width: 100%;
+  margin: 0;
+  border-radius: 2px;
+}
+.site .home-bento-contact {
+  background: var(--limestone);
+  border-color: var(--limestone);
+}
+.site .home-bento-contact-list {
+  width: 100%;
+  margin-top: 10px;
+  border-top-color: var(--limestone-2);
+}
+.site .home-bento-contact-list div {
+  color: var(--steel);
+  font-size: 14px;
+  opacity: 0.85;
+}
+
+/* ---------- Residences ---------- */
+.site .block-tile {
+  background: #fff;
+  border: 1px solid var(--limestone);
+}
+.site .block-tile:hover {
+  border-color: var(--limestone-2);
+}
+.site .block-tile-icon {
+  background: rgba(250, 249, 246, 0.9);
+  color: var(--steel);
+}
+.site .block-tile-body h3 {
+  color: var(--steel);
+  font-size: 20px;
+}
+.site .block-tile-body span {
+  color: var(--glass);
+}
+.site .highlight-strip,
+.site .amenities-stats-bar,
+.site .about-stats-row {
+  background: #fff;
+  border: 1px solid var(--limestone);
+}
+.site .highlight-strip-item,
+.site .amenities-stats-bar .services-fact,
+.site .services-fact,
+.site .about-stat-card {
+  border-color: var(--limestone);
+}
+.site .highlight-strip-icon,
+.site .lifestyle-icon,
+.site .about-stat-icon,
+.site .district-item-icon {
+  background: var(--paper);
+  border: 1px solid var(--limestone-2);
+  color: var(--green);
+}
+.site .highlight-strip-item strong,
+.site .lifestyle-panel li strong,
+.site .about-stat-card strong {
+  color: var(--steel);
+}
+.site .highlight-strip-item span,
+.site .lifestyle-panel li span,
+.site .about-stat-desc {
+  color: var(--glass);
+}
+.site .availability-card,
+.site .amenities-cta-card {
+  background: var(--limestone);
+  border: none;
+}
+.site .availability-card h2 {
+  color: var(--steel);
+}
+.site .availability-card > div:first-child p,
+.site .services-band-inner > div:first-child p {
+  color: #4b5459;
+  opacity: 1;
+}
+.site .contact-icon-item {
+  color: var(--green);
+}
+.site .contact-icon-item span {
+  color: var(--steel);
+  opacity: 0.85;
+}
+.site .residence-gallery-item,
+.site .bento-gallery-item {
+  border-radius: 2px;
+}
+
+/* ---------- Amenities ---------- */
+.site .amenity-tile {
+  background: #fff;
+  border: 1px solid var(--limestone);
+}
+.site .amenity-tile:hover {
+  border-color: var(--limestone-2);
+}
+.site .amenity-tile-featured {
+  background: var(--green-dark);
+  border: none;
+}
+.site .amenity-tile-featured-tag {
+  background: var(--paper);
+  color: var(--steel);
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 2px;
+}
+.site .amenity-tile-featured .amenity-tile-link {
+  color: #fff;
+}
+.site .amenity-tile-badge {
+  background: rgba(250, 249, 246, 0.9);
+  color: var(--steel);
+}
+.site .amenity-tile-body h3 {
+  color: var(--steel);
+  font-size: 17px;
+}
+.site .amenity-tile-body p {
+  color: var(--glass);
+  font-size: 13px;
+}
+.site .lifestyle-panel {
+  background: var(--limestone);
+  border: none;
+}
+.site .lifestyle-panel li {
+  border-bottom-color: var(--limestone-2);
+}
+.site .lifestyle-panel-decoration {
+  display: none;
+}
+.site .services-fact svg {
+  color: var(--green);
+}
+.site .services-fact strong {
+  font-family: var(--font-site);
+  font-stretch: 125%;
+  font-weight: 600;
+}
+.site .services-fact span {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 13px;
+  color: var(--glass);
+  opacity: 1;
+}
+.site .services-facts-row {
+  border-bottom-color: var(--limestone-2);
+}
+
+/* ---------- Gallery: the shoot on limestone ----------
+   Films and photos sit on the light page; their captions stay white over the images, and the
+   full-screen viewer and theatre stay dark. */
+.site .gallery-page {
+  background: var(--paper);
+  color: var(--steel);
+  padding-top: calc(var(--nav-h) + 72px);
+}
+.site .gallery-header-desc {
+  color: var(--glass);
+  opacity: 1;
+  font-size: 16px;
+}
+.site .gallery-watermark {
+  display: none;
+}
+.site .shoot-page {
+  --nav-h: 72px; /* the sticky chapter bar sits right under the paper navbar */
+}
+.site .shoot-header-count {
+  color: var(--glass);
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+.site .shoot-header-count strong {
+  font-stretch: 125%;
+  font-weight: 600;
+  font-size: 24px;
+  color: var(--green);
+}
+.site .shoot-nav {
+  background: rgba(250, 249, 246, 0.95);
+  border-top-color: var(--limestone);
+  border-bottom-color: var(--limestone);
+}
+.site .shoot-nav a {
+  color: var(--glass);
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 14.5px;
+  font-weight: 500;
+}
+.site .shoot-nav a:hover,
+.site .shoot-nav a.is-active {
+  color: var(--steel);
+}
+.site .shoot-nav a.is-active {
+  border-bottom-color: var(--green);
+}
+.site .shoot-nav-idx {
+  color: var(--green);
+  font-size: 12px;
+}
+.site .shoot-chapter + .shoot-chapter {
+  border-top-color: var(--limestone-2);
+}
+.site .shoot-chapter-idx {
+  font-stretch: 125%;
+  font-weight: 600;
+  -webkit-text-stroke: 1px rgba(47, 74, 58, 0.5);
+}
+.site .shoot-chapter-kicker {
+  color: var(--green);
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+.site .shoot-chapter-summary {
+  color: var(--glass);
+  font-size: 15.5px;
+}
+.site .shoot-chapter-facts li {
+  color: var(--steel);
+  border-color: var(--limestone-2);
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 3px;
+}
+.site .shoot-chapter-facts li:last-child {
+  border-color: rgba(47, 74, 58, 0.45);
+  color: var(--green);
+}
+.site .bento-gallery-caption em {
+  color: #fff;
+  opacity: 0.8;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 12px;
+}
+
+/* ---------- Location ---------- */
+.site .location-split-dark {
+  background: var(--paper);
+  color: var(--steel);
+}
+.site .location-split-light {
+  background: var(--limestone);
+}
+.site .location-split-panel {
+  padding-top: calc(var(--nav-h) + 48px);
+}
+.site .location-split-copy,
+.site .location-intro,
+.site .district-item span {
+  color: var(--glass);
+  opacity: 1;
+}
+.site .location-photo {
+  box-shadow: none;
+}
+.site .location-aside svg,
+.site .contact-grid-item svg {
+  color: var(--green);
+}
+.site .location-contact-divider {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 13px;
+}
+.site .location-contact-divider::before,
+.site .location-contact-divider::after {
+  background: var(--limestone-2);
+}
+.site .form-field label {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--glass);
+  opacity: 1;
+}
+.site .form-field input,
+.site .form-field select,
+.site .form-field textarea {
+  background: #fff;
+  border: 1px solid var(--limestone-2);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-site);
+  font-size: 15px;
+  padding: 11px 14px;
+}
+.site .form-field input:focus,
+.site .form-field select:focus,
+.site .form-field textarea:focus {
+  outline: 2px solid var(--green);
+}
+.site .map-card {
+  box-shadow: none;
+}
+
+/* ---------- About ---------- */
+.site .about-grid h2 {
+  color: var(--steel);
+}
+.site .about-grid p {
+  color: var(--glass);
+}
+.site .about-image {
+  border-radius: 2px;
+  box-shadow: none;
+}
+.site .about-stat-card strong {
+  font-family: var(--font-site);
+  font-stretch: 125%;
+  font-weight: 600;
+}
+.site .about-stat-label {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 14px;
+  color: var(--green);
+}
+
+/* ---------- Footer: the brand's deep green ---------- */
+.site .footer {
+  background: var(--green-dark);
+  color: #e3e5e6;
+}
+.site .footer-heading {
+  font-family: var(--font-site);
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+}
+.site .footer ul a {
+  opacity: 0.75;
+}
+.site .footer-bottom {
+  border-top-color: rgba(255, 255, 255, 0.12);
+}
+
+/* ---------- Floor plans: the plan viewer keeps the deep green ---------- */
+.site .plans-page,
+.site .explorer-page {
+  padding-top: calc(var(--nav-h) + 48px);
+}
+/* On the deep-green page the buttons keep the brand's gold. */
+.site .plans-page .btn-primary,
+.site .plans-page .btn-gold {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--charcoal);
+}
+.site .plans-page .btn-primary:hover,
+.site .plans-page .btn-gold:hover {
+  background: #dab97f;
+  border-color: #dab97f;
+}
+.site .plans-page .btn-outline,
+.site .plans-page .btn-outline-gold {
+  color: var(--gold);
+  border-color: var(--gold);
+}
+.site .plans-page .btn-outline:hover,
+.site .plans-page .btn-outline-gold:hover {
+  background: var(--gold);
+  color: var(--charcoal);
+}
+
+/* ---------- 3D explorer: light page, the 3D window stays a deep-green night ----------
+   explorer.css colours its text and accents through theme tokens, so the page re-points them
+   at the light palette (text steel, accents green, the selected floor green with paper text)
+   and the viewer puts the original dark values back for everything drawn over the model. */
+.site .explorer-page {
+  --white: var(--steel);
+  --cream: var(--steel);
+  --stone: var(--glass);
+  --gold: var(--green);
+  --gold-dim: var(--limestone-2);
+  --charcoal: var(--paper);
+  background: var(--paper);
+  color: var(--steel);
+}
+.site .explorer-viewer {
+  --white: #fffdf8;
+  --cream: #f5f0e4;
+  --stone: #cdbf9e;
+  --gold: #c9a769;
+  --gold-dim: #8f7647;
+  --charcoal: #131310;
+  border: none;
+  border-radius: var(--radius);
+}
+.site .explorer-breadcrumb,
+.site .explorer-breadcrumb .sep {
+  color: var(--glass);
+}
+.site .explorer-breadcrumb,
+.site .explorer-step-label,
+.site .explorer-stat span,
+.site .explorer-overview-title,
+.site .explorer-floor-range span {
+  text-transform: none;
+  letter-spacing: 0;
+}
+.site .explorer-step-label,
+.site .explorer-overview-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+.site .explorer-stat + .explorer-stat {
+  border-left-color: var(--limestone-2);
+}
+.site .explorer-block-card,
+.site .explorer-block-overview,
+.site .explorer-units {
+  background: #fff;
+  border-color: var(--limestone);
+}
+.site .explorer-block-card:hover {
+  border-color: var(--limestone-2);
+}
+.site .explorer-block-card.is-selected {
+  border-color: var(--green);
+  background: rgba(47, 74, 58, 0.05);
+}
+.site .explorer-block-chip,
+.site .explorer-unit-stack {
+  border-color: rgba(47, 74, 58, 0.45);
+  border-radius: 3px;
+}
+.site .explorer-floor-pill {
+  background: #fff;
+  border-color: var(--limestone-2);
+  border-radius: 3px;
+}
+.site .explorer-floor-pill.is-partner {
+  border-color: rgba(47, 74, 58, 0.5);
+}
+.site .explorer-floor-pill.is-selected {
+  box-shadow: none;
+}
+.site .explorer-floor-pill.is-basement {
+  background: transparent;
+  color: var(--glass);
+}
+.site .explorer-floor-divider {
+  background: var(--limestone-2);
+}
+.site .explorer-floor-range::before,
+.site .explorer-floor-range span::after {
+  background: var(--limestone-2);
+}
+.site .explorer-unit-list li {
+  border-bottom-color: var(--limestone);
+}
+.site .explorer-unit-row:hover,
+.site .explorer-unit-row:focus-visible {
+  background: rgba(47, 74, 58, 0.04);
+}
+.site .explorer-units .note-card {
+  border-color: var(--limestone-2);
+  background: var(--paper);
+}
+.site .explorer-empty-icon {
+  border-color: rgba(47, 74, 58, 0.45);
+}
+.site .explorer-page .btn-gold:hover,
+.site .explorer-page .btn-primary:hover {
+  background: var(--green-dark);
+  border-color: var(--green-dark);
+}
+
+/* ---------- Phone and tablet ---------- */
+@media (max-width: 900px) {
+  .site {
+    --nav-h: 64px;
+  }
+  .site .home-hero,
+  .site .page-hero {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+  .site .home-hero-photo,
+  .site .page-hero-media {
+    order: -1;
+    min-height: 0;
+    height: 340px;
+  }
+  .site .home-hero-text,
+  .site .page-hero-inner {
+    padding: 36px 32px 48px;
+  }
+  .site .home-hero .hero-cta {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .site .home-hero .hero-cta .btn {
+    justify-content: center;
+  }
+  .site .home-facts {
+    margin-top: 40px;
+    gap: 20px 36px;
+  }
+  .site .home-facts dt {
+    font-size: 32px;
+  }
+  .site .home-section,
+  .site .home-bento {
+    padding: 64px 0;
+  }
+  .site .home-blocks {
+    height: 260px;
+  }
+  .site .home-block-tag {
+    padding: 28px 10px 12px;
+  }
+  .site .home-block-tag strong {
+    font-size: 14px;
+    font-stretch: 100%;
+    white-space: nowrap;
+  }
+  .site .home-block-tag span {
+    font-size: 12px;
+  }
+  /* The narrowest block is ~50 px wide on a phone: show the count alone. */
+  .site .home-block-tag .home-block-unit-word {
+    display: none;
+  }
+  .site .home-plans-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+  .site .home-plans-floors {
+    flex-direction: row;
+    overflow-x: auto;
+    margin: 0 -32px;
+    padding: 0 32px 4px;
+  }
+  .site .home-plans-floors button {
+    flex: 0 0 46px;
+  }
+  .site .home-plans-sheet {
+    height: 420px;
+    padding: 20px;
+  }
+}
+
+@media (max-width: 560px) {
+  .site .home-hero-text,
+  .site .page-hero-inner {
+    padding: 32px 16px 40px;
+  }
+  .site .container {
+    padding: 0 16px;
+  }
+  .site .home-plans-floors {
+    margin: 0 -16px;
+    padding: 0 16px 4px;
+  }
+  .site .home-hero-photo,
+  .site .page-hero-media {
+    height: 300px;
+  }
+}
+
+/* ---------- Landing prologue: the scroll-driven film and 3D opening ----------
+   It stays a night sequence (film and a lit model read best on dark), in its original green and gold (prologue.css);
+   here its type and controls take the site's voice, light on dark. */
+.site .prologue .eyebrow,
+.site .prologue .pl-sub,
+.site .prologue .pl-scene p:not(.eyebrow) {
+  color: rgba(250, 249, 246, 0.82);
+}
+.site .pl-title {
+  font-size: clamp(42px, 6vw, 88px);
+  letter-spacing: -0.025em;
+  max-width: 12ch;
+}
+.site .pl-scene h2 {
+  font-size: clamp(34px, 4.6vw, 68px);
+}
+.site .pl-stats strong,
+.site .pl-block-label strong {
+  font-stretch: 125%;
+  font-weight: 600;
+}
+.site .pl-stats span,
+.site .pl-block-label span,
+.site .pl-rail button,
+.site .pl-cue {
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-size: 13px;
+  font-weight: 500;
+}
+.site .pl-block-label {
+  border-radius: 3px;
+}
+.site .prologue .btn-gold,
+.site .prologue .btn-primary {
+  background: var(--paper);
+  border-color: var(--paper);
+  color: var(--steel);
+}
+.site .prologue .btn-gold:hover,
+.site .prologue .btn-primary:hover {
+  background: var(--limestone);
+  border-color: var(--limestone);
+}
+.site .prologue .btn-ghost,
+.site .prologue .btn-outline {
+  color: var(--paper);
+  border-color: rgba(250, 249, 246, 0.6);
+}
+.site .prologue .btn-ghost:hover,
+.site .prologue .btn-outline:hover {
+  background: var(--paper);
+  color: var(--steel);
+}
+
+/* ---------- Home tiles below the opening (live Home markup) ---------- */
+.site .home-bento {
+  padding-inline: max(32px, calc((100vw - 1240px) / 2 + 32px));
+}
+.site .home-bento-amenities {
+  position: relative;
+}
+.site .home-bento-amenities-scrim {
+  height: 200px;
+}
+.site .home-bento-amenities-top {
+  bottom: auto;
+  top: 120px;
+  left: 28px;
+  color: #fff;
+}
+.site .home-bento-amenities-top .eyebrow {
+  color: rgba(255, 255, 255, 0.85);
+}
+.site .home-bento-amenities-top h2 {
+  color: #fff;
+}
+.site .home-bento-link {
+  font-family: var(--font-site);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--green);
+  border-bottom: 1.5px solid currentColor;
+  padding-bottom: 1px;
+  margin-top: auto;
+}
+.site .home-bento-link-overlay {
+  margin: 0 28px 26px;
+}
+@media (max-width: 560px) {
+  .site .home-bento {
+    padding-inline: 16px;
+  }
+}
+
+/* ============================================================
+   Warmth. The light pages keep their limestone ground, and the brand comes back in
+   measured places: every page opens on the deep green (as the landing's film does),
+   gold returns as the second accent, cards soften, and each page has one green panel.
+   ============================================================ */
+.site {
+  --radius: 12px;
+  --radius-sm: 6px;
+  --card-shadow: 0 1px 2px rgba(30, 33, 36, 0.04), 0 14px 34px -20px rgba(30, 33, 36, 0.28);
+  --card-shadow-hover: 0 2px 4px rgba(30, 33, 36, 0.05), 0 22px 44px -22px rgba(30, 33, 36, 0.36);
+}
+
+/* Section labels: green words led by a short gold rule. */
+.site .eyebrow {
+  color: var(--green);
+  font-weight: 600;
+  font-size: 13.5px;
+  letter-spacing: 0.01em;
+}
+.site .eyebrow::before {
+  display: inline-block;
+  width: 22px;
+  background: var(--gold);
+}
+
+/* Page openings: the text sits on the deep green, the photograph beside it unshaded. */
+.site .page-hero {
+  background: var(--green-dark);
+  color: var(--white);
+}
+.site .page-hero .eyebrow {
+  color: var(--gold);
+}
+.site .page-hero-sub {
+  color: rgba(255, 253, 248, 0.78);
+}
+.site .page-hero .hero-stats {
+  border-top-color: rgba(255, 253, 248, 0.16);
+}
+.site .page-hero .hero-stat {
+  border-right-color: rgba(255, 253, 248, 0.16);
+}
+.site .page-hero .hero-stat strong {
+  color: var(--gold);
+}
+.site .page-hero .hero-stat span {
+  color: rgba(255, 253, 248, 0.7);
+}
+.site .page-hero .btn-gold,
+.site .page-hero .btn-primary {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--charcoal);
+}
+.site .page-hero .btn-gold:hover,
+.site .page-hero .btn-primary:hover {
+  background: #dab97f;
+  border-color: #dab97f;
+}
+
+/* Location opens the same way: the district on green, the inquiry on limestone. */
+.site .location-split-dark {
+  background: var(--green-dark);
+  color: var(--white);
+}
+.site .location-split-dark .eyebrow {
+  color: var(--gold);
+}
+.site .location-split-dark .location-split-copy,
+.site .location-split-dark .district-item span {
+  color: rgba(255, 253, 248, 0.72);
+}
+.site .location-split-dark .district-item-icon {
+  background: transparent;
+  border-color: rgba(201, 167, 105, 0.45);
+  color: var(--gold);
+}
+
+/* Cards: soft, raised, rounded; they lift a little under the pointer. */
+.site .home-bento-cell,
+.site .block-tile,
+.site .amenity-tile,
+.site .highlight-strip,
+.site .amenities-stats-bar,
+.site .about-stats-row,
+.site .explorer-block-card,
+.site .explorer-block-overview,
+.site .explorer-units {
+  border: none;
+  border-radius: var(--radius);
+  box-shadow: var(--card-shadow);
+}
+.site .block-tile,
+.site .amenity-tile,
+.site .home-bento-cell {
+  transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease);
+}
+.site .block-tile:hover,
+.site .amenity-tile:hover,
+.site .home-bento-cell:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--card-shadow-hover);
+}
+.site .amenity-tile-featured,
+.site .availability-card,
+.site .amenities-cta-card,
+.site .home-bento-contact,
+.site .residence-gallery-item,
+.site .about-image,
+.site .location-photo,
+.site .map-card,
+.site .home-hero-photo img {
+  border-radius: var(--radius);
+}
+@media (prefers-reduced-motion: reduce) {
+  .site .block-tile:hover,
+  .site .amenity-tile:hover,
+  .site .home-bento-cell:hover {
+    transform: none;
+  }
+}
+
+/* Icons: green strokes in a fine gold ring. */
+.site .highlight-strip-icon,
+.site .lifestyle-icon,
+.site .about-stat-icon,
+.site .district-item-icon,
+.site .amenity-tile-badge,
+.site .block-tile-icon {
+  border: 1px solid rgba(201, 167, 105, 0.55);
+  color: var(--green);
+}
+.site .services-fact svg,
+.site .contact-icon-item {
+  color: var(--gold-dim);
+}
+
+/* Figures in green on light grounds: the counts read as the building's facts. */
+.site .services-fact strong,
+.site .about-stat-card strong,
+.site .home-facts dt {
+  color: var(--green);
+}
+
+/* The one green panel on Amenities: lifestyle highlights, with its leaf drawing back. */
+.site .lifestyle-panel {
+  background: var(--green-dark);
+  color: var(--white);
+  border-radius: var(--radius);
+}
+.site .lifestyle-panel .eyebrow {
+  color: var(--gold);
+}
+.site .lifestyle-panel li {
+  border-bottom-color: rgba(255, 253, 248, 0.1);
+}
+.site .lifestyle-panel li strong {
+  color: var(--white);
+}
+.site .lifestyle-panel li span {
+  color: rgba(255, 253, 248, 0.62);
+}
+.site .lifestyle-panel .lifestyle-icon {
+  background: rgba(255, 253, 248, 0.05);
+  color: var(--gold);
+}
+.site .lifestyle-panel-decoration {
+  display: block;
+}
+
+/* Contact bands: limestone with a gold rule along the top edge. */
+.site .availability-card,
+.site .amenities-cta-card,
+.site .home-bento-contact {
+  border-top: 3px solid var(--gold);
+}
+
+/* ---------- Sale & rent: listings on limestone ----------
+   listings.css colours text through theme tokens, so the section re-points them at the light
+   palette; labels drawn over photographs keep white. */
+.site .listings-section,
+.site .listing-page {
+  --white: var(--steel);
+  --gold: var(--green);
+  --charcoal: var(--paper);
+  background: var(--paper);
+  color: var(--steel);
+}
+.site .listings-toolbar {
+  border-bottom-color: var(--limestone-2);
+}
+.site .listings-tabs button {
+  color: var(--glass);
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 15px;
+  font-weight: 500;
+}
+.site .listings-blocks button {
+  color: var(--steel);
+  border-color: var(--limestone-2);
+  background: #fff;
+}
+.site .listings-blocks button:hover {
+  border-color: var(--green);
+}
+.site .listing-card,
+.site .listing-summary,
+.site .listings-empty {
+  background: #fff;
+  border: none;
+  border-radius: var(--radius);
+  box-shadow: var(--card-shadow);
+}
+.site .listing-card {
+  transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease);
+}
+.site .listing-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--card-shadow-hover);
+}
+.site .listing-card.is-skeleton,
+.site .listing-page-skeleton {
+  background: linear-gradient(100deg, #f1eee8 30%, #e8e3d9 50%, #f1eee8 70%) 0 0 / 200% 100%;
+}
+.site .listing-kind,
+.site .listing-facts dt,
+.site .listings-empty p,
+.site .listings-footnote,
+.site .listing-back,
+.site .listing-summary-note,
+.site .listing-block-lede,
+.site .listing-building-photos figcaption {
+  color: var(--glass);
+}
+.site .listing-description p {
+  color: #3a3f43;
+}
+.site .listing-facts {
+  border-top-color: var(--limestone);
+}
+.site .listing-badge.is-sale {
+  background: #c9a769; /* the brand gold, fixed: --gold is green inside this section */
+  color: #131310;
+}
+.site .listing-badge.is-rent {
+  background: #2f4a3a;
+  color: #fffdf8;
+}
+.site .listing-photo-count,
+.site .listing-gallery-nav,
+.site .listing-gallery-count {
+  color: #fffdf8;
+}
+.site .listings-section .eyebrow,
+.site .listing-page .eyebrow {
+  color: var(--green);
+}
+@media (prefers-reduced-motion: reduce) {
+  .site .listing-card:hover {
+    transform: none;
+  }
+}
+

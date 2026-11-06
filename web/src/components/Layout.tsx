@@ -10,13 +10,14 @@ export default function Layout() {
     window.scrollTo(0, 0);
   }, [pathname]);
 
+  // `.site` scopes the public look (styles/site.css); the portal and sign-in sit outside it.
   return (
-    <>
+    <div className="site">
       <Navbar />
       <main>
         <Outlet />
       </main>
       <Footer />
-    </>
+    </div>
   );
 }

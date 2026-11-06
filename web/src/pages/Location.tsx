@@ -62,7 +62,7 @@ export default function Location() {
     <section className="location-split">
       <div className="location-split-panel location-split-dark">
         <div className="location-split-inner">
-          <p className="eyebrow" style={{ color: '#cdbf9e' }}>
+          <p className="eyebrow">
             <IconMapPin size={13} />
             Location
           </p>
