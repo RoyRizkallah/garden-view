@@ -2706,6 +2706,16 @@
   color: var(--r-gold-ink);
 }
 
+.rs-listing-layout .lm-how {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (min-width: 1700px) {
+  .rs-listing-layout .lm-how {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
 .lm-steps li {
   color: var(--r-faint);
 }
@@ -3338,7 +3348,7 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .lm-how,
+  .rs-listing-layout .lm-how,
   .lm-steps {
     grid-template-columns: minmax(0, 1fr);
   }

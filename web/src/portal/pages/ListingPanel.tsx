@@ -261,6 +261,10 @@ function ListingForm({ unitCode, onSubmitted }: { unitCode: string; onSubmitted:
           <strong>It goes live on the website</strong>
           <span>On the public For Sale &amp; Rent page, with your home’s 3D floor plan. Your name and contact details are never shown.</span>
         </li>
+        <li>
+          <strong>The broker receives it</strong>
+          <span>Viewings, questions and offers go to the building’s broker — not to you.</span>
+        </li>
       </ol>
 
       <div className="portal-type-toggle">
