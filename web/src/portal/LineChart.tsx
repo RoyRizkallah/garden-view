@@ -7,82 +7,89 @@ type LineChartProps = {
 };
 
 const W = 600;
+const PAD_X = 6;
 
 export default function LineChart({ labels, series, height = 220 }: LineChartProps) {
-  const allValues = series.flatMap((s) => s.values);
+  const allValues = series.flatMap((item) => item.values);
   const max = Math.max(...allValues, 1);
-  const niceMax = Math.ceil((max * 1.15) / 100) * 100;
+  const niceMax = Math.max(100, Math.ceil((max * 1.15) / 100) * 100);
   const n = labels.length;
-  const stepX = n > 1 ? W / (n - 1) : 0;
+  const stepX = n > 1 ? (W - PAD_X * 2) / (n - 1) : 0;
 
   function points(values: number[]) {
     return values
-      .map((v, i) => {
-        const x = n > 1 ? i * stepX : W / 2;
-        const y = height - (v / niceMax) * height;
+      .map((value, index) => {
+        const x = n > 1 ? PAD_X + index * stepX : W / 2;
+        const y = height - (value / niceMax) * height;
         return `${x},${y}`;
       })
       .join(' ');
   }
 
-  const gridLines = [0, 0.33, 0.66, 1];
+  const gridLines = [0, 0.25, 0.5, 0.75, 1];
 
   return (
     <div className="line-chart">
       <div className="line-chart-legend">
-        {series.map((s) => (
-          <span key={s.label} className="line-chart-legend-item">
-            <span className="line-chart-dot" style={{ background: s.color }} />
-            {s.label}
+        {series.map((item) => (
+          <span key={item.label} className="line-chart-legend-item">
+            <span className="line-chart-dot" style={{ background: item.color }} />
+            {item.label}
           </span>
         ))}
       </div>
       <div className="line-chart-body">
-        <div className="line-chart-yaxis">
+        <div className="line-chart-yaxis" aria-hidden="true">
           {gridLines
             .slice()
             .reverse()
-            .map((g) => (
-              <span key={g}>${Math.round(niceMax * g).toLocaleString()}</span>
+            .map((line) => (
+              <span key={line}>${Math.round(niceMax * line).toLocaleString('en-US')}</span>
             ))}
         </div>
         <div className="line-chart-plot">
-          <svg viewBox={`0 0 ${W} ${height}`} preserveAspectRatio="none" className="line-chart-svg">
-            {gridLines.map((g) => (
+          <svg
+            viewBox={`0 0 ${W} ${height}`}
+            preserveAspectRatio="none"
+            className="line-chart-svg"
+            role="img"
+            aria-label={series.map((item) => `${item.label}: ${item.values.join(', ')}`).join('; ')}
+          >
+            {gridLines.map((line) => (
               <line
-                key={g}
+                key={line}
                 x1="0"
                 x2={W}
-                y1={height - g * height}
-                y2={height - g * height}
+                y1={height - line * height}
+                y2={height - line * height}
                 className="line-chart-grid"
               />
             ))}
-            {series.map((s) => (
+            {series.map((item) => (
               <polyline
-                key={s.label}
-                points={points(s.values)}
+                key={item.label}
+                points={points(item.values)}
                 fill="none"
-                stroke={s.color}
+                stroke={item.color}
                 strokeWidth="2.5"
                 strokeLinejoin="round"
                 strokeLinecap="round"
                 vectorEffect="non-scaling-stroke"
               />
             ))}
-            {series.map((s) =>
-              s.values.map((v, i) => {
-                const x = n > 1 ? i * stepX : W / 2;
-                const y = height - (v / niceMax) * height;
-                return <circle key={`${s.label}-${i}`} cx={x} cy={y} r="4" fill={s.color} />;
+            {series.map((item) =>
+              item.values.map((value, index) => {
+                const x = n > 1 ? PAD_X + index * stepX : W / 2;
+                const y = height - (value / niceMax) * height;
+                return <circle key={`${item.label}-${index}`} cx={x} cy={y} r="3.5" fill={item.color} />;
               }),
             )}
           </svg>
         </div>
       </div>
-      <div className="line-chart-xaxis">
-        {labels.map((l) => (
-          <span key={l}>{l}</span>
+      <div className="line-chart-xaxis" aria-hidden="true">
+        {labels.map((label) => (
+          <span key={label}>{label}</span>
         ))}
       </div>
     </div>

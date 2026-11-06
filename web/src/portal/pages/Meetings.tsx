@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import { createPortal } from 'react-dom';
 import { IconArrowRight, IconCalendar, IconCheck, IconClose, IconMapPin } from '../../components/Icons';
 import { api, type ResidentMeeting } from '../api';
 import { useAuth } from '../AuthContext';
 import { ANTHONY_WHATSAPP } from '../people';
+import PageHeader from '../PageHeader';
 
 const SLOTS = ['09:00', '10:00', '11:00', '14:00', '15:00'];
 const BEIRUT = 'Asia/Beirut';
@@ -54,20 +56,17 @@ export default function Meetings() {
   const past = (meetings ?? []).filter((meeting) => meeting.status === 'HELD');
 
   return (
-    <div className="portal-page talk-page">
-      <header className="svc-head talk-head">
-        <div>
-          <p className="svc-kicker">Good conversations start with clarity</p>
-          <div className="talk-title-row">
-            <h1>Time to talk.</h1>
-            <button type="button" className="talk-book" onClick={() => setOpen(true)}>
-              <span aria-hidden="true">+</span>
-              Book a meeting
-            </button>
-          </div>
-          <p>Book a management meeting and see what’s on the building agenda.</p>
-        </div>
-      </header>
+    <div className="rs-page talk-page">
+      <PageHeader
+        kicker="Meetings"
+        title="Time to talk."
+        lede="Book a management meeting and see what’s on the building agenda."
+        actions={
+          <button type="button" className="rs-btn rs-btn-primary" onClick={() => setOpen(true)}>
+            Book a meeting
+          </button>
+        }
+      />
 
       {error && <div className="note-card">{error}</div>}
 
@@ -177,6 +176,18 @@ function BookingDialog({ onClose }: { onClose: () => void }) {
   const [details, setDetails] = useState('');
   const [visibility, setVisibility] = useState<'shared' | 'private'>('private');
 
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = '';
+    };
+  }, [onClose]);
+
   function submit(e: FormEvent) {
     e.preventDefault();
     const day = days.find((item) => item.value === date);
@@ -200,13 +211,20 @@ function BookingDialog({ onClose }: { onClose: () => void }) {
     onClose();
   }
 
-  return (
+  return createPortal(
     <div className="svc-drawer-back" onClick={onClose}>
-      <form className="talk-dialog" onClick={(e) => e.stopPropagation()} onSubmit={submit}>
+      <form
+        className="talk-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="booking-title"
+        onClick={(event) => event.stopPropagation()}
+        onSubmit={submit}
+      >
         <header>
           <div>
             <p>Meet management</p>
-            <h2>Let’s make time.</h2>
+            <h2 id="booking-title">Let’s make time.</h2>
           </div>
           <button type="button" className="talk-x" aria-label="Close" onClick={onClose}>
             <IconClose size={18} />
@@ -264,6 +282,7 @@ function BookingDialog({ onClose }: { onClose: () => void }) {
           Send on WhatsApp <IconArrowRight size={15} />
         </button>
       </form>
-    </div>
+    </div>,
+    document.body,
   );
 }

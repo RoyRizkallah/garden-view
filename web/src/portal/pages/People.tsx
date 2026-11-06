@@ -1,5 +1,6 @@
 import { IconPhone } from '../../components/Icons';
 import { PEOPLE, TEAM } from '../people';
+import PageHeader from '../PageHeader';
 
 const tel = (phone: string) => `tel:${phone.replace(/[^\d+]/g, '')}`;
 
@@ -7,14 +8,12 @@ export default function People() {
   const [chairman, ...officers] = PEOPLE;
 
   return (
-    <div className="portal-page people-page">
-      <header className="svc-head">
-        <div>
-          <p className="svc-kicker">The building</p>
-          <h1>Our people.</h1>
-          <p>Who looks after Garden View, and how to reach them.</p>
-        </div>
-      </header>
+    <div className="rs-page people-page">
+      <PageHeader
+        kicker="The building"
+        title="Our people."
+        lede="Who looks after Garden View, and how to reach them."
+      />
 
       <section className="dir">
         <article className="dir-lead">
@@ -55,7 +54,9 @@ export default function People() {
           ))}
         </ul>
 
-        {TEAM.length === 0 && <p className="dir-later">The rest of the team will be added here.</p>}
+        {TEAM.length === 0 && (
+          <p className="dir-later">For anything else, the manager&rsquo;s office is your first point of contact.</p>
+        )}
       </section>
     </div>
   );

@@ -1,24 +1,27 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api, mediaUrl, type GvDocument } from '../api';
-import EmptyState from '../EmptyState';
-import Photo from '../../components/Photo';
+import { shortDate } from '../format';
+import PageHeader from '../PageHeader';
 import {
   IconDocument,
-  IconClipboard,
   IconBuilding,
   IconShield,
   IconPieChart,
   IconChevronRight,
 } from '../../components/Icons';
 
-// the fade image is 58% of the portal main column (viewport − 264 px sidebar − 2 × 56 px padding)
-const FADE_IMAGE_SIZES = '(max-width: 960px) calc(58vw - 28px), calc(58vw - 218px)';
-
 const CATEGORY_ICON: Record<string, typeof IconBuilding> = {
   Governance: IconBuilding,
   Safety: IconShield,
   Financial: IconPieChart,
 };
+
+function fileType(url: string) {
+  if (!url) return 'Pending';
+  if (/\.pdf$/i.test(url)) return 'PDF';
+  if (/\.(jpe?g|png|webp|avif)$/i.test(url)) return 'Image';
+  return 'File';
+}
 
 export default function Documents() {
   const [documents, setDocuments] = useState<GvDocument[] | null>(null);
@@ -33,65 +36,95 @@ export default function Documents() {
 
   const grouped = useMemo(() => {
     const map = new Map<string, GvDocument[]>();
-    for (const d of documents ?? []) {
-      const list = map.get(d.category) ?? [];
-      list.push(d);
-      map.set(d.category, list);
+    for (const document of documents ?? []) {
+      const list = map.get(document.category) ?? [];
+      list.push(document);
+      map.set(document.category, list);
     }
     return Array.from(map.entries());
   }, [documents]);
 
   return (
-    <div className="portal-page">
-      <div className="portal-page-hero-fade">
-        <Photo src="/images/shoot/block-b-2.jpg" alt="" sizes={FADE_IMAGE_SIZES} priority />
-        <div className="portal-page-hero-fade-content">
-          <p className="eyebrow">
-            <IconClipboard size={14} />
-            Documents
-          </p>
-          <h1>Shared Building Documents</h1>
-          <p className="portal-page-lede" style={{ marginTop: 0 }}>
-            Important resources and policies for our community.
-          </p>
-        </div>
-      </div>
+    <div className="rs-page">
+      <PageHeader
+        kicker="Documents"
+        title="Building documents"
+        lede="Bylaws, safety guidance, financial summaries and anything else the building shares with residents."
+      />
 
-      {error && <div className="note-card">{error}</div>}
+      {error && (
+        <div className="rs-note">
+          <IconDocument size={15} />
+          <span>{error}</span>
+        </div>
+      )}
+
+      {!documents && !error && (
+        <div className="rs-note">
+          <IconDocument size={15} />
+          <span>Loading documents…</span>
+        </div>
+      )}
 
       {documents && documents.length === 0 && (
-        <EmptyState icon={<IconDocument size={22} />} title="No documents published yet">
-          Building management publishes the bylaws, meeting minutes, safety guidelines and financial summaries
-          here. You will be able to open and download each one.
-        </EmptyState>
+        <div className="rs-empty">
+          <span className="rs-empty-icon">
+            <IconDocument size={20} />
+          </span>
+          <h2>No documents published yet</h2>
+          <p>
+            Building management publishes the bylaws, meeting minutes, safety guidelines and financial
+            summaries here. You will be able to open and download each one.
+          </p>
+        </div>
       )}
 
       {grouped.map(([category, docs]) => {
         const CategoryIcon = CATEGORY_ICON[category] ?? IconDocument;
         return (
-          <div key={category} style={{ marginBottom: 32 }}>
-            <div className="portal-doc-category-head">
-              <span className="portal-doc-category-icon">
-                <CategoryIcon size={16} />
+          <section key={category} className="rs-doc-group">
+            <div className="rs-doc-head">
+              <span>
+                <CategoryIcon size={14} />
               </span>
               <p>{category}</p>
             </div>
-            <div className="portal-doc-list">
-              {docs.map((d) => (
-                <a key={d.id} className="portal-doc-row" href={mediaUrl(d.fileUrl)} target="_blank" rel="noreferrer">
-                  <IconDocument size={18} />
-                  <div>
-                    <strong>{d.title}</strong>
-                    <span>
-                      {/\.pdf$/i.test(d.fileUrl) ? 'PDF' : 'Image'} · added{' '}
-                      {new Date(d.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+
+            <div className="rs-doc-list">
+              {docs.map((document) => {
+                const type = fileType(document.fileUrl);
+                const body = (
+                  <>
+                    <span className="rs-doc-icon">
+                      <IconDocument size={17} />
                     </span>
+                    <div>
+                      <strong>{document.title}</strong>
+                      <span>Added {shortDate(document.createdAt)}</span>
+                    </div>
+                    <span className="rs-doc-type">{type}</span>
+                    {document.fileUrl && <IconChevronRight size={16} />}
+                  </>
+                );
+
+                return document.fileUrl ? (
+                  <a
+                    key={document.id}
+                    className="rs-doc"
+                    href={mediaUrl(document.fileUrl)}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {body}
+                  </a>
+                ) : (
+                  <div key={document.id} className="rs-doc" style={{ opacity: 0.7 }}>
+                    {body}
                   </div>
-                  <IconChevronRight size={16} className="portal-doc-row-arrow" />
-                </a>
-              ))}
+                );
+              })}
             </div>
-          </div>
+          </section>
         );
       })}
     </div>

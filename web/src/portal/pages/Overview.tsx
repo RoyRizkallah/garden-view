@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { api, mediaUrl, type Overview as OverviewData } from '../api';
+import { api, type Overview as OverviewData } from '../api';
 import { useAuth } from '../AuthContext';
 import { greetingName } from '../names';
+import { usd, shortDate, dayMonth, monthYear, closesIn } from '../format';
 import CircularProgress from '../CircularProgress';
 import Photo from '../../components/Photo';
 import { matchResidence } from '../../data/useUnitPlan';
@@ -20,45 +21,21 @@ import {
   IconCheck,
   IconLayers,
   IconTag,
-  IconHome,
 } from '../../components/Icons';
-import '../../styles/portal-home.css';
 
-// portal main column: viewport minus the 264 px sidebar and 56 px padding per side (sidebar hidden ≤ 960 px)
-const HERO_SIZES = '(max-width: 960px) calc(100vw - 48px), calc(100vw - 376px)';
-// each block's own facade, from the professional shoot
+const HERO_SIZES = '(max-width: 1080px) calc(100vw - 40px), calc(100vw - 384px)';
 const BLOCK_PHOTO: Record<string, string> = {
   A: '/images/shoot/block-a-2.jpg',
   B: '/images/shoot/block-b-2.jpg',
   C: '/images/shoot/block-c-1.jpg',
 };
 
-const usd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
-/** "2026-10" -> "October 2026" */
-const periodLabel = (period: string) => {
-  const [y, m] = period.split('-').map(Number);
-  return y && m ? new Date(y, m - 1, 1).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }) : period;
-};
-const shortDate = (iso: string) => new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-
-function greeting() {
-  const hour = new Date().getHours();
-  if (hour < 12) return 'Good morning';
-  if (hour < 18) return 'Good afternoon';
-  return 'Good evening';
-}
-
-/** "Closes today", "Closes tomorrow", "Closes in 5 days", "Closed". */
-function closesIn(iso: string) {
-  const days = Math.ceil((new Date(iso).getTime() - Date.now()) / 86_400_000);
-  if (days < 0) return 'Closed';
-  if (days === 0) return 'Closes today';
-  if (days === 1) return 'Closes tomorrow';
-  return `Closes in ${days} days`;
-}
-
 const REQUEST_STATUS = { OPEN: 'Received', IN_PROGRESS: 'In progress', RESOLVED: 'Resolved' } as const;
-const LISTING_STATUS = { PENDING: 'Waiting for review', REVIEWING: 'Under review', APPROVED: 'Live on the website' } as const;
+const LISTING_STATUS = {
+  PENDING: 'Waiting for review',
+  REVIEWING: 'Under review',
+  APPROVED: 'Live on the website',
+} as const;
 
 type Item = { key: string; icon: ReactNode; title: string; meta: string; to: string; tone?: 'alert' | 'gold' };
 
@@ -74,47 +51,75 @@ export default function Overview() {
       .catch((err) => setError(err.message));
   }, []);
 
-  const residence = useMemo(() => matchResidence(account?.unit?.block, account?.unit?.number), [account?.unit?.block, account?.unit?.number]);
+  const residence = useMemo(
+    () => matchResidence(account?.unit?.block, account?.unit?.number),
+    [account?.unit?.block, account?.unit?.number],
+  );
   const area = useUnitArea(residence);
   const block = account?.unit?.block ?? residence?.block ?? 'A';
   const name = greetingName(account?.name);
 
-  const today = new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+  const today = new Date().toLocaleDateString('en-GB', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  });
 
-  // what needs the resident, most pressing first
+  const balance = data?.balance ?? 0;
+  const overdue = data?.overdueCount ?? 0;
+  const next = data?.nextCharge ?? null;
+  const awaiting = data?.awaitingVotesCount ?? 0;
+
   const items: Item[] = [];
   if (data) {
-    if (data.balance > 0.004) {
+    if (balance > 0.004) {
       items.push({
         key: 'balance',
         icon: <IconWallet size={18} />,
-        title: `${usd.format(data.balance)} to pay`,
+        title: `${usd.format(balance)} outstanding`,
         meta:
-          data.overdueCount > 0
-            ? `${data.overdueCount} ${data.overdueCount === 1 ? 'charge is' : 'charges are'} overdue`
-            : data.nextCharge
-              ? `${periodLabel(data.nextCharge.period)} · due ${shortDate(data.nextCharge.dueDate)}`
-              : 'See your charges',
+          overdue > 0
+            ? `${overdue} ${overdue === 1 ? 'charge is' : 'charges are'} overdue`
+            : next
+              ? `${monthYear(next.period)} · due ${dayMonth(next.dueDate)}`
+              : 'View your statement',
         to: '/portal/charges',
-        tone: data.overdueCount > 0 ? 'alert' : undefined,
+        tone: overdue > 0 ? 'alert' : undefined,
       });
     }
-    for (const v of data.awaitingVotes) {
-      items.push({ key: `vote-${v.id}`, icon: <IconBallot size={18} />, title: v.title, meta: `Your vote is needed · ${closesIn(v.closesAt)}`, to: '/portal/voting', tone: 'gold' });
+
+    for (const vote of data.awaitingVotes) {
+      items.push({
+        key: `vote-${vote.id}`,
+        icon: <IconBallot size={18} />,
+        title: vote.title,
+        meta: `Your vote is needed · ${closesIn(vote.closesAt)}`,
+        to: '/portal/voting',
+        tone: 'gold',
+      });
     }
+
     if (data.awaitingVotesCount > data.awaitingVotes.length) {
       const more = data.awaitingVotesCount - data.awaitingVotes.length;
-      items.push({ key: 'votes-more', icon: <IconBallot size={18} />, title: `${more} more ${more === 1 ? 'proposal' : 'proposals'} to vote on`, meta: 'Building proposals', to: '/portal/voting' });
-    }
-    for (const r of data.activeRequests) {
       items.push({
-        key: `req-${r.id}`,
+        key: 'votes-more',
+        icon: <IconBallot size={18} />,
+        title: `${more} more ${more === 1 ? 'proposal' : 'proposals'} to vote on`,
+        meta: 'Building proposals',
+        to: '/portal/voting',
+      });
+    }
+
+    for (const request of data.activeRequests) {
+      items.push({
+        key: `request-${request.id}`,
         icon: <IconClipboard size={18} />,
-        title: `${r.category} ${r.type === 'RENOVATION' ? 'renovation' : 'request'}`,
-        meta: `${REQUEST_STATUS[r.status]} · updated ${shortDate(r.updatedAt)}`,
+        title: `${request.category} ${request.type === 'RENOVATION' ? 'renovation' : 'request'}`,
+        meta: `${REQUEST_STATUS[request.status]} · updated ${dayMonth(request.updatedAt)}`,
         to: '/portal/requests',
       });
     }
+
     if (data.listing) {
       items.push({
         key: 'listing',
@@ -128,12 +133,12 @@ export default function Overview() {
   }
 
   return (
-    <div className="portal-page">
-      <section className="portal-hero ph-hero">
+    <div className="rs-page rs-overview">
+      <section className="rs-hero">
         <Photo src={BLOCK_PHOTO[block] ?? BLOCK_PHOTO.A} alt="" sizes={HERO_SIZES} priority />
-        <div className="portal-hero-scrim" />
-        <div className="portal-hero-content">
-          <p className="eyebrow" style={{ color: '#e9e1cc' }}>
+        <div className="rs-hero-scrim" />
+        <div className="rs-hero-content">
+          <p className="rs-hero-date">
             <IconCalendar size={14} />
             {today}
           </p>
@@ -141,24 +146,102 @@ export default function Overview() {
             {greeting()}
             {name ? `, ${name}` : ''}
           </h1>
-          <p className="portal-hero-sub">
-            {residence ? `Residence ${residence.apartment} · Block ${residence.block} · ${floorsLabel(residence.floors)}` : account?.unit ? `Unit ${account.unit.block}-${account.unit.number}` : 'Garden View'}
+          <p className="rs-hero-sub">
+            {residence
+              ? `Residence ${residence.apartment} · Block ${residence.block} · ${floorsLabel(residence.floors)}`
+              : account?.unit
+                ? `Block ${account.unit.block} · ${account.unit.number}`
+                : 'Garden View'}
           </p>
         </div>
       </section>
 
-      {error && <div className="note-card" style={{ marginTop: 24 }}>{error}</div>}
+      <div className="rs-metrics">
+        <Link to="/portal/charges" className={`rs-metric${overdue > 0 ? ' is-alert' : balance <= 0 ? ' is-clear' : ''}`}>
+          <span className="rs-metric-label">Balance due</span>
+          <span className="rs-metric-value">{data ? usd.format(balance) : '—'}</span>
+          <span className="rs-metric-note">
+            {overdue > 0
+              ? `${overdue} ${overdue === 1 ? 'charge is' : 'charges are'} overdue`
+              : balance > 0
+                ? 'To building management'
+                : "You're up to date"}
+          </span>
+        </Link>
 
-      <div className="ph-grid">
-        <section className="ph-card ph-home" aria-labelledby="ph-home-title">
-          <p className="ph-kicker">
-            <IconHome size={14} /> Your home
-          </p>
-          <h2 id="ph-home-title" className="ph-code">
-            {residence?.apartment ?? account?.unit?.number ?? '—'}
-          </h2>
-          {residence && <p className="ph-sub">{UNIT_KIND_LABEL[residence.kind].split(' · ')[0]}</p>}
-          <dl className="ph-facts">
+        <Link to="/portal/charges" className="rs-metric">
+          <span className="rs-metric-label">Next payment</span>
+          <span className="rs-metric-value">{next ? usd.format(next.amount) : '—'}</span>
+          <span className="rs-metric-note">
+            {next ? `${monthYear(next.period)} · due ${dayMonth(next.dueDate)}` : 'No payment scheduled'}
+          </span>
+        </Link>
+
+        <Link to="/portal/voting" className="rs-metric">
+          <span className="rs-metric-label">Open proposals</span>
+          <span className="rs-metric-value">{data ? data.openVotesCount : '—'}</span>
+          <span className="rs-metric-note">
+            {awaiting > 0
+              ? `${awaiting} waiting for your vote`
+              : data
+                ? 'Nothing waiting for you'
+                : 'Loading'}
+          </span>
+        </Link>
+      </div>
+
+      {error && (
+        <div className="rs-note" style={{ marginTop: 20 }}>
+          <IconDocument size={15} />
+          <span>{error}</span>
+        </div>
+      )}
+
+      <div className="rs-grid rs-grid-home">
+        <section className="rs-card" aria-labelledby="for-you">
+          <div className="rs-card-head">
+            <h2 id="for-you">For you</h2>
+            {data && items.length > 0 && <span className="rs-count">{items.length}</span>}
+          </div>
+
+          {!data && !error && <div className="rs-empty" aria-busy="true"><p>Reading your account…</p></div>}
+
+          {data && items.length === 0 && (
+            <div className="rs-clear">
+              <span className="rs-clear-icon">
+                <IconCheck size={20} />
+              </span>
+              <div>
+                <strong>You&rsquo;re all caught up</strong>
+                <p>Nothing to pay, no proposals waiting for your vote, and no open requests.</p>
+              </div>
+            </div>
+          )}
+
+          {items.length > 0 && (
+            <div className="rs-actions">
+              {items.map((item) => (
+                <Link key={item.key} to={item.to} className={`rs-action${item.tone ? ` is-${item.tone}` : ''}`}>
+                  <span className="rs-action-icon">{item.icon}</span>
+                  <span className="rs-action-text">
+                    <strong>{item.title}</strong>
+                    <span>{item.meta}</span>
+                  </span>
+                  <IconArrowRight size={15} className="rs-action-arrow" />
+                </Link>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section className="rs-card rs-home" aria-labelledby="your-home">
+          <div className="rs-card-head">
+            <h2 id="your-home">Your home</h2>
+          </div>
+          <p className="rs-home-code">{residence?.apartment ?? account?.unit?.number ?? '—'}</p>
+          {residence && <p className="rs-home-sub">{UNIT_KIND_LABEL[residence.kind].split(' · ')[0]}</p>}
+
+          <dl className="rs-facts">
             <div>
               <dt>Block</dt>
               <dd>{block}</dd>
@@ -166,7 +249,7 @@ export default function Overview() {
             {residence && (
               <div>
                 <dt>{residence.floors.length > 1 ? 'Floors' : 'Floor'}</dt>
-                <dd>{residence.floors.map((f) => (f === 0 ? 'G' : f)).join(' & ')}</dd>
+                <dd>{residence.floors.map((floor) => (floor === 0 ? 'G' : floor)).join(' & ')}</dd>
               </div>
             )}
             {area?.complete && area.netSqm !== undefined && (
@@ -175,150 +258,128 @@ export default function Overview() {
                 <dd>{formatSqm(area.netSqm)}</dd>
               </div>
             )}
-            {area?.complete && !!area.outdoorSqm && (
+            {area?.complete && area.outdoorSqm ? (
               <div>
-                <dt>Balconies</dt>
+                <dt>Outdoor</dt>
                 <dd>{formatSqm(area.outdoorSqm)}</dd>
               </div>
-            )}
+            ) : null}
           </dl>
-          <div className="ph-home-links">
-            <Link to="/portal/residence" className="btn btn-gold btn-sm">
+
+          <div className="rs-home-links">
+            <Link to="/portal/residence" className="rs-btn rs-btn-primary rs-btn-sm">
               <IconLayers size={14} /> Your 3D floor plan
             </Link>
-            <Link to="/portal/sell-rent" className="ph-link">
+            <Link to="/portal/sell-rent" className="rs-textlink">
               Sell or rent <IconArrowRight size={13} />
             </Link>
           </div>
         </section>
-
-        <section className="ph-card ph-attention" aria-labelledby="ph-att-title">
-          <div className="ph-card-head">
-            <h2 id="ph-att-title">For you</h2>
-            {data && items.length > 0 && <span className="ph-count">{items.length}</span>}
-          </div>
-          {!data && !error && <div className="ph-skeleton" aria-busy="true" />}
-          {data && items.length === 0 && (
-            <div className="ph-clear">
-              <span className="ph-clear-icon">
-                <IconCheck size={20} />
-              </span>
-              <div>
-                <strong>You're all caught up</strong>
-                <p>Nothing to pay, no proposals waiting for your vote, and no open requests.</p>
-              </div>
-            </div>
-          )}
-          {items.length > 0 && (
-            <ul className="ph-list">
-              {items.map((i) => (
-                <li key={i.key}>
-                  <Link to={i.to} className={`ph-item${i.tone ? ` is-${i.tone}` : ''}`}>
-                    <span className="ph-item-icon">{i.icon}</span>
-                    <span className="ph-item-text">
-                      <strong>{i.title}</strong>
-                      <span>{i.meta}</span>
-                    </span>
-                    <IconArrowRight size={15} className="ph-item-arrow" />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
       </div>
 
       {data && (data.recentProjects.length > 0 || data.latestDocuments.length > 0) && (
-        <div className="ph-grid ph-grid-even">
+        <div className="rs-grid rs-grid-2">
           {data.recentProjects.length > 0 && (
-            <section className="ph-card">
-              <div className="ph-card-head">
-                <h2>Building projects</h2>
-                <Link to="/portal/projects" className="ph-link">
-                  All projects <IconArrowRight size={13} />
+            <section className="rs-card" aria-labelledby="projects">
+              <div className="rs-card-head">
+                <h2 id="projects">Building projects</h2>
+                <Link to="/portal/projects" className="rs-textlink">
+                  All projects <IconArrowRight size={12} />
                 </Link>
               </div>
-              <ul className="ph-projects">
-                {data.recentProjects.map((p) => (
-                  <li key={p.id}>
-                    <CircularProgress percent={p.progressPct} size={46} stroke={4} />
+              <div className="rs-rows">
+                {data.recentProjects.map((project) => (
+                  <div key={project.id} className="rs-project-row">
+                    <CircularProgress percent={project.progressPct} size={44} stroke={4} />
                     <div>
-                      <strong>{p.title}</strong>
+                      <strong>{project.title}</strong>
                       <span>
-                        {p.category}
-                        {p.eta ? ` · expected ${new Date(p.eta).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}` : ''}
+                        {project.category}
+                        {project.eta
+                          ? ` · expected ${new Date(project.eta).toLocaleDateString('en-GB', {
+                              month: 'short',
+                              year: 'numeric',
+                            })}`
+                          : ''}
                       </span>
                     </div>
-                  </li>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </section>
           )}
+
           {data.latestDocuments.length > 0 && (
-            <section className="ph-card">
-              <div className="ph-card-head">
-                <h2>Latest documents</h2>
-                <Link to="/portal/documents" className="ph-link">
-                  All documents <IconArrowRight size={13} />
+            <section className="rs-card" aria-labelledby="documents">
+              <div className="rs-card-head">
+                <h2 id="documents">Latest documents</h2>
+                <Link to="/portal/documents" className="rs-textlink">
+                  All documents <IconArrowRight size={12} />
                 </Link>
               </div>
-              <ul className="ph-docs">
-                {data.latestDocuments.map((d) => (
-                  <li key={d.id}>
-                    <a href={mediaUrl(d.fileUrl)} target="_blank" rel="noreferrer">
-                      <IconDocument size={18} />
+              <div className="rs-rows">
+                {data.latestDocuments.map((document) => (
+                  <Link key={document.id} to="/portal/documents" className="rs-doc-row">
+                    <IconDocument size={18} />
+                    <div>
+                      <strong>{document.title}</strong>
                       <span>
-                        <strong>{d.title}</strong>
-                        <span>
-                          {d.category} · {shortDate(d.createdAt)}
-                        </span>
+                        {document.category} · {shortDate(document.createdAt)}
                       </span>
-                    </a>
-                  </li>
+                    </div>
+                  </Link>
                 ))}
-              </ul>
+              </div>
             </section>
           )}
         </div>
       )}
 
-      <nav className="ph-actions" aria-label="Quick actions">
+      <nav className="rs-quick" aria-label="Shortcuts">
         <Link to="/portal/requests">
-          <IconClipboard size={18} />
+          <span className="rs-quick-icon">
+            <IconClipboard size={17} />
+          </span>
           <span>
             <strong>Report a problem</strong>
             <span>Or plan a renovation</span>
           </span>
         </Link>
+        <Link to="/portal/services">
+          <span className="rs-quick-icon">
+            <IconWrench size={17} />
+          </span>
+          <span>
+            <strong>Home services</strong>
+            <span>A plumber, an electrician</span>
+          </span>
+        </Link>
         <Link to="/portal/voting">
-          <IconBallot size={18} />
+          <span className="rs-quick-icon">
+            <IconBallot size={17} />
+          </span>
           <span>
             <strong>Proposals</strong>
             <span>One vote per home</span>
           </span>
         </Link>
         <Link to="/portal/documents">
-          <IconDocument size={18} />
+          <span className="rs-quick-icon">
+            <IconDocument size={17} />
+          </span>
           <span>
             <strong>Documents</strong>
             <span>Bylaws, minutes, financials</span>
           </span>
         </Link>
-        <Link to="/portal/services">
-          <IconWrench size={18} />
-          <span>
-            <strong>Home services</strong>
-            <span>A plumber, an electrician, a cleaner</span>
-          </span>
-        </Link>
-        <Link to="/portal/meetings">
-          <IconCalendar size={18} />
-          <span>
-            <strong>Meetings</strong>
-            <span>Agendas and notes</span>
-          </span>
-        </Link>
       </nav>
     </div>
   );
+}
+
+function greeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return 'Good morning';
+  if (hour < 18) return 'Good afternoon';
+  return 'Good evening';
 }

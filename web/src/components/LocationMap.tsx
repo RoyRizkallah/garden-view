@@ -36,9 +36,11 @@ export default function LocationMap({ className, showLink }: LocationMapProps) {
 
     const build = async () => {
       try {
-        const [{ default: maplibregl }] = await Promise.all([import('maplibre-gl'), import('maplibre-gl/dist/maplibre-gl.css')]);
+        const [mod] = await Promise.all([import('maplibre-gl'), import('maplibre-gl/dist/maplibre-gl.css')]);
+        // maplibre-gl 5 exposes a default export; 6 exposes the same API as named exports only.
+        const maplibregl = (mod as unknown as { default?: typeof mod }).default ?? mod;
         if (cancelled) return;
-        map = new maplibregl.Map({
+        const created = new maplibregl.Map({
           container: node,
           style: STYLE,
           center: [LON, LAT],
@@ -52,19 +54,20 @@ export default function LocationMap({ className, showLink }: LocationMapProps) {
           touchPitch: false,
           attributionControl: { compact: true },
         });
-        map.touchZoomRotate.disableRotation();
-        if (showLink) map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
+        map = created;
+        created.touchZoomRotate.disableRotation();
+        if (showLink) created.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
         const marker = document.createElement('div');
         marker.className = 'map-marker';
         marker.innerHTML = MARKER_HTML;
-        new maplibregl.Marker({ element: marker }).setLngLat([LON, LAT]).addTo(map);
+        new maplibregl.Marker({ element: marker }).setLngLat([LON, LAT]).addTo(created);
         // on a phone-sized map the credits start folded behind their (i) button
         if (node.clientWidth < 420) {
-          map.once('load', () => node.querySelector('.maplibregl-compact-show')?.classList.remove('maplibregl-compact-show'));
+          created.once('load', () => node.querySelector('.maplibregl-compact-show')?.classList.remove('maplibregl-compact-show'));
         }
-        map.on('error', (e) => {
+        created.on('error', (e) => {
           // a failed style load leaves a blank map; a single missing tile is not worth a message
-          if (!map?.isStyleLoaded() && /style/i.test(String(e.error?.message))) setFailed(true);
+          if (!created.isStyleLoaded() && /style/i.test(String(e.error?.message))) setFailed(true);
         });
       } catch {
         if (!cancelled) setFailed(true);

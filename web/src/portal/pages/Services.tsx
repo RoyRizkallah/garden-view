@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
+import { createPortal } from 'react-dom';
 import {
   IconArrowRight,
   IconClose,
@@ -11,6 +12,7 @@ import {
   IconWrench,
 } from '../../components/Icons';
 import { api, ApiError, type ServiceCategory, type ServiceRequest, type ServiceStatus } from '../api';
+import PageHeader from '../PageHeader';
 
 const SERVICES: { id: ServiceCategory; title: string; blurb: string; icon: typeof IconLamp }[] = [
   { id: 'ELECTRICIAN', title: 'Electrician', blurb: 'Lighting, outlets and electrical repairs', icon: IconLamp },
@@ -49,6 +51,19 @@ export default function Services() {
 
   useEffect(load, []);
 
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(null);
+    };
+    window.addEventListener('keydown', onKey);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = '';
+    };
+  }, [open]);
+
   function openFor(next: ServiceCategory | 'choose') {
     setOpen(next);
     setError(null);
@@ -77,17 +92,17 @@ export default function Services() {
   }
 
   return (
-    <div className="portal-page svc-page">
-      <header className="svc-head">
-        <div>
-          <p className="svc-kicker">Good people. The right help.</p>
-          <h1>A little help for your home.</h1>
-          <p>Request support from trusted third-party professionals.</p>
-        </div>
-        <button type="button" className="svc-add" aria-label="New request" onClick={() => openFor('choose')}>
-          +
-        </button>
-      </header>
+    <div className="rs-page svc-page">
+      <PageHeader
+        kicker="Home services"
+        title="A little help for your home."
+        lede="Request support from trusted, independent professionals — coordinated by Garden View."
+        actions={
+          <button type="button" className="rs-btn rs-btn-primary" onClick={() => openFor('choose')}>
+            + New request
+          </button>
+        }
+      />
 
       <aside className="svc-promise">
         <span className="svc-promise-icon">
@@ -136,15 +151,23 @@ export default function Services() {
         </ul>
       </section>
 
-      {open && (
-        <div className="svc-drawer-back" onClick={() => setOpen(null)}>
-          <form className="svc-drawer" onClick={(e) => e.stopPropagation()} onSubmit={handleSubmit}>
+      {open &&
+        createPortal(
+          <div className="svc-drawer-back" onClick={() => setOpen(null)}>
+            <form
+              className="svc-drawer"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="service-drawer-title"
+              onClick={(event) => event.stopPropagation()}
+              onSubmit={handleSubmit}
+            >
             <header>
               <div>
                 <p>Request support</p>
-                <h2>{open === 'choose' ? 'What do you need?' : titleOf(category)}</h2>
+                <h2 id="service-drawer-title">{open === 'choose' ? 'What do you need?' : titleOf(category)}</h2>
               </div>
-              <button type="button" aria-label="Close" onClick={() => setOpen(null)}>
+              <button type="button" className="rs-icon-btn" aria-label="Close" onClick={() => setOpen(null)}>
                 <IconClose size={18} />
               </button>
             </header>
@@ -184,8 +207,9 @@ export default function Services() {
               {submitting ? 'Sending…' : 'Send request'}
             </button>
           </form>
-        </div>
-      )}
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }

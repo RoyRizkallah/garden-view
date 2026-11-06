@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
+import { initials } from './names';
 import {
   IconHome,
   IconWallet,
@@ -18,135 +19,162 @@ import {
   IconWrench,
   IconMenu,
 } from '../components/Icons';
-import { initials } from './names';
 
-type NavLinkItem = {
+type NavItem = {
   to: string;
   label: string;
-  shortLabel: string;
+  short?: string;
   icon: typeof IconHome;
   end?: boolean;
   primary?: boolean;
 };
 
-const GROUPS: { label: string; links: NavLinkItem[] }[] = [
+const GROUPS: { label: string; links: NavItem[] }[] = [
   {
     label: 'Home',
-    links: [{ to: '/portal', label: 'Overview', shortLabel: 'Overview', icon: IconHome, end: true, primary: true }],
+    links: [{ to: '/portal', label: 'Overview', icon: IconHome, end: true, primary: true }],
   },
   {
     label: 'Your home',
     links: [
-      { to: '/portal/residence', label: 'My Residence', shortLabel: 'Residence', icon: IconBuilding, primary: true },
-      { to: '/portal/services', label: 'Services', shortLabel: 'Services', icon: IconWrench, primary: true },
-      { to: '/portal/sell-rent', label: 'Sell & Rent', shortLabel: 'Sell', icon: IconTag },
-      { to: '/portal/requests', label: 'Requests', shortLabel: 'Requests', icon: IconClipboard },
+      { to: '/portal/residence', label: 'My Residence', icon: IconBuilding },
+      { to: '/portal/services', label: 'Home Services', short: 'Services', icon: IconWrench, primary: true },
+      { to: '/portal/requests', label: 'Requests', icon: IconClipboard, primary: true },
+      { to: '/portal/sell-rent', label: 'Sell & Rent', icon: IconTag },
     ],
   },
   {
     label: 'The building',
     links: [
-      { to: '/portal/charges', label: 'My Charges', shortLabel: 'Charges', icon: IconWallet },
-      { to: '/portal/projects', label: 'Project Progress', shortLabel: 'Progress', icon: IconChart },
-      { to: '/portal/voting', label: 'Voting', shortLabel: 'Voting', icon: IconBallot },
-      { to: '/portal/meetings', label: 'Meetings', shortLabel: 'Meetings', icon: IconCalendar, primary: true },
-      { to: '/portal/people', label: 'Our People', shortLabel: 'People', icon: IconUsers },
-      { to: '/portal/documents', label: 'Documents', shortLabel: 'Docs', icon: IconDocument },
+      { to: '/portal/charges', label: 'Charges & Payments', short: 'Charges', icon: IconWallet, primary: true },
+      { to: '/portal/projects', label: 'Project Progress', icon: IconChart },
+      { to: '/portal/voting', label: 'Voting', icon: IconBallot },
+      { to: '/portal/meetings', label: 'Meetings', icon: IconCalendar },
+      { to: '/portal/people', label: 'Our People', icon: IconUsers },
+      { to: '/portal/documents', label: 'Documents', icon: IconDocument },
     ],
   },
 ];
 
 const LINKS = GROUPS.flatMap((group) => group.links);
+/** Mobile order: the four things a resident reaches for most, then More. */
+const PRIMARY = ['/portal', '/portal/charges', '/portal/requests', '/portal/services']
+  .map((path) => LINKS.find((link) => link.to === path))
+  .filter((link): link is NavItem => Boolean(link));
+const SECONDARY = LINKS.filter((link) => !link.primary);
 
 export default function PortalLayout() {
   const { account, logout } = useAuth();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [moreOpen, setMoreOpen] = useState(false);
-  useEffect(() => setMoreOpen(false), [pathname]);
+
+  useEffect(() => {
+    setMoreOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!moreOpen) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMoreOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [moreOpen]);
 
   async function handleLogout() {
     await logout();
     navigate('/login', { replace: true });
   }
 
-  const initial = initials(account?.name);
-  const moreActive = LINKS.some((link) => !link.primary && (link.end ? pathname === link.to : pathname.startsWith(link.to)));
+  const moreActive = SECONDARY.some((link) => pathname.startsWith(link.to));
 
   return (
-    <div className="portal-shell portal-shell-resident">
-      <aside className="portal-sidebar">
-        <div className="portal-sidebar-brand-block">
-          <picture>
-            <source type="image/webp" srcSet="/images/logo-full-192.webp 1x, /images/logo-full-384.webp 2x" />
-            <img
-              src="/images/logo-full-192.png"
-              srcSet="/images/logo-full-192.png 1x, /images/logo-full-384.png 2x"
-              width={176}
-              height={152}
-              alt="Garden View"
-              className="portal-sidebar-logo-full"
-              decoding="async"
-            />
-          </picture>
-          <span>Beirut Central District</span>
-        </div>
+    <div className="rs-shell">
+      <aside className="rs-side">
+        <Link to="/portal" className="rs-brand" aria-label="Garden View, overview">
+          <img
+            className="rs-brand-mark"
+            src="/images/logo-icon-128.png"
+            width={44}
+            height={37}
+            alt=""
+            decoding="async"
+          />
+          <span className="rs-brand-text">
+            <span className="rs-brand-name">Garden View</span>
+            <span className="rs-brand-place">Beirut Central District</span>
+          </span>
+        </Link>
 
-        <nav className="portal-nav portal-nav-grouped" aria-label="Resident">
+        <nav className="rs-nav" aria-label="Resident portal">
           {GROUPS.map((group) => (
-            <div key={group.label} className="portal-nav-group">
-              <p className="portal-nav-label">{group.label}</p>
+            <div key={group.label} className="rs-nav-group">
+              <p className="rs-nav-label">{group.label}</p>
               {group.links.map((link) => (
-                <NavLink key={link.to} to={link.to} end={link.end} className={({ isActive }) => (isActive ? 'is-active' : '')}>
-                  <link.icon size={18} />
-                  {link.label}
+                <NavLink
+                  key={link.to}
+                  to={link.to}
+                  end={link.end}
+                  className={({ isActive }) => (isActive ? 'is-active' : '')}
+                >
+                  <link.icon size={17} />
+                  <span>{link.label}</span>
                 </NavLink>
               ))}
             </div>
           ))}
         </nav>
 
-        <div className="portal-sidebar-footer">
-          <Link to="/portal/profile" className="portal-account">
-            <span className="portal-avatar">{initial}</span>
-            <div>
+        <div className="rs-side-foot">
+          <Link to="/portal/profile" className="rs-user">
+            <span className="rs-avatar">{initials(account?.name)}</span>
+            <span className="rs-user-text">
               <strong>{account?.name}</strong>
-              <span>{account?.unit ? `Unit ${account.unit.block}-${account.unit.number}` : account?.role}</span>
-            </div>
-            <IconChevronRight size={14} className="portal-account-chevron" />
+              <span>
+                {account?.unit
+                  ? `Block ${account.unit.block} · ${account.unit.number}`
+                  : 'Resident account'}
+              </span>
+            </span>
+            <IconChevronRight size={14} />
           </Link>
-          <button className="btn btn-outline btn-sm btn-block" onClick={handleLogout}>
-            Sign Out
+          <button type="button" className="rs-signout" onClick={handleLogout}>
+            <IconLogout size={15} />
+            Sign out
           </button>
         </div>
       </aside>
 
-      <header className="portal-mobile-bar">
-        <span className="portal-mobile-brand">Garden View</span>
-        <div className="portal-mobile-bar-actions">
-          <Link to="/portal/profile" className="portal-mobile-account" aria-label="Profile">
+      <header className="rs-mobile-bar">
+        <Link to="/portal" className="rs-mobile-brand">
+          <img src="/images/logo-icon-128.png" alt="" width={28} height={24} />
+          Garden View
+        </Link>
+        <div className="rs-mobile-actions">
+          <Link to="/portal/profile" className="rs-mobile-icon" aria-label="Your account">
             <IconUser size={17} />
           </Link>
-          <button className="portal-mobile-account" aria-label="Sign out" onClick={handleLogout}>
+          <button type="button" className="rs-mobile-icon" aria-label="Sign out" onClick={handleLogout}>
             <IconLogout size={17} />
           </button>
         </div>
       </header>
 
-      <main className="portal-main">
+      <main className="rs-main">
         <Outlet />
       </main>
 
-      <nav className="portal-tab-bar">
-        {LINKS.filter((link) => link.primary).map((link) => (
+      <nav className="rs-tabs" aria-label="Sections">
+        {PRIMARY.map((link) => (
           <NavLink key={link.to} to={link.to} end={link.end} className={({ isActive }) => (isActive ? 'is-active' : '')}>
             <link.icon size={20} />
-            <span>{link.shortLabel}</span>
+            <span>{link.short ?? link.label}</span>
           </NavLink>
         ))}
         <button
           type="button"
-          className={`portal-more-btn${moreActive || moreOpen ? ' is-active' : ''}`}
+          className={`rs-more-btn${moreActive || moreOpen ? ' is-active' : ''}`}
           aria-expanded={moreOpen}
           onClick={() => setMoreOpen((open) => !open)}
         >
@@ -156,10 +184,15 @@ export default function PortalLayout() {
       </nav>
 
       {moreOpen && (
-        <div className="portal-more" onClick={() => setMoreOpen(false)}>
-          <nav className="portal-more-sheet" aria-label="More" onClick={(e) => e.stopPropagation()}>
-            {LINKS.filter((link) => !link.primary).map((link) => (
-              <NavLink key={link.to} to={link.to} onClick={() => setMoreOpen(false)} className={({ isActive }) => (isActive ? 'is-active' : '')}>
+        <div className="rs-more" onClick={() => setMoreOpen(false)}>
+          <nav className="rs-more-sheet" aria-label="More sections" onClick={(event) => event.stopPropagation()}>
+            {SECONDARY.map((link) => (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                onClick={() => setMoreOpen(false)}
+                className={({ isActive }) => (isActive ? 'is-active' : '')}
+              >
                 <link.icon size={18} />
                 <span>{link.label}</span>
               </NavLink>

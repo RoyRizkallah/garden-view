@@ -1,33 +1,36 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { api, ApiError, type ResidentRequest } from '../api';
-import { IconWrench, IconHammer, IconCheck, IconClock, IconAlertCircle } from '../../components/Icons';
+import { shortDate } from '../format';
+import PageHeader from '../PageHeader';
+import { IconWrench, IconHammer, IconCheck, IconClock, IconAlertCircle, IconClipboard } from '../../components/Icons';
 
 const TYPES: { value: 'ISSUE' | 'RENOVATION'; label: string; icon: typeof IconWrench }[] = [
-  { value: 'ISSUE', label: 'Report a Problem', icon: IconAlertCircle },
+  { value: 'ISSUE', label: 'Report a problem', icon: IconAlertCircle },
   { value: 'RENOVATION', label: 'Renovation', icon: IconHammer },
 ];
 
 const CATEGORIES = ['Plumbing', 'Electrical', 'Kitchen', 'HVAC', 'Structural', 'Appliances', 'Other'];
 
-const STATUS_LABEL: Record<ResidentRequest['status'], string> = {
-  OPEN: 'Received',
-  IN_PROGRESS: 'In Progress',
-  RESOLVED: 'Resolved',
+const STATUS: Record<ResidentRequest['status'], { label: string; tone: string; className: string }> = {
+  OPEN: { label: 'Received', tone: 'warn', className: 'is-open' },
+  IN_PROGRESS: { label: 'In progress', tone: 'open', className: 'is-progress' },
+  RESOLVED: { label: 'Resolved', tone: 'ok', className: 'is-resolved' },
 };
-const STATUS_FILTERS = ['All Statuses', 'Received', 'In Progress', 'Resolved'] as const;
+
+const FILTERS = ['All requests', 'Received', 'In progress', 'Resolved'] as const;
+type Filter = (typeof FILTERS)[number];
 
 function timeAgo(iso: string) {
-  const diffMs = Date.now() - new Date(iso).getTime();
-  const mins = Math.floor(diffMs / 60000);
-  if (mins < 1) return 'Just now';
-  if (mins < 60) return `${mins} minute${mins === 1 ? '' : 's'} ago`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+  const minutes = Math.floor((Date.now() - new Date(iso).getTime()) / 60_000);
+  if (minutes < 1) return 'Just now';
+  if (minutes < 60) return `${minutes} min ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} ${hours === 1 ? 'hour' : 'hours'} ago`;
   const days = Math.floor(hours / 24);
   if (days === 1) return 'Yesterday';
   if (days < 7) return `${days} days ago`;
-  return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  return shortDate(iso);
 }
 
 export default function Requests() {
@@ -38,7 +41,7 @@ export default function Requests() {
   const [type, setType] = useState<'ISSUE' | 'RENOVATION'>('ISSUE');
   const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
-  const [statusFilter, setStatusFilter] = useState<(typeof STATUS_FILTERS)[number]>('All Statuses');
+  const [filter, setFilter] = useState<Filter>('All requests');
 
   function load() {
     api
@@ -49,8 +52,8 @@ export default function Requests() {
 
   useEffect(load, []);
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
+  async function handleSubmit(event: FormEvent) {
+    event.preventDefault();
     setSubmitting(true);
     setError(null);
     try {
@@ -59,159 +62,198 @@ export default function Requests() {
       setDescription('');
       setJustSubmitted(true);
       load();
-      setTimeout(() => setJustSubmitted(false), 4000);
+      setTimeout(() => setJustSubmitted(false), 5000);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Could not submit request.');
+      setError(err instanceof ApiError ? err.message : 'Could not submit your request.');
     } finally {
       setSubmitting(false);
     }
   }
 
-  const active = requests?.filter((r) => r.status !== 'RESOLVED').length ?? 0;
+  const active = requests?.filter((request) => request.status !== 'RESOLVED').length ?? 0;
 
   const filtered = useMemo(() => {
     const list = requests ?? [];
-    if (statusFilter === 'All Statuses') return list;
-    return list.filter((r) => STATUS_LABEL[r.status] === statusFilter);
-  }, [requests, statusFilter]);
+    if (filter === 'All requests') return list;
+    return list.filter((request) => STATUS[request.status].label === filter);
+  }, [requests, filter]);
 
   return (
-    <div className="portal-page">
-      <p className="eyebrow">Requests</p>
-      <h1>How Can We Help?</h1>
-      <p className="portal-page-lede">
-        Report a problem or start a renovation conversation — building management sees every
-        request that comes through here.
-        {active > 0 && (
+    <div className="rs-page">
+      <PageHeader
+        kicker="Requests"
+        title="How can we help?"
+        lede={
           <>
-            {' '}
-            You currently have <strong className="portal-lede-accent">{active}</strong> active request
-            {active === 1 ? '' : 's'}.
+            Report something that needs fixing, or start a renovation conversation. Management sees every
+            request that comes through here.
+            {active > 0 && (
+              <>
+                {' '}
+                You have <strong style={{ color: 'var(--r-green)', fontWeight: 650 }}>{active}</strong> active
+                {active === 1 ? ' request' : ' requests'}.
+              </>
+            )}
           </>
-        )}
-      </p>
+        }
+      />
 
-      <div className="portal-request-panel">
-        <div className="portal-type-toggle">
-          {TYPES.map((t) => (
-            <button
-              type="button"
-              key={t.value}
-              className={type === t.value ? 'is-active' : ''}
-              onClick={() => setType(t.value)}
-            >
-              <t.icon size={16} />
-              {t.label}
-            </button>
-          ))}
-        </div>
+      <div className="rs-request-layout">
+        <section className="rs-panel" aria-labelledby="new-request">
+          <h2 id="new-request" className="rs-panel-title">
+            New request
+          </h2>
+          <p className="rs-panel-sub">A few details help us route it to the right person.</p>
 
-        <form className="portal-inline-form" onSubmit={handleSubmit}>
-          <div className="form-field">
-            <label htmlFor="category">Category</label>
-            <select id="category" value={category} onChange={(e) => setCategory(e.target.value)} required>
-              <option value="" disabled>
-                Select a category
-              </option>
-              {CATEGORIES.map((c) => (
-                <option key={c} value={c}>
-                  {c}
+          <div className="rs-segmented" role="group" aria-label="Request type">
+            {TYPES.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                className={type === option.value ? 'is-active' : ''}
+                aria-pressed={type === option.value}
+                onClick={() => setType(option.value)}
+              >
+                <option.icon size={15} />
+                {option.label}
+              </button>
+            ))}
+          </div>
+
+          <form className="rs-form" onSubmit={handleSubmit}>
+            <label className="rs-field">
+              <span>Category</span>
+              <select value={category} onChange={(event) => setCategory(event.target.value)} required>
+                <option value="" disabled>
+                  Select a category
                 </option>
-              ))}
-            </select>
-          </div>
-          <div className="form-field">
-            <label htmlFor="description">
-              {type === 'ISSUE' ? "What's going on?" : 'Tell us about the project'}
+                {CATEGORIES.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
             </label>
-            <textarea
-              id="description"
-              rows={3}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder={
-                type === 'ISSUE'
-                  ? 'Describe the issue and where it is...'
-                  : 'What are you planning, and what do you need from us?'
-              }
-              required
-            />
-          </div>
-          {error && <div className="note-card">{error}</div>}
-          {justSubmitted ? (
-            <div className="portal-success-chip">
-              <IconCheck size={16} /> Request received — we'll follow up soon.
-            </div>
-          ) : (
-            <button type="submit" className="btn btn-primary" disabled={submitting}>
-              {submitting ? 'Sending…' : 'Send Request'}
-            </button>
-          )}
-        </form>
+
+            <label className="rs-field">
+              <span>{type === 'ISSUE' ? "What's going on?" : 'Tell us about the project'}</span>
+              <textarea
+                rows={4}
+                value={description}
+                onChange={(event) => setDescription(event.target.value)}
+                placeholder={
+                  type === 'ISSUE'
+                    ? 'What is wrong, and where is it? For example: the kitchen tap is dripping.'
+                    : 'What are you planning, and what do you need from management?'
+                }
+                required
+              />
+            </label>
+
+            {error && (
+              <div className="rs-note">
+                <IconAlertCircle size={15} />
+                <span>{error}</span>
+              </div>
+            )}
+
+            {justSubmitted ? (
+              <div
+                className="rs-note"
+                role="status"
+                style={{ borderColor: 'rgba(44, 99, 69, 0.35)', color: 'var(--r-ok-ink)' }}
+              >
+                <IconCheck size={15} />
+                <span>Request received. Management will follow up here.</span>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+                <button type="submit" className="rs-btn rs-btn-primary" disabled={submitting}>
+                  {submitting ? 'Sending…' : 'Send request'}
+                </button>
+                <span style={{ fontSize: 12, color: 'var(--r-faint)' }}>
+                  You can follow its progress below.
+                </span>
+              </div>
+            )}
+          </form>
+        </section>
+
+        <aside className="rs-panel rs-help">
+          <h2>Need urgent assistance?</h2>
+          <p>
+            For a leak, a power failure or anything unsafe, contact building management directly rather than
+            waiting for a request to be picked up.
+          </p>
+          <Link to="/location" className="rs-btn rs-btn-outline rs-btn-sm">
+            <IconAlertCircle size={14} /> Contact management
+          </Link>
+        </aside>
       </div>
 
       {requests && requests.length > 0 && (
         <>
-          <div className="portal-section-head">
-            <h2 className="portal-subheading" style={{ margin: 0 }}>
-              History
-            </h2>
-            <div className="form-field">
-              <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}>
-                {STATUS_FILTERS.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
+          <div className="rs-section-head">
+            <h2>Your requests</h2>
+            <div className="rs-chip-row" role="group" aria-label="Filter requests">
+              {FILTERS.map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  className={filter === option ? 'is-active' : ''}
+                  aria-pressed={filter === option}
+                  onClick={() => setFilter(option)}
+                >
+                  {option}
+                </button>
+              ))}
             </div>
           </div>
-          <div className="portal-timeline">
-            {filtered.map((r) => {
-              const TypeIcon = r.type === 'ISSUE' ? IconWrench : IconHammer;
+
+          <div className="rs-history" style={{ marginTop: 0 }}>
+            {filtered.map((request) => {
+              const status = STATUS[request.status];
+              const TypeIcon = request.type === 'ISSUE' ? IconWrench : IconHammer;
               return (
-                <div key={r.id} className={`portal-timeline-item portal-timeline-${r.status.toLowerCase()}`}>
-                  <span className="portal-timeline-dot" />
-                  <div className="portal-timeline-card portal-timeline-card-with-icon">
-                    <span className="portal-timeline-card-icon">
-                      <TypeIcon size={17} />
-                    </span>
-                    <div className="portal-timeline-card-content">
-                      <div className="portal-timeline-card-head">
-                        <strong>
-                          {r.category}{' '}
-                          <span className="portal-request-type">
-                            · {r.type === 'ISSUE' ? 'Issue' : 'Renovation'}
-                          </span>
-                        </strong>
-                        <span className={`portal-badge portal-badge-${r.status.toLowerCase()}`}>
-                          {STATUS_LABEL[r.status]}
-                        </span>
-                      </div>
-                      <p>{r.description}</p>
-                      <span className="portal-timeline-time">
-                        <IconClock size={12} /> {timeAgo(r.createdAt)}
-                      </span>
+                <article key={request.id} className={`rs-request ${status.className}`}>
+                  <span className="rs-request-icon">
+                    <TypeIcon size={17} />
+                  </span>
+                  <div className="rs-request-body">
+                    <div className="rs-request-head">
+                      <strong>
+                        {request.category}
+                        <em> · {request.type === 'ISSUE' ? 'Issue' : 'Renovation'}</em>
+                      </strong>
+                      <span className={`rs-pill is-${status.tone}`}>{status.label}</span>
                     </div>
+                    <p>{request.description}</p>
+                    <span className="rs-request-time">
+                      <IconClock size={12} /> {timeAgo(request.createdAt)}
+                    </span>
                   </div>
-                </div>
+                </article>
               );
             })}
-            {filtered.length === 0 && <p className="portal-empty-note">No requests match this filter.</p>}
+
+            {filtered.length === 0 && (
+              <div className="rs-empty">
+                <p>No requests in this view.</p>
+              </div>
+            )}
           </div>
         </>
       )}
 
-      <div className="portal-urgent-footer">
-        <IconAlertCircle size={20} />
-        <div>
-          <strong>Need urgent assistance?</strong>
-          <span>For emergencies, please contact building management directly.</span>
+      {requests && requests.length === 0 && (
+        <div className="rs-empty" style={{ marginTop: 24 }}>
+          <span className="rs-empty-icon">
+            <IconClipboard size={20} />
+          </span>
+          <h2>No requests yet</h2>
+          <p>When you report something, its progress appears here so you always know where it stands.</p>
         </div>
-        <Link to="/location" className="btn btn-outline-gold btn-sm">
-          Contact Management
-        </Link>
-      </div>
+      )}
     </div>
   );
 }
