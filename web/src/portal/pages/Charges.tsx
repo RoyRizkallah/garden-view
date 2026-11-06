@@ -14,6 +14,17 @@ function isOverdue(charge: Charge) {
   return charge.status !== 'PAID' && new Date(charge.dueDate) < new Date();
 }
 
+/** "in 39 days", "due today", "12 days late" — how far the due date is from today. */
+function dueIn(dueDate: string): string {
+  const day = 24 * 60 * 60 * 1000;
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  const days = Math.round((new Date(dueDate).setHours(0, 0, 0, 0) - start.getTime()) / day);
+  if (days === 0) return 'due today';
+  if (days > 0) return `in ${days} ${days === 1 ? 'day' : 'days'}`;
+  return `${-days} ${days === -1 ? 'day' : 'days'} late`;
+}
+
 function statusOf(charge: Charge): { label: string; tone: string } {
   if (isOverdue(charge)) return { label: 'Overdue', tone: 'danger' };
   if (charge.status === 'PAID') return { label: 'Paid', tone: 'ok' };
@@ -87,6 +98,15 @@ export default function Charges() {
 
   const unpaidYTD = Math.max(0, stats.dueYTD - stats.paidYTD);
 
+  // the payment that matters now: the oldest one still open
+  const nextDue = useMemo(
+    () =>
+      [...(charges ?? [])]
+        .filter((charge) => charge.status !== 'PAID' && charge.amountDue - charge.amountPaid > 0.004)
+        .sort((a, b) => a.dueDate.localeCompare(b.dueDate))[0] ?? null,
+    [charges],
+  );
+
   return (
     <div className="rs-page">
       <PageHeader
@@ -124,6 +144,27 @@ export default function Charges() {
 
       {charges && charges.length > 0 && (
         <>
+          <section className={`rs-due${nextDue && isOverdue(nextDue) ? ' is-overdue' : ''}`} aria-labelledby="next-due">
+            <div className="rs-due-main">
+              <p className="rs-due-label" id="next-due">
+                {nextDue ? (isOverdue(nextDue) ? 'Overdue' : 'Next payment') : 'All paid'}
+              </p>
+              <p className="rs-due-amount">{usd.format(nextDue ? nextDue.amountDue - nextDue.amountPaid : 0)}</p>
+              <p className="rs-due-meta">
+                {nextDue
+                  ? `${monthYear(nextDue.period)} · due ${shortDate(nextDue.dueDate)} · ${dueIn(nextDue.dueDate)}`
+                  : 'Nothing is due on your home.'}
+              </p>
+            </div>
+            <div className="rs-due-how">
+              <h2>How to pay</h2>
+              <p>
+                Arrange a bank transfer or hand your payment to building management. It is recorded here once
+                received; online card payment is not enabled yet.
+              </p>
+            </div>
+          </section>
+
           <div className="rs-tiles rs-tiles-4">
             <div className="rs-tile">
               <span className="rs-tile-label">Balance due</span>
@@ -163,14 +204,6 @@ export default function Charges() {
                     )}`}
               </span>
             </div>
-          </div>
-
-          <div className="rs-note">
-            <IconDocument size={15} />
-            <span>
-              Payments are recorded by building management once received. Online card payment is not enabled
-              yet — arrange a transfer or hand your payment to management, and it will appear here.
-            </span>
           </div>
 
           <section className="rs-card" style={{ marginTop: 18 }} aria-labelledby="statement">

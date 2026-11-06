@@ -131,25 +131,57 @@ export default function Voting() {
           const yesPct = Math.round(((vote.tally.YES ?? 0) / total) * 100);
 
           return (
-            <article key={vote.id} className={`rs-vote${awaiting ? ' is-awaiting' : ''}`}>
-              <div className="rs-vote-head">
-                <div className="rs-vote-title">
+            <article key={vote.id} className={`rs-vote rs-ballot${awaiting ? ' is-awaiting' : ''}`}>
+              <div className="rs-ballot-top">
+                <div className="rs-ballot-info">
                   <span className={`rs-pill ${vote.status === 'OPEN' ? 'is-open' : 'is-neutral'}`}>
                     {vote.status === 'OPEN' ? 'Open' : 'Closed'}
                   </span>
                   <h3>{vote.title}</h3>
                   {vote.description && <p className="rs-vote-desc">{vote.description}</p>}
+
+                  {/* one square per residence, filled as homes vote */}
+                  <div className="rs-turnout">
+                    <div className="rs-turnout-grid" aria-hidden="true">
+                      {Array.from({ length: TOTAL_UNITS }, (_, index) => (
+                        <span key={index} className={index < vote.totalVotes ? 'is-in' : ''} />
+                      ))}
+                    </div>
+                    <p className="rs-vote-meta">
+                      {vote.totalVotes} of {TOTAL_UNITS} residences voted ·{' '}
+                      {vote.status === 'OPEN' ? `${closesIn(vote.closesAt)}, ` : 'closed '}
+                      {shortDate(vote.closesAt)}
+                    </p>
+                  </div>
                 </div>
 
-                {vote.myChoice ? (
-                  <span className="rs-chip is-cast">
-                    <IconCheck size={14} /> Voted {CHOICE_LABEL[vote.myChoice]}
-                  </span>
-                ) : awaiting ? (
-                  <span className="rs-chip is-awaiting">
-                    <IconClock size={14} /> Awaiting your vote
-                  </span>
-                ) : null}
+                <div className="rs-ballot-choice">
+                  <p className="rs-ballot-label">Your vote</p>
+                  {awaiting ? (
+                    <div className="rs-ballot-btns">
+                      {(['YES', 'NO', 'ABSTAIN'] as const).map((choice) => (
+                        <button
+                          key={choice}
+                          type="button"
+                          className={`rs-ballot-btn is-${choice.toLowerCase()}`}
+                          disabled={castingId === vote.id}
+                          onClick={() => castVote(vote.id, choice)}
+                        >
+                          {CHOICE_LABEL[choice]}
+                        </button>
+                      ))}
+                      <p className="rs-ballot-hint">
+                        <IconClock size={13} /> One vote per home, final once cast.
+                      </p>
+                    </div>
+                  ) : vote.myChoice ? (
+                    <p className="rs-ballot-cast">
+                      <IconCheck size={18} /> You voted <strong>{CHOICE_LABEL[vote.myChoice]}</strong>
+                    </p>
+                  ) : (
+                    <p className="rs-ballot-closed">Voting has closed.</p>
+                  )}
+                </div>
               </div>
 
               <div className="rs-vote-result">
@@ -186,30 +218,6 @@ export default function Voting() {
                 </div>
               </div>
 
-              <div className="rs-vote-foot">
-                <p className="rs-vote-meta">
-                  {vote.status === 'OPEN' ? `${closesIn(vote.closesAt)} · ` : 'Closed '}
-                  {shortDate(vote.closesAt)} · {vote.totalVotes} of {TOTAL_UNITS} residences voted
-                </p>
-
-                {awaiting && (
-                  <div className="rs-vote-actions">
-                    {(['YES', 'NO', 'ABSTAIN'] as const).map((choice) => (
-                      <button
-                        key={choice}
-                        type="button"
-                        className={`rs-btn rs-btn-sm ${
-                          choice === 'YES' ? 'rs-btn-primary' : 'rs-btn-outline'
-                        }`}
-                        disabled={castingId === vote.id}
-                        onClick={() => castVote(vote.id, choice)}
-                      >
-                        {CHOICE_LABEL[choice]}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
             </article>
           );
         })}

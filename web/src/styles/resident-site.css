@@ -664,3 +664,250 @@
     border-top: 1px solid var(--r-line-2);
   }
 }
+
+/* ==========================================================================
+   Figures, charges and voting.
+   ========================================================================== */
+
+/* Stat tiles read as one ledger line, as on the home page */
+.rs-shell .rs-tiles {
+  gap: 0;
+  border-radius: 16px;
+  background: var(--r-surface);
+  box-shadow: var(--r-shadow);
+  overflow: hidden;
+}
+.rs-shell .rs-tile {
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+}
+.rs-shell .rs-tile + .rs-tile {
+  border-left: 1px solid var(--r-line-2);
+}
+.rs-shell .rs-tile-value {
+  font-stretch: 125%;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* Charges: the payment that matters now, beside how to pay */
+.rs-shell .rs-due {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  margin-bottom: 16px;
+  border-radius: 16px;
+  background: var(--r-surface);
+  box-shadow: var(--r-shadow);
+  overflow: hidden;
+}
+.rs-shell .rs-due-main {
+  padding: 28px 32px;
+  background: var(--r-deep);
+  color: #fffdf8;
+  border-top: 3px solid var(--r-gold);
+}
+.rs-shell .rs-due.is-overdue .rs-due-main {
+  border-top-color: #d9806a;
+}
+.rs-shell .rs-due-label {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--r-gold);
+}
+.rs-shell .rs-due.is-overdue .rs-due-label {
+  color: #f0a08c;
+}
+.rs-shell .rs-due-amount {
+  margin-top: 6px;
+  font-stretch: 125%;
+  font-size: 44px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+.rs-shell .rs-due-meta {
+  margin-top: 8px;
+  font-size: 14px;
+  color: rgba(255, 253, 248, 0.72);
+}
+.rs-shell .rs-due-how {
+  padding: 28px 32px;
+  align-self: center;
+}
+.rs-shell .rs-due-how h2 {
+  font-size: 17px;
+  font-stretch: 112%;
+}
+.rs-shell .rs-due-how p {
+  margin-top: 8px;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--r-muted);
+}
+
+/* Voting: each proposal is a ballot */
+.rs-shell .rs-ballot {
+  padding: 0;
+  overflow: hidden;
+  border: none;
+  border-radius: 16px;
+  background: var(--r-surface);
+  box-shadow: var(--r-shadow);
+}
+.rs-shell .rs-ballot.is-awaiting {
+  box-shadow: var(--r-shadow), inset 0 3px 0 var(--r-gold);
+}
+.rs-shell .rs-ballot-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(260px, 1fr);
+}
+.rs-shell .rs-ballot-info {
+  padding: 28px 30px;
+}
+.rs-shell .rs-ballot-info h3 {
+  margin-top: 12px;
+  font-size: clamp(20px, 2vw, 26px);
+  line-height: 1.15;
+}
+.rs-shell .rs-ballot-info .rs-vote-desc {
+  margin-top: 10px;
+  max-width: 60ch;
+}
+.rs-shell .rs-turnout {
+  margin-top: 22px;
+}
+.rs-shell .rs-turnout-grid {
+  display: grid;
+  grid-template-columns: repeat(21, 12px);
+  gap: 4px;
+}
+.rs-shell .rs-turnout-grid span {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  background: var(--r-paper-2);
+  box-shadow: inset 0 0 0 1px var(--r-line);
+}
+.rs-shell .rs-turnout-grid span.is-in {
+  background: var(--r-green);
+  box-shadow: none;
+}
+.rs-shell .rs-turnout .rs-vote-meta {
+  margin-top: 10px;
+}
+.rs-shell .rs-ballot-choice {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 14px;
+  padding: 28px 30px;
+  background: var(--r-deep);
+  color: #fffdf8;
+}
+.rs-shell .rs-ballot-label {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--r-gold);
+}
+.rs-shell .rs-ballot-btns {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.rs-shell .rs-ballot-btn {
+  padding: 16px 8px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 253, 248, 0.22);
+  background: rgba(255, 253, 248, 0.04);
+  color: #fffdf8;
+  font: 600 15px var(--font-sans);
+  font-stretch: 112%;
+  transition: background 0.2s var(--r-ease), border-color 0.2s var(--r-ease), color 0.2s var(--r-ease);
+}
+.rs-shell .rs-ballot-btn:hover:not(:disabled) {
+  border-color: var(--r-gold);
+  background: rgba(201, 167, 105, 0.12);
+}
+.rs-shell .rs-ballot-btn.is-yes {
+  background: var(--r-gold);
+  border-color: var(--r-gold);
+  color: #131310;
+}
+.rs-shell .rs-ballot-btn.is-yes:hover:not(:disabled) {
+  background: #dab97f;
+  border-color: #dab97f;
+}
+.rs-shell .rs-ballot-btn:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+.rs-shell .rs-ballot-hint {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  font-size: 12.5px;
+  color: rgba(255, 253, 248, 0.6);
+}
+.rs-shell .rs-ballot-cast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  color: rgba(255, 253, 248, 0.85);
+}
+.rs-shell .rs-ballot-cast svg {
+  color: var(--r-gold);
+}
+.rs-shell .rs-ballot-cast strong {
+  font-stretch: 125%;
+  font-size: 22px;
+  color: #fffdf8;
+}
+.rs-shell .rs-ballot-closed {
+  font-size: 15px;
+  color: rgba(255, 253, 248, 0.7);
+}
+.rs-shell .rs-ballot .rs-vote-result {
+  margin: 0;
+  padding: 22px 30px 26px;
+  border-top: 1px solid var(--r-line-2);
+  border-radius: 0;
+  background: var(--r-surface-2);
+}
+
+@media (max-width: 1080px) {
+  .rs-shell .rs-ballot-top {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 780px) {
+  .rs-shell .rs-tile + .rs-tile {
+    border-left: none;
+    border-top: 1px solid var(--r-line-2);
+  }
+  .rs-shell .rs-due {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .rs-shell .rs-due-main,
+  .rs-shell .rs-due-how {
+    padding: 22px 22px;
+  }
+  .rs-shell .rs-due-amount {
+    font-size: 36px;
+  }
+  .rs-shell .rs-ballot-info,
+  .rs-shell .rs-ballot-choice {
+    padding: 22px;
+  }
+  .rs-shell .rs-turnout-grid {
+    grid-template-columns: repeat(14, 12px);
+  }
+  .rs-shell .rs-ballot .rs-vote-result {
+    padding: 20px 22px;
+  }
+}
