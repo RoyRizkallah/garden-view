@@ -24,7 +24,7 @@ const tel = (phone: string) => `tel:${phone.replace(/[^\d+]/g, '')}`;
 /** the family tree's branches, in percent of the stage (x across, y down) */
 const TRUNK = { x: 50, officersFrom: 27, teamsFrom: 50 };
 const OFFICERS = { y: 33, x: [27, 73] };
-const TEAMS = { y: 56, x: [25, 64, 86] };
+const TEAMS = { y: 56, x: [33, 73, 90] };
 
 type Leaf = { x: number; y: number; rotation: number; scale: number; color: string };
 const OLIVE = ['#6c8466', '#7d927a', '#94a68f', '#a9b8a1', '#5d7659', '#b7c4ad'];
@@ -78,6 +78,18 @@ function Crown({ blobs, className }: { blobs: ReturnType<typeof crown>; classNam
 /** a branch from the trunk at `fromY` out to (x, y), in stage percent */
 const branch = (fromY: number, x: number, y: number) =>
   `M${TRUNK.x} ${fromY}C${(TRUNK.x + x) / 2} ${fromY} ${x} ${fromY + (y - fromY) * 0.35} ${x} ${y}`;
+
+/** a team's members grouped by post, in the order the posts first appear ('' when a team has no posts) */
+function byPost(members: TeamMember[]): { post: string; members: TeamMember[] }[] {
+  const posts: { post: string; members: TeamMember[] }[] = [];
+  for (const member of members) {
+    const post = member.post ?? '';
+    const entry = posts.find((item) => item.post === post);
+    if (entry) entry.members.push(member);
+    else posts.push({ post, members: [member] });
+  }
+  return posts;
+}
 
 const GROUP_ICON: Record<string, typeof IconShield> = {
   Security: IconShield,
@@ -256,11 +268,26 @@ export default function People() {
                   <strong>{group.role}</strong>
                   <span className="ft-team-count">{count}</span>
                 </header>
-                <ul className="ft-members">
-                  {group.members.map((member, memberIndex) => (
-                    <MemberChip key={memberIndex} member={member} role={group.role} />
-                  ))}
-                </ul>
+                {byPost(group.members).length > 1 ? (
+                  <div className="ft-posts">
+                    {byPost(group.members).map(({ post, members }) => (
+                      <div key={post} className="ft-post">
+                        <p className="ft-post-name">{post}</p>
+                        <ul className="ft-members">
+                          {members.map((member, memberIndex) => (
+                            <MemberChip key={memberIndex} member={member} role={group.role} />
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <ul className="ft-members">
+                    {group.members.map((member, memberIndex) => (
+                      <MemberChip key={memberIndex} member={member} role={group.role} />
+                    ))}
+                  </ul>
+                )}
               </section>
             );
           })}
@@ -308,11 +335,16 @@ export default function People() {
                     {count} {count === 1 ? group.singular : group.plural}
                   </span>
                 </header>
-                <ul className="pt-places">
-                  {group.members.map((member, index) => (
-                    <TeamPlace key={`${group.role}-${index}`} member={member} />
-                  ))}
-                </ul>
+                {byPost(group.members).map(({ post, members }) => (
+                  <div key={post} className="pt-post">
+                    {post && <p className="pt-post-name">{post}</p>}
+                    <ul className="pt-places">
+                      {members.map((member, index) => (
+                        <TeamPlace key={`${group.role}-${post}-${index}`} member={member} />
+                      ))}
+                    </ul>
+                  </div>
+                ))}
               </article>
             );
           })}

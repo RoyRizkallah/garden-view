@@ -1756,3 +1756,61 @@
     padding-bottom: 24px;
   }
 }
+
+/* ==========================================================================
+   Garden Tree: security by post (each block, the garage), cleaning and concierge beside it.
+   ========================================================================== */
+/* the trunk ends where the lower branches split, so the posts can use the lawn below */
+.rs-shell .ft-trunk {
+  bottom: 48%;
+}
+.rs-shell .ft-team.is-security {
+  width: min(58%, 900px);
+}
+.rs-shell .ft-team.is-cleaning,
+.rs-shell .ft-team.is-concierge {
+  width: min(15.5%, 240px);
+}
+.rs-shell .ft-posts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  width: 100%;
+}
+.rs-shell .ft-post {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 7px;
+  min-width: 0;
+}
+.rs-shell .ft-post-name {
+  align-self: center;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: rgba(24, 41, 32, 0.62);
+  color: #fffdf8;
+  font-size: 12px;
+  font-weight: 600;
+}
+.rs-shell .is-security .ft-post .ft-members {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 7px;
+}
+.rs-shell .ft-post .ft-member {
+  padding: 7px 9px;
+}
+.rs-shell .ft-post .ft-member-avatar {
+  width: 28px;
+  height: 28px;
+}
+/* phone list: guards grouped under their post */
+.rs-shell .pt-post + .pt-post {
+  margin-top: 12px;
+}
+.rs-shell .pt-post-name {
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--r-gold);
+}
