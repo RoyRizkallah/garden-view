@@ -3,9 +3,18 @@ import { PEOPLE, TEAM_GROUPS, type TeamMember } from '../people';
 import { initials } from '../names';
 import PageHeader from '../PageHeader';
 import { IconPhone, IconShield, IconSparkle, IconConcierge, IconUser } from '../../components/Icons';
+import ScheduleBoard from '../ScheduleBoard';
+import { boardStart, clockLabel, isOnDuty, layoutRow, useBeirutNow, type BoardSection } from '../shifts';
 import '../../styles/people.css';
 
 type PersonLike = { name: string; role: string; phone: string; photo?: string; hours?: string };
+
+/** a small green dot that says someone is working right now */
+const OnDutyDot = () => (
+  <span className="ft-on-dot" title="On duty now">
+    <span className="sr-only">On duty now</span>
+  </span>
+);
 
 const tel = (phone: string) => `tel:${phone.replace(/[^\d+]/g, '')}`;
 
@@ -104,12 +113,23 @@ const GROUP_ICON: Record<string, typeof IconShield> = {
 };
 
 /** A team member on the tree: their name and phone, or an outlined place until they are known. */
-function MemberChip({ member, role, showShift = true }: { member: TeamMember; role: string; showShift?: boolean }) {
+function MemberChip({
+  member,
+  role,
+  showShift = true,
+  onDuty = false,
+}: {
+  member: TeamMember;
+  role: string;
+  showShift?: boolean;
+  onDuty?: boolean;
+}) {
   const Icon = GROUP_ICON[role] ?? IconUser;
   const known = Boolean(member.name);
   const shift = showShift ? member.shift : undefined;
   return (
-    <li className={`ft-member${known ? '' : ' is-open'}`} title={member.name}>
+    <li className={`ft-member${known ? '' : ' is-open'}${onDuty ? ' is-on' : ''}`} title={member.name}>
+      {onDuty && <OnDutyDot />}
       <span className="ft-member-avatar" aria-hidden="true">
         {member.photo ? (
           <img src={member.photo} alt="" width={64} height={64} loading="lazy" />
@@ -134,10 +154,11 @@ function MemberChip({ member, role, showShift = true }: { member: TeamMember; ro
 }
 
 /** One place in a team group (the phone layout): the person once known, an outlined place until then. */
-function TeamPlace({ member }: { member: TeamMember }) {
+function TeamPlace({ member, onDuty = false }: { member: TeamMember; onDuty?: boolean }) {
   const known = Boolean(member.name);
   return (
-    <li className={`pt-place${known ? '' : ' is-open'}`}>
+    <li className={`pt-place${known ? '' : ' is-open'}${onDuty ? ' is-on' : ''}`}>
+      {onDuty && <OnDutyDot />}
       <span className="pt-place-avatar" aria-hidden="true">
         {member.photo ? (
           <img src={member.photo} alt="" width={80} height={80} loading="lazy" />
@@ -161,11 +182,12 @@ function TeamPlace({ member }: { member: TeamMember }) {
   );
 }
 
-function PersonCard({ person, lead = false }: { person: PersonLike; lead?: boolean }) {
+function PersonCard({ person, lead = false, onDuty = false }: { person: PersonLike; lead?: boolean; onDuty?: boolean }) {
   const Heading = lead ? 'h2' : 'h3';
 
   return (
-    <article className={`pt-card${lead ? ' is-lead' : ''}`}>
+    <article className={`pt-card${lead ? ' is-lead' : ''}${onDuty ? ' is-on' : ''}`}>
+      {onDuty && <OnDutyDot />}
       <span className={`pt-avatar${person.photo ? ' has-photo' : ''}`} aria-hidden="true">
         {person.photo ? (
           <picture>
@@ -183,18 +205,45 @@ function PersonCard({ person, lead = false }: { person: PersonLike; lead?: boole
           <IconPhone size={11} />
           {person.phone}
         </a>
-        {person.hours && <p className="pt-hours">Office {person.hours}</p>}
+        {person.hours && (
+          <p className="pt-hours">
+            Office {person.hours}
+            {onDuty && <span className="pt-in"> · in now</span>}
+          </p>
+        )}
       </div>
     </article>
   );
 }
 
 export default function People() {
-  const [chairman, ...officers] = PEOPLE;
+  const [chairman, ...officers] = PEOPLE as readonly PersonLike[];
   const manager = officers.find((person) => person.role.includes('Manager')) ?? officers[0];
   const assistant = officers.find((person) => person !== manager) ?? officers[1];
   const callPerson = manager ?? chairman;
   const teamCount = TEAM_GROUPS.reduce((sum, group) => sum + group.members.length, 0);
+
+  // Shifts: who is working now (Beirut time), and the day laid out as a schedule board.
+  const now = useBeirutNow();
+  const [view, setView] = useState<'tree' | 'schedule'>('tree');
+  const staff = TEAM_GROUPS.flatMap((group) => group.members);
+  const officeHours = officers.filter((person) => person.hours);
+  const startsAt = boardStart([...officeHours.map((person) => person.hours), ...staff.map((member) => member.shift)]);
+  const sections: BoardSection[] = [
+    {
+      title: 'Office',
+      rows: [layoutRow('', officeHours.map((person) => ({ name: person.name, hours: person.hours })), startsAt)],
+    },
+    ...TEAM_GROUPS.map((group) => ({
+      title: group.role,
+      rows: byPost(group.members).map(({ post, members }) =>
+        layoutRow(post, members.map((member) => ({ name: member.name ?? 'To come', hours: member.shift })), startsAt),
+      ),
+    })),
+  ];
+  const onDutyCount =
+    officeHours.filter((person) => isOnDuty(person.hours, now)).length +
+    staff.filter((member) => isOnDuty(member.shift, now)).length;
 
   // The stage takes the height left in the window below it, so the tree fits without scrolling.
   const stageRef = useRef<HTMLDivElement>(null);
@@ -218,14 +267,38 @@ export default function People() {
         title="Garden Tree"
         lede="The people who look after Garden View, and how to reach them. For anything else, the manager’s office is your first point of contact."
         actions={
-          <a className="rs-btn rs-btn-primary" href={tel(callPerson.phone)}>
-            <IconPhone size={14} /> Call the manager
-          </a>
+          <>
+            <div className="ft-view-switch" role="group" aria-label="Show">
+              <button type="button" aria-pressed={view === 'tree'} onClick={() => setView('tree')}>
+                Tree
+              </button>
+              <button type="button" aria-pressed={view === 'schedule'} onClick={() => setView('schedule')}>
+                Schedule
+              </button>
+            </div>
+            <a className="rs-btn rs-btn-primary" href={tel(callPerson.phone)}>
+              <IconPhone size={14} /> Call the manager
+            </a>
+          </>
         }
       />
 
       <div className="pt-stage-wrap ft-wrap">
+        {view === 'schedule' ? (
+          <ScheduleBoard
+            sections={sections}
+            startsAt={startsAt}
+            now={now}
+            onDutyCount={onDutyCount}
+            height={stageHeight}
+            boardRef={stageRef}
+          />
+        ) : (
         <div className="ft-stage" ref={stageRef} style={{ height: stageHeight }}>
+          <button type="button" className="ft-now-chip" onClick={() => setView('schedule')}>
+            <span className="sc-dot" aria-hidden="true" />
+            {onDutyCount} on duty now · {clockLabel(now)}
+          </button>
           {/* the garden: wall and windows, hedge on its kerb, the lawn */}
           <div className="ft-wall" aria-hidden="true" />
           <div className="ft-hedge" aria-hidden="true" />
@@ -250,12 +323,12 @@ export default function People() {
           </div>
           {manager && (
             <div className="ft-node ft-officer" style={{ left: `${OFFICERS.x[0]}%`, top: `${OFFICERS.y}%` }}>
-              <PersonCard person={manager} />
+              <PersonCard person={manager} onDuty={isOnDuty(manager.hours, now)} />
             </div>
           )}
           {assistant && (
             <div className="ft-node ft-officer" style={{ left: `${OFFICERS.x[1]}%`, top: `${OFFICERS.y}%` }}>
-              <PersonCard person={assistant} />
+              <PersonCard person={assistant} onDuty={isOnDuty(assistant.hours, now)} />
             </div>
           )}
 
@@ -292,7 +365,12 @@ export default function People() {
                         <p className="ft-post-name">{post}</p>
                         <ul className="ft-members">
                           {members.map((member, memberIndex) => (
-                            <MemberChip key={memberIndex} member={member} role={group.role} />
+                            <MemberChip
+                              key={memberIndex}
+                              member={member}
+                              role={group.role}
+                              onDuty={isOnDuty(member.shift, now)}
+                            />
                           ))}
                         </ul>
                       </div>
@@ -308,6 +386,7 @@ export default function People() {
                           member={member}
                           role={group.role}
                           showShift={!sharedShift(group.members)}
+                          onDuty={isOnDuty(member.shift, now)}
                         />
                       ))}
                     </ul>
@@ -317,6 +396,7 @@ export default function People() {
             );
           })}
         </div>
+        )}
       </div>
 
       <div className="pt-mobile">
@@ -326,12 +406,12 @@ export default function People() {
         </div>
         {manager && (
           <div className="pt-m-item">
-            <PersonCard person={manager} />
+            <PersonCard person={manager} onDuty={isOnDuty(manager.hours, now)} />
           </div>
         )}
         {assistant && (
           <div className="pt-m-item">
-            <PersonCard person={assistant} />
+            <PersonCard person={assistant} onDuty={isOnDuty(assistant.hours, now)} />
           </div>
         )}
         <p className="pt-m-root">Garden View · Beirut Central District</p>
@@ -365,7 +445,11 @@ export default function People() {
                     {post && <p className="pt-post-name">{post}</p>}
                     <ul className="pt-places">
                       {members.map((member, index) => (
-                        <TeamPlace key={`${group.role}-${post}-${index}`} member={member} />
+                        <TeamPlace
+                          key={`${group.role}-${post}-${index}`}
+                          member={member}
+                          onDuty={isOnDuty(member.shift, now)}
+                        />
                       ))}
                     </ul>
                   </div>
@@ -374,6 +458,10 @@ export default function People() {
             );
           })}
         </div>
+      </section>
+
+      <section className="pt-schedule" aria-label="Shifts">
+        <ScheduleBoard sections={sections} startsAt={startsAt} now={now} onDutyCount={onDutyCount} />
       </section>
     </div>
   );
