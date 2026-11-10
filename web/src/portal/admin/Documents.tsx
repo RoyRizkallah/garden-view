@@ -4,7 +4,7 @@ import EmptyState from '../EmptyState';
 import { IconDocument } from '../../components/Icons';
 import { DOCUMENT_CATEGORIES, categoryRank } from '../../data/documentCategories';
 
-// Building documents for residents: the quarterly letters and updates. A PDF (or an image, such as
+// Building documents for residents: the quarterly letters, updates and budget. A PDF (or an image, such as
 // a scanned letter) is uploaded here and appears at once on the residents' Documents page and on
 // their home screen.
 
@@ -68,7 +68,7 @@ export default function AdminDocuments() {
     <div className="portal-page">
       <p className="eyebrow">Documents</p>
       <h1>Building Documents</h1>
-      <p className="portal-page-lede">Publish the quarterly letters and updates. Residents can open them from their portal.</p>
+      <p className="portal-page-lede">Publish the quarterly letters, updates and budget. Residents can open them from their portal.</p>
 
       <form className="portal-request-panel" onSubmit={submit}>
         <div className="portal-inline-form">

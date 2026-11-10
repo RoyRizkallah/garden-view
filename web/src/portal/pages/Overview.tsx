@@ -375,7 +375,7 @@ export default function Overview() {
           </span>
           <span>
             <strong>Documents</strong>
-            <span>Quarterly letters and updates</span>
+            <span>Letters, updates and budget</span>
           </span>
         </Link>
       </nav>

@@ -1,7 +1,7 @@
 // The categories building management publishes documents under. The admin upload offers exactly
 // these, and the residents' Documents page lists them in this order. Documents published earlier
 // under another category keep it and are listed after these.
-export const DOCUMENT_CATEGORIES = ['Quarterly letters', 'Updates'] as const;
+export const DOCUMENT_CATEGORIES = ['Quarterly letters', 'Updates', 'Budget'] as const;
 
 export type DocumentCategory = (typeof DOCUMENT_CATEGORIES)[number];
 

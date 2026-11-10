@@ -5,7 +5,7 @@ import PageHeader from '../PageHeader';
 import { IconPhone, IconShield, IconSparkle, IconConcierge, IconUser } from '../../components/Icons';
 import '../../styles/people.css';
 
-type PersonLike = { name: string; role: string; phone: string; photo?: string };
+type PersonLike = { name: string; role: string; phone: string; photo?: string; hours?: string };
 
 const tel = (phone: string) => `tel:${phone.replace(/[^\d+]/g, '')}`;
 
@@ -91,6 +91,12 @@ function byPost(members: TeamMember[]): { post: string; members: TeamMember[] }[
   return posts;
 }
 
+/** The shift every member works, when they all work the same one (said once, not on every card). */
+function sharedShift(members: TeamMember[]): string | undefined {
+  const first = members[0]?.shift;
+  return members.length > 1 && first && members.every((member) => member.shift === first) ? first : undefined;
+}
+
 const GROUP_ICON: Record<string, typeof IconShield> = {
   Security: IconShield,
   Cleaning: IconSparkle,
@@ -98,11 +104,12 @@ const GROUP_ICON: Record<string, typeof IconShield> = {
 };
 
 /** A team member on the tree: their name and phone, or an outlined place until they are known. */
-function MemberChip({ member, role }: { member: TeamMember; role: string }) {
+function MemberChip({ member, role, showShift = true }: { member: TeamMember; role: string; showShift?: boolean }) {
   const Icon = GROUP_ICON[role] ?? IconUser;
   const known = Boolean(member.name);
+  const shift = showShift ? member.shift : undefined;
   return (
-    <li className={`ft-member${known ? '' : ' is-open'}`}>
+    <li className={`ft-member${known ? '' : ' is-open'}`} title={member.name}>
       <span className="ft-member-avatar" aria-hidden="true">
         {member.photo ? (
           <img src={member.photo} alt="" width={64} height={64} loading="lazy" />
@@ -114,13 +121,13 @@ function MemberChip({ member, role }: { member: TeamMember; role: string }) {
       </span>
       <span className="ft-member-text">
         <strong>{member.name ?? 'Name to come'}</strong>
-        {member.phone ? (
+        {member.phone && (
           <a href={tel(member.phone)}>
             <IconPhone size={10} /> {member.phone}
           </a>
-        ) : (
-          <span>Phone to come</span>
         )}
+        {shift && <span className="ft-member-shift">{shift}</span>}
+        {!member.phone && !member.shift && <span>Details to come</span>}
       </span>
     </li>
   );
@@ -142,13 +149,13 @@ function TeamPlace({ member }: { member: TeamMember }) {
       </span>
       <span className="pt-place-text">
         <strong>{member.name ?? 'Name to come'}</strong>
-        {member.phone ? (
+        {member.phone && (
           <a href={tel(member.phone)}>
             <IconPhone size={11} /> {member.phone}
           </a>
-        ) : (
-          <span>Details to come</span>
         )}
+        {member.shift && <span>{member.shift}</span>}
+        {!member.phone && !member.shift && <span>Details to come</span>}
       </span>
     </li>
   );
@@ -176,6 +183,7 @@ function PersonCard({ person, lead = false }: { person: PersonLike; lead?: boole
           <IconPhone size={11} />
           {person.phone}
         </a>
+        {person.hours && <p className="pt-hours">Office {person.hours}</p>}
       </div>
     </article>
   );
@@ -183,8 +191,8 @@ function PersonCard({ person, lead = false }: { person: PersonLike; lead?: boole
 
 export default function People() {
   const [chairman, ...officers] = PEOPLE;
-  const manager = officers.find((person) => person.role === 'Manager') ?? officers[0];
-  const assistant = officers.find((person) => person.role === 'Assistant') ?? officers[1];
+  const manager = officers.find((person) => person.role.includes('Manager')) ?? officers[0];
+  const assistant = officers.find((person) => person !== manager) ?? officers[1];
   const callPerson = manager ?? chairman;
   const teamCount = TEAM_GROUPS.reduce((sum, group) => sum + group.members.length, 0);
 
@@ -267,10 +275,19 @@ export default function People() {
                   </span>
                   <strong>{group.role}</strong>
                   <span className="ft-team-count">{count}</span>
+                  {byPost(group.members)
+                    .filter(({ post, members }) => post && members.length === 1)
+                    .map(({ post, members }) => (
+                      <span key={post} className="ft-team-extra">
+                        {post}: <b>{members[0].name ?? 'to come'}</b>
+                      </span>
+                    ))}
                 </header>
                 {byPost(group.members).length > 1 ? (
                   <div className="ft-posts">
-                    {byPost(group.members).map(({ post, members }) => (
+                    {byPost(group.members)
+                      .filter(({ members }) => members.length > 1)
+                      .map(({ post, members }) => (
                       <div key={post} className="ft-post">
                         <p className="ft-post-name">{post}</p>
                         <ul className="ft-members">
@@ -282,11 +299,19 @@ export default function People() {
                     ))}
                   </div>
                 ) : (
-                  <ul className="ft-members">
-                    {group.members.map((member, memberIndex) => (
-                      <MemberChip key={memberIndex} member={member} role={group.role} />
-                    ))}
-                  </ul>
+                  <>
+                    {sharedShift(group.members) && <p className="ft-post-name">{sharedShift(group.members)}</p>}
+                    <ul className="ft-members">
+                      {group.members.map((member, memberIndex) => (
+                        <MemberChip
+                          key={memberIndex}
+                          member={member}
+                          role={group.role}
+                          showShift={!sharedShift(group.members)}
+                        />
+                      ))}
+                    </ul>
+                  </>
                 )}
               </section>
             );

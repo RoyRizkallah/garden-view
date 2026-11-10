@@ -1814,3 +1814,51 @@
   font-weight: 600;
   color: var(--r-gold);
 }
+
+/* ==========================================================================
+   Garden Tree with the real team: shifts on the cards, relief beside the security plaque,
+   office hours under the officers' phones.
+   ========================================================================== */
+.rs-shell .ft-member-text .ft-member-shift {
+  color: var(--r-gold-ink);
+  font-weight: 500;
+}
+.rs-shell .ft-team-extra {
+  margin-left: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--r-paper-2);
+  color: var(--r-muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+.rs-shell .ft-team-extra b {
+  color: var(--r-ink);
+  font-weight: 600;
+}
+.rs-shell .pt-hours {
+  margin-top: 4px;
+  font-size: 11.5px;
+  color: var(--r-gold-ink);
+  font-weight: 500;
+}
+
+/* below ~1600px the guards' columns are narrow: their names matter more than the initials */
+@media (max-width: 1599px) {
+  .rs-shell .ft-post .ft-member-avatar {
+    display: none;
+  }
+  .rs-shell .ft-post .ft-member {
+    padding: 7px 10px;
+  }
+}
+
+/* phone list: a number reads as one line, so cards that carry phone numbers take the full width */
+.rs-shell .pt-place-text a {
+  white-space: nowrap;
+}
+@media (max-width: 560px) {
+  .rs-shell .pt-places:has(.pt-place-text a) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

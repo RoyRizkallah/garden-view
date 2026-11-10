@@ -9,30 +9,67 @@ export const PEOPLE = [
     lead: true,
     photo: '/images/people/anthony-aour.jpg',
   },
-  { role: 'Manager', name: 'Elias Hanna', phone: '+961 3 121 411', lead: false },
-  { role: 'Assistant', name: 'Tima', phone: '+961 76 446 160', lead: false },
+  { role: 'Property Manager', name: 'Elias Hanna', phone: '+961 3 121 411', hours: '12pm – 3pm', lead: false },
+  {
+    role: 'Accounting & Residents Coordination',
+    name: 'Tima Hammoud',
+    phone: '+961 76 714 610',
+    hours: '9am – 3pm',
+    lead: false,
+  },
 ] as const;
 
-/** `post` is where a member is stationed, for teams split by post (security: each block, the garage). */
-export type TeamMember = { name?: string; phone?: string; photo?: string; post?: string };
+/**
+ * `post` is where a member is stationed (security: each block, the parking, relief) and `shift`
+ * their hours. From the building's staff list and guards list (November 2026).
+ */
+export type TeamMember = { name?: string; phone?: string; photo?: string; post?: string; shift?: string };
 
-/** One empty place per person, until their details are known. */
-const places = (count: number, post?: string): TeamMember[] => Array.from({ length: count }, () => ({ post }));
+const guard = (name: string, post: string, shift?: string): TeamMember => ({ name, post, shift });
 
 /**
- * The team that runs the building day to day. Each group has one place per person; fill in
- * a member's name and phone (and a photo path, if there is one) when they are known, e.g.
- * replace `...places(3, 'Block A')` with
- * `{ name: 'Georges', phone: '+961 70 000 000', post: 'Block A' }, ...places(2, 'Block A')`.
- * Security has a fixed number of guards at each post: three per block and three at the garage.
+ * The team that runs the building day to day. Security keeps three guards at each block and at the
+ * parking (one per eight-hour shift), with one guard on relief. To change someone, edit their entry;
+ * a phone number turns their card into a call link.
  */
 export const TEAM_GROUPS: { role: string; singular: string; plural: string; members: TeamMember[] }[] = [
   {
     role: 'Security',
     singular: 'guard',
     plural: 'guards',
-    members: [...places(3, 'Block A'), ...places(3, 'Block B'), ...places(3, 'Block C'), ...places(3, 'Garage')],
+    members: [
+      guard('Kamal Khazaal', 'Block A', '7am – 3pm'),
+      guard('Bahij', 'Block A', '3pm – 11pm'),
+      guard('Ramez Arnaout', 'Block A', '11pm – 7am'),
+      guard('Shadi Haddad', 'Block B', '7am – 3pm'),
+      guard('Ramadan Shbaro', 'Block B', '3pm – 11pm'),
+      guard('Mahdi Attieh', 'Block B', '11pm – 7am'),
+      guard('Mohamad Khazaal', 'Block C', '7am – 3pm'),
+      guard('Imad Khalifa', 'Block C', '3pm – 11pm'),
+      guard('Bilal Huwayed', 'Block C', '11pm – 7am'),
+      guard('Imad Nasserdine', 'Parking', '7am – 3pm'),
+      guard('Mohammad Al Hajj', 'Parking', '3pm – 11pm'),
+      guard('Mostafa Haddad', 'Parking', '11pm – 7am'),
+      guard('Khodor Al Hoss', 'Relief'),
+    ],
   },
-  { role: 'Cleaning', singular: 'cleaner', plural: 'cleaners', members: places(2) },
-  { role: 'Concierge', singular: 'concierge', plural: 'concierges', members: places(2) },
+  {
+    role: 'Cleaning',
+    singular: 'cleaner',
+    plural: 'cleaners',
+    members: [
+      { name: 'Yehya', phone: '+961 70 328 068', shift: '7am – 4pm' },
+      { name: 'Khalifa', phone: '+961 76 975 447', shift: '7am – 4pm' },
+      { name: 'Taleb', phone: '+961 81 045 825', shift: '7am – 4pm' },
+    ],
+  },
+  {
+    role: 'Concierge',
+    singular: 'concierge',
+    plural: 'concierges',
+    members: [
+      { name: 'Abed Al Saleh', phone: '+961 76 135 283', shift: 'Day · 7am – 7pm' },
+      { name: 'Bachar Al Saleh', phone: '+961 78 760 604', shift: 'Night · 5pm – 11pm' },
+    ],
+  },
 ];

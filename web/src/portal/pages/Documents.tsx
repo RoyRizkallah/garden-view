@@ -2,12 +2,13 @@ import { useEffect, useMemo, useState } from 'react';
 import { api, mediaUrl, type GvDocument } from '../api';
 import { shortDate } from '../format';
 import PageHeader from '../PageHeader';
-import { IconDocument, IconMail, IconSparkle, IconChevronRight, IconArrowRight } from '../../components/Icons';
+import { IconDocument, IconMail, IconSparkle, IconPieChart, IconChevronRight, IconArrowRight } from '../../components/Icons';
 import { categoryRank } from '../../data/documentCategories';
 
 const CATEGORY_ICON: Record<string, typeof IconDocument> = {
   'Quarterly letters': IconMail,
   Updates: IconSparkle,
+  Budget: IconPieChart,
 };
 
 function fileType(url: string) {
@@ -47,7 +48,7 @@ export default function Documents() {
       <PageHeader
         kicker="Documents"
         title="Building documents"
-        lede="The quarterly letters and updates from building management, to open or download."
+        lede="The quarterly letters, updates and budget from building management, to open or download."
       />
 
       {latestLetter && (
@@ -87,7 +88,7 @@ export default function Documents() {
           </span>
           <h2>No documents published yet</h2>
           <p>
-            Building management publishes the quarterly letters and updates here. You will be able to open
+            Building management publishes the quarterly letters, updates and budget here. You will be able to open
             and download each one.
           </p>
         </div>
