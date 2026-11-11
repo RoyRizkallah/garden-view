@@ -31,7 +31,7 @@ export default function Charges() {
       <PageHeader
         kicker="My charges"
         title="Charges"
-        lede="Your home’s maintenance for the year, as set by building management, in two installments."
+        lede="Your home’s charges for the year, as set by building management: the maintenance in two installments, and any additional charge."
       />
 
       {error && (
@@ -63,11 +63,16 @@ export default function Charges() {
           <section className="rs-due ch-year" aria-labelledby="year-total">
             <div className="rs-due-main">
               <p className="rs-due-label" id="year-total">
-                Maintenance {charges.year}
+                Your charges for {charges.year}
               </p>
               <p className="rs-due-amount">{dollars.format(charges.total)}</p>
               <p className="rs-due-meta">
-                Your home’s share of the building: {charges.sharePerThousand} / 1000
+                {charges.extras.length > 0
+                  ? `Maintenance ${dollars.format(charges.maintenance)} + ${charges.extras
+                      .map((extra) => `${extra.label.toLowerCase()} ${dollars.format(extra.amount)}`)
+                      .join(' + ')} · `
+                  : ''}
+                Your share of the building: {charges.sharePerThousand} / 1000
               </p>
             </div>
             <div className="rs-due-how">
@@ -90,6 +95,15 @@ export default function Charges() {
                 <span className="ch-period">
                   <IconCalendar size={13} /> {day(installment.from)} – {day(installment.to)} {charges.year}
                 </span>
+              </article>
+            ))}
+            {charges.extras.map((extra) => (
+              <article key={extra.label} className="ch-installment is-extra">
+                <header>
+                  <span className="ch-installment-name">{extra.label}</span>
+                </header>
+                <strong>{dollars.format(extra.amount)}</strong>
+                <span className="ch-period">{extra.note}</span>
               </article>
             ))}
           </div>

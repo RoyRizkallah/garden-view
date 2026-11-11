@@ -2793,3 +2793,14 @@
     flex: 1 1 140px;
   }
 }
+/* the installments and any extra charge (additional fuel) side by side */
+.rs-shell .ch-installments {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+.rs-shell .ch-installment.is-extra {
+  background: var(--r-gold-soft);
+  border-color: #eadbb5;
+}
+.rs-shell .ch-installment.is-extra .ch-period {
+  font-size: 13px;
+}

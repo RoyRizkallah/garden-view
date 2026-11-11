@@ -51,7 +51,18 @@ export type AdminCharge = Charge & { unit: { block: string; number: string } };
 
 /** a home's maintenance for the year, from management's installments sheet (ISO dates) */
 export type Installment = { label: string; from: string; to: string; amount: number };
-export type HomeCharges = { year: number; sharePerThousand: number; total: number; installments: Installment[] };
+export type ExtraCharge = { label: string; note: string; amount: number };
+export type HomeCharges = {
+  year: number;
+  sharePerThousand: number;
+  /** the year's maintenance, paid in the two installments */
+  maintenance: number;
+  installments: Installment[];
+  /** charges on top of the maintenance, such as the additional fuel */
+  extras: ExtraCharge[];
+  /** everything for the year */
+  total: number;
+};
 
 /** the installment whose half of the year today falls in */
 export const currentInstallment = (charges: HomeCharges | null | undefined): Installment | null => {

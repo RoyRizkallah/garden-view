@@ -178,7 +178,7 @@ export default function Overview() {
       {/* the account in one line: three figures, each opening its page */}
       <div className="rs-ledger">
         <Link to="/portal/charges" className="rs-ledger-item">
-          <span className="rs-ledger-label">Maintenance {homeCharges?.year ?? new Date().getFullYear()}</span>
+          <span className="rs-ledger-label">Charges {homeCharges?.year ?? new Date().getFullYear()}</span>
           <span className="rs-ledger-value">{homeCharges ? usd.format(homeCharges.total) : '—'}</span>
           <span className="rs-ledger-note">
             {homeCharges
