@@ -660,6 +660,16 @@ adminRouter.patch('/service-requests/:id', async (req, res) => {
   res.json({ request });
 });
 
+// a request made by mistake or as a test: gone for management and for the resident
+adminRouter.delete('/service-requests/:id', async (req, res) => {
+  const { count } = await prisma.serviceRequest.deleteMany({ where: { id: req.params.id } });
+  if (count === 0) {
+    res.status(404).json({ error: 'Service request not found' });
+    return;
+  }
+  res.status(204).end();
+});
+
 // ---------- Meetings & agendas ----------
 const agendaItemSchema = z.object({
   title: z.string().trim().min(1).max(200),

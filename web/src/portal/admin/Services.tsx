@@ -42,6 +42,17 @@ export default function AdminServices() {
     load();
   }
 
+  async function remove(request: AdminServiceRequest) {
+    const what = `${TRADE[request.category]} request from ${request.account.name} (${request.unit.block}-${request.unit.number})`;
+    if (!window.confirm(`Delete this ${what}? It disappears for the resident too, and cannot be undone.`)) return;
+    try {
+      await api.delete(`/admin/service-requests/${request.id}`);
+      load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not delete the request.');
+    }
+  }
+
   return (
     <div className="portal-page">
       <p className="eyebrow">Services</p>
@@ -83,9 +94,14 @@ export default function AdminServices() {
                 onChange={(e) => setNotes((prev) => ({ ...prev, [request.id]: e.target.value }))}
               />
             </label>
-            <button type="button" className="btn btn-primary btn-sm" onClick={() => save(request.id, request.status, notes[request.id] ?? '')}>
-              Save note
-            </button>
+            <div className="svc-admin-actions">
+              <button type="button" className="btn btn-primary btn-sm" onClick={() => save(request.id, request.status, notes[request.id] ?? '')}>
+                Save note
+              </button>
+              <button type="button" className="btn btn-outline btn-sm" onClick={() => remove(request)}>
+                Delete
+              </button>
+            </div>
           </article>
         ))}
         {requests?.length === 0 && (

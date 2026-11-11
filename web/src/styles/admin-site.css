@@ -308,3 +308,10 @@
   background: var(--gold);
   color: #131310;
 }
+
+/* a service request's actions: save the note, or delete the request */
+.portal-shell-admin .svc-admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
