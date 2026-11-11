@@ -5,6 +5,7 @@
 // residents. Amounts are in US dollars as on the sheet; totals are computed from the lines and
 // checked against the totals the sheet prints.
 import { loadDataJson } from './sealed';
+import { fuelAdditionalTotal } from './installments';
 
 export type BudgetItem = { label: string; amount: number; note?: string };
 export type BudgetPost = { no: number; title: string; kind: 'Variable' | 'Fixed' | 'Other'; items: BudgetItem[] };
@@ -21,19 +22,27 @@ type BudgetSheet = {
 const YEAR = 2026;
 const sum = (values: number[]) => values.reduce((total, value) => total + value, 0);
 
+type Revision = { post: number; item: string; change: number; note: string };
+
 /**
  * Changes decided for this year on top of the approved sheet. The sheet itself stays as approved
  * (it is the PDF residents can open); residents see the initial figure beside this year's.
- * Each change names its post (by number) and its line (by label), as on the sheet.
+ * Each change names its post (by number) and its line (by label), as on the sheet. The fuel
+ * increase is what the homes are charged for the additional fuel, so the budget and the homes'
+ * charges always agree.
  */
-const REVISIONS: { post: number; item: string; change: number; note: string }[] = [
-  { post: 3, item: 'Generator and boiler: common areas', change: 100000, note: 'Fuel increase this year' },
-];
+function revisions(): Revision[] {
+  const fuel = fuelAdditionalTotal();
+  return fuel
+    ? [{ post: 3, item: 'Generator and boiler: common areas', change: fuel, note: 'Additional fuel this year, charged to the homes' }]
+    : [];
+}
 
 /** The budget as residents see it, every total computed from the lines; null when it cannot be opened. */
 export function budgetSummary() {
   const sheet = loadDataJson<BudgetSheet>(`budget-${YEAR}`, 'BUDGET_JSON_FILE');
   if (!sheet) return null;
+  const REVISIONS = revisions();
 
   // each line's initial amount (as approved) and this year's (with the year's changes)
   const posts = sheet.posts.map((post) => {

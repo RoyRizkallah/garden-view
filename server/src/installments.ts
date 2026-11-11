@@ -28,12 +28,19 @@ const YEAR = 2026;
 const normal = (value: string) => value.replace(/\s+/g, ' ').trim().toUpperCase();
 const isHome = (block: string, number: string) => (item: { block: string; number: string }) =>
   normal(item.block) === normal(block) && normal(item.number) === normal(number);
+const fuelRows = () => loadDataJson<FuelRow[]>(`fuel-additional-${YEAR}`, 'FUEL_JSON_FILE');
+
+/** what the homes are charged in all for the additional fuel this year; null without the sheet */
+export function fuelAdditionalTotal(): number | null {
+  const rows = fuelRows();
+  return rows ? rows.reduce((sum, row) => sum + row.amount, 0) : null;
+}
 
 /** One home's charges for the year, or null when the maintenance sheet has no row for it (or cannot be opened). */
 export function chargesFor(block: string, number: string): HomeCharges | null {
   const row = loadDataJson<Row[]>(`installments-${YEAR}`, 'INSTALLMENTS_JSON_FILE')?.find(isHome(block, number));
   if (!row) return null;
-  const fuel = loadDataJson<FuelRow[]>(`fuel-additional-${YEAR}`, 'FUEL_JSON_FILE')?.find(isHome(block, number));
+  const fuel = fuelRows()?.find(isHome(block, number));
   const extras: ExtraCharge[] = fuel
     ? [{ label: 'Additional fuel', note: 'Common areas, your share of the extra fuel this year', amount: fuel.amount }]
     : [];
