@@ -1,0 +1,248 @@
+[
+ {
+  "block": "A",
+  "number": "0/1 A1",
+  "sharePerThousand": 37,
+  "amount": 2775
+ },
+ {
+  "block": "A",
+  "number": "0/1 A2",
+  "sharePerThousand": 40,
+  "amount": 3000
+ },
+ {
+  "block": "A",
+  "number": "2 A1",
+  "sharePerThousand": 26,
+  "amount": 1950
+ },
+ {
+  "block": "A",
+  "number": "2 A2",
+  "sharePerThousand": 23,
+  "amount": 1725
+ },
+ {
+  "block": "A",
+  "number": "3 A1",
+  "sharePerThousand": 25,
+  "amount": 1875
+ },
+ {
+  "block": "A",
+  "number": "3 A2",
+  "sharePerThousand": 22,
+  "amount": 1650
+ },
+ {
+  "block": "A",
+  "number": "4 A1",
+  "sharePerThousand": 26,
+  "amount": 1950
+ },
+ {
+  "block": "A",
+  "number": "4 A2",
+  "sharePerThousand": 24,
+  "amount": 1800
+ },
+ {
+  "block": "A",
+  "number": "5 A1",
+  "sharePerThousand": 25,
+  "amount": 1875
+ },
+ {
+  "block": "A",
+  "number": "5 A2",
+  "sharePerThousand": 22,
+  "amount": 1650
+ },
+ {
+  "block": "A",
+  "number": "6 A1",
+  "sharePerThousand": 26,
+  "amount": 1950
+ },
+ {
+  "block": "A",
+  "number": "6 A2",
+  "sharePerThousand": 23,
+  "amount": 1725
+ },
+ {
+  "block": "A",
+  "number": "7 A1",
+  "sharePerThousand": 25,
+  "amount": 1875
+ },
+ {
+  "block": "A",
+  "number": "7 A2",
+  "sharePerThousand": 22,
+  "amount": 1650
+ },
+ {
+  "block": "A",
+  "number": "8 A1",
+  "sharePerThousand": 26,
+  "amount": 1950
+ },
+ {
+  "block": "A",
+  "number": "8 A2",
+  "sharePerThousand": 23,
+  "amount": 1725
+ },
+ {
+  "block": "A",
+  "number": "9/10 A1",
+  "sharePerThousand": 42,
+  "amount": 3150
+ },
+ {
+  "block": "A",
+  "number": "9/10 A2",
+  "sharePerThousand": 35,
+  "amount": 2625
+ },
+ {
+  "block": "B",
+  "number": "0/1 B",
+  "sharePerThousand": 24,
+  "amount": 1800
+ },
+ {
+  "block": "B",
+  "number": "2 B",
+  "sharePerThousand": 19,
+  "amount": 1425
+ },
+ {
+  "block": "B",
+  "number": "3/4 B",
+  "sharePerThousand": 36,
+  "amount": 2700
+ },
+ {
+  "block": "B",
+  "number": "5/6 B",
+  "sharePerThousand": 36,
+  "amount": 2700
+ },
+ {
+  "block": "B",
+  "number": "7/8 B",
+  "sharePerThousand": 36,
+  "amount": 2700
+ },
+ {
+  "block": "B",
+  "number": "9/10 B",
+  "sharePerThousand": 36,
+  "amount": 2700
+ },
+ {
+  "block": "C",
+  "number": "0/1 C1",
+  "sharePerThousand": 20,
+  "amount": 1500
+ },
+ {
+  "block": "C",
+  "number": "2 C1",
+  "sharePerThousand": 17,
+  "amount": 1270
+ },
+ {
+  "block": "C",
+  "number": "2 C2",
+  "sharePerThousand": 17,
+  "amount": 1270
+ },
+ {
+  "block": "C",
+  "number": "3 C1",
+  "sharePerThousand": 17,
+  "amount": 1270
+ },
+ {
+  "block": "C",
+  "number": "3 C2",
+  "sharePerThousand": 17,
+  "amount": 1270
+ },
+ {
+  "block": "C",
+  "number": "4 C1",
+  "sharePerThousand": 17,
+  "amount": 1270
+ },
+ {
+  "block": "C",
+  "number": "4 C2",
+  "sharePerThousand": 17,
+  "amount": 1270
+ },
+ {
+  "block": "C",
+  "number": "5 C1",
+  "sharePerThousand": 17,
+  "amount": 1270
+ },
+ {
+  "block": "C",
+  "number": "5 C2",
+  "sharePerThousand": 17,
+  "amount": 1270
+ },
+ {
+  "block": "C",
+  "number": "6 C1",
+  "sharePerThousand": 17,
+  "amount": 1270
+ },
+ {
+  "block": "C",
+  "number": "6 C2",
+  "sharePerThousand": 17,
+  "amount": 1270
+ },
+ {
+  "block": "C",
+  "number": "7 C1",
+  "sharePerThousand": 17,
+  "amount": 1270
+ },
+ {
+  "block": "C",
+  "number": "7 C2",
+  "sharePerThousand": 17,
+  "amount": 1270
+ },
+ {
+  "block": "C",
+  "number": "8 C1",
+  "sharePerThousand": 17,
+  "amount": 1270
+ },
+ {
+  "block": "C",
+  "number": "8 C2",
+  "sharePerThousand": 17,
+  "amount": 1270
+ },
+ {
+  "block": "C",
+  "number": "9/10 C1",
+  "sharePerThousand": 33,
+  "amount": 2475
+ },
+ {
+  "block": "C",
+  "number": "9/10 C2",
+  "sharePerThousand": 31,
+  "amount": 2325
+ }
+]
