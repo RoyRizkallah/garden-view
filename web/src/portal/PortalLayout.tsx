@@ -18,6 +18,8 @@ import {
   IconUsers,
   IconWrench,
   IconMenu,
+  IconLeaf,
+  IconClock,
 } from '../components/Icons';
 
 type NavItem = {
@@ -27,6 +29,8 @@ type NavItem = {
   icon: typeof IconHome;
   end?: boolean;
   primary?: boolean;
+  /** the section's own pages, listed under it */
+  children?: NavItem[];
 };
 
 const GROUPS: { label: string; links: NavItem[] }[] = [
@@ -50,7 +54,15 @@ const GROUPS: { label: string; links: NavItem[] }[] = [
       { to: '/portal/projects', label: 'Project Progress', icon: IconChart },
       { to: '/portal/voting', label: 'Voting', icon: IconBallot },
       { to: '/portal/meetings', label: 'Meetings', icon: IconCalendar },
-      { to: '/portal/people', label: 'Our People', icon: IconUsers },
+      {
+        to: '/portal/people',
+        label: 'Our People',
+        icon: IconUsers,
+        children: [
+          { to: '/portal/people', label: 'Garden Tree', icon: IconLeaf, end: true },
+          { to: '/portal/people/schedule', label: 'Schedule', icon: IconClock, end: true },
+        ],
+      },
       { to: '/portal/documents', label: 'Documents', icon: IconDocument },
     ],
   },
@@ -61,7 +73,8 @@ const LINKS = GROUPS.flatMap((group) => group.links);
 const PRIMARY = ['/portal', '/portal/charges', '/portal/requests', '/portal/services']
   .map((path) => LINKS.find((link) => link.to === path))
   .filter((link): link is NavItem => Boolean(link));
-const SECONDARY = LINKS.filter((link) => !link.primary);
+/** the More sheet lists a section's own pages in place of the section */
+const SECONDARY = LINKS.filter((link) => !link.primary).flatMap((link) => link.children ?? [link]);
 
 export default function PortalLayout() {
   const { account, logout } = useAuth();
@@ -112,15 +125,30 @@ export default function PortalLayout() {
             <div key={group.label} className="rs-nav-group">
               <p className="rs-nav-label">{group.label}</p>
               {group.links.map((link) => (
-                <NavLink
-                  key={link.to}
-                  to={link.to}
-                  end={link.end}
-                  className={({ isActive }) => (isActive ? 'is-active' : '')}
-                >
-                  <link.icon size={17} />
-                  <span>{link.label}</span>
-                </NavLink>
+                <div key={link.to} className={link.children ? 'rs-nav-section' : undefined}>
+                  <NavLink
+                    to={link.to}
+                    end={link.end}
+                    className={({ isActive }) => (isActive ? 'is-active' : '')}
+                  >
+                    <link.icon size={17} />
+                    <span>{link.label}</span>
+                  </NavLink>
+                  {link.children && (
+                    <div className="rs-subnav">
+                      {link.children.map((child) => (
+                        <NavLink
+                          key={child.to}
+                          to={child.to}
+                          end={child.end}
+                          className={({ isActive }) => (isActive ? 'is-current' : '')}
+                        >
+                          <span>{child.label}</span>
+                        </NavLink>
+                      ))}
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
           ))}
@@ -190,6 +218,7 @@ export default function PortalLayout() {
               <NavLink
                 key={link.to}
                 to={link.to}
+                end={link.end}
                 onClick={() => setMoreOpen(false)}
                 className={({ isActive }) => (isActive ? 'is-active' : '')}
               >

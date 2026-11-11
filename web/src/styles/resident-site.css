@@ -2210,17 +2210,9 @@
   transform: translateX(-50%);
 }
 
-/* the board on a phone sits below the team list; on a desktop it is the Schedule view */
-@media (min-width: 881px) {
-  .rs-shell .pt-schedule {
-    display: none;
-  }
-}
+/* the board on a phone: narrower labels and padding */
 @media (max-width: 880px) {
-  .rs-shell .pt-schedule {
-    margin-top: 22px;
-  }
-  .rs-shell .pt-schedule .sc-board {
+  .rs-shell .sc-board {
     --label-w: 74px;
     padding: 18px 14px 16px;
   }
@@ -2273,26 +2265,92 @@
 }
 /* on a phone each row's name sits above its bar, so the day gets the full width */
 @media (max-width: 880px) {
-  .rs-shell .pt-schedule .sc-board {
+  .rs-shell .sc-board {
     --label-w: 0px;
   }
-  .rs-shell .pt-schedule .sc-axis .sc-label {
+  .rs-shell .sc-axis .sc-label {
     display: none;
   }
-  .rs-shell .pt-schedule .sc-row {
+  .rs-shell .sc-row {
     grid-template-columns: minmax(0, 1fr);
   }
-  .rs-shell .pt-schedule .sc-row .sc-label {
+  .rs-shell .sc-row .sc-label {
     padding: 8px 0 0;
     color: var(--r-muted);
     font-size: 12px;
   }
-  .rs-shell .pt-schedule .sc-lane {
+  .rs-shell .sc-lane {
     min-height: 28px;
   }
 }
 @media (max-width: 880px) {
-  .rs-shell .pt-schedule .sc-axis {
+  .rs-shell .sc-axis {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ==========================================================================
+   Our People's own pages: listed under it in the sidebar, and a switch in the page header.
+   ========================================================================== */
+.rs-shell .rs-subnav {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin: 2px 0 4px 20px;
+  padding-left: 14px;
+}
+.rs-shell .rs-subnav::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 0;
+  width: 1px;
+  background: rgba(255, 253, 248, 0.14);
+}
+.rs-shell .rs-nav .rs-subnav a {
+  padding: 6px 10px;
+  font-size: 13px;
+  color: rgba(255, 253, 248, 0.6);
+}
+.rs-shell .rs-nav .rs-subnav a.is-current {
+  color: var(--r-gold);
+  font-weight: 600;
+}
+.rs-shell .rs-nav .rs-subnav a.is-current::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -17px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--r-gold);
+  transform: translateY(-50%);
+}
+
+/* the header switch is now links between the two pages, on phones too */
+.rs-shell .ft-view-switch a {
+  padding: 8px 16px;
+  border-radius: 999px;
+  color: rgba(255, 253, 248, 0.78);
+  font-size: 13.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.rs-shell .ft-view-switch a:hover {
+  color: #fffdf8;
+}
+.rs-shell .ft-view-switch a.active {
+  background: #fffdf8;
+  color: var(--r-deep);
+}
+@media (max-width: 880px) {
+  .rs-shell .ft-view-switch {
+    display: inline-flex;
+  }
+  .rs-shell .people-page .rs-page-actions {
+    flex-wrap: wrap;
   }
 }

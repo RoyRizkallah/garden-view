@@ -1,13 +1,12 @@
-import { useLayoutEffect, useRef, useState } from 'react';
-import { PEOPLE, TEAM_GROUPS, type TeamMember } from '../people';
+import { Link } from 'react-router-dom';
+import { TEAM_GROUPS, type TeamMember } from '../people';
 import { initials } from '../names';
-import PageHeader from '../PageHeader';
+import PeopleHeader from '../PeopleHeader';
 import { IconPhone, IconShield, IconSparkle, IconConcierge, IconUser } from '../../components/Icons';
-import ScheduleBoard from '../ScheduleBoard';
-import { boardStart, clockLabel, isOnDuty, layoutRow, useBeirutNow, type BoardSection } from '../shifts';
+import { clockLabel, isOnDuty, useBeirutNow } from '../shifts';
+import { ASSISTANT, CHAIRMAN, MANAGER, byPost, onDutyCount, type PersonLike } from '../staffSchedule';
+import { useFitHeight } from '../useFitHeight';
 import '../../styles/people.css';
-
-type PersonLike = { name: string; role: string; phone: string; photo?: string; hours?: string };
 
 /** a small green dot that says someone is working right now */
 const OnDutyDot = () => (
@@ -87,18 +86,6 @@ function Crown({ blobs, className }: { blobs: ReturnType<typeof crown>; classNam
 /** a branch from the trunk at `fromY` out to (x, y), in stage percent */
 const branch = (fromY: number, x: number, y: number) =>
   `M${TRUNK.x} ${fromY}C${(TRUNK.x + x) / 2} ${fromY} ${x} ${fromY + (y - fromY) * 0.35} ${x} ${y}`;
-
-/** a team's members grouped by post, in the order the posts first appear ('' when a team has no posts) */
-function byPost(members: TeamMember[]): { post: string; members: TeamMember[] }[] {
-  const posts: { post: string; members: TeamMember[] }[] = [];
-  for (const member of members) {
-    const post = member.post ?? '';
-    const entry = posts.find((item) => item.post === post);
-    if (entry) entry.members.push(member);
-    else posts.push({ post, members: [member] });
-  }
-  return posts;
-}
 
 /** The shift every member works, when they all work the same one (said once, not on every card). */
 function sharedShift(members: TeamMember[]): string | undefined {
@@ -217,88 +204,31 @@ function PersonCard({ person, lead = false, onDuty = false }: { person: PersonLi
 }
 
 export default function People() {
-  const [chairman, ...officers] = PEOPLE as readonly PersonLike[];
-  const manager = officers.find((person) => person.role.includes('Manager')) ?? officers[0];
-  const assistant = officers.find((person) => person !== manager) ?? officers[1];
-  const callPerson = manager ?? chairman;
+  const chairman = CHAIRMAN;
+  const manager = MANAGER;
+  const assistant = ASSISTANT;
   const teamCount = TEAM_GROUPS.reduce((sum, group) => sum + group.members.length, 0);
 
-  // Shifts: who is working now (Beirut time), and the day laid out as a schedule board.
+  // who is working now (Beirut time); the day's full schedule is its own page
   const now = useBeirutNow();
-  const [view, setView] = useState<'tree' | 'schedule'>('tree');
-  const staff = TEAM_GROUPS.flatMap((group) => group.members);
-  const officeHours = officers.filter((person) => person.hours);
-  const startsAt = boardStart([...officeHours.map((person) => person.hours), ...staff.map((member) => member.shift)]);
-  const sections: BoardSection[] = [
-    {
-      title: 'Office',
-      rows: [layoutRow('', officeHours.map((person) => ({ name: person.name, hours: person.hours })), startsAt)],
-    },
-    ...TEAM_GROUPS.map((group) => ({
-      title: group.role,
-      rows: byPost(group.members).map(({ post, members }) =>
-        layoutRow(post, members.map((member) => ({ name: member.name ?? 'To come', hours: member.shift })), startsAt),
-      ),
-    })),
-  ];
-  const onDutyCount =
-    officeHours.filter((person) => isOnDuty(person.hours, now)).length +
-    staff.filter((member) => isOnDuty(member.shift, now)).length;
 
   // The stage takes the height left in the window below it, so the tree fits without scrolling.
-  const stageRef = useRef<HTMLDivElement>(null);
-  const [stageHeight, setStageHeight] = useState(680);
-  useLayoutEffect(() => {
-    const stage = stageRef.current;
-    if (!stage) return;
-    const measure = () => {
-      const top = stage.getBoundingClientRect().top + window.scrollY;
-      setStageHeight(Math.max(520, Math.round(window.innerHeight - top - 24)));
-    };
-    measure();
-    window.addEventListener('resize', measure);
-    return () => window.removeEventListener('resize', measure);
-  }, []);
+  const [stageRef, fitHeight] = useFitHeight<HTMLDivElement>();
+  const stageHeight = fitHeight ?? 680;
 
   return (
     <div className="rs-page people-page">
-      <PageHeader
-        kicker="The building"
+      <PeopleHeader
         title="Garden Tree"
         lede="The people who look after Garden View, and how to reach them. For anything else, the manager’s office is your first point of contact."
-        actions={
-          <>
-            <div className="ft-view-switch" role="group" aria-label="Show">
-              <button type="button" aria-pressed={view === 'tree'} onClick={() => setView('tree')}>
-                Tree
-              </button>
-              <button type="button" aria-pressed={view === 'schedule'} onClick={() => setView('schedule')}>
-                Schedule
-              </button>
-            </div>
-            <a className="rs-btn rs-btn-primary" href={tel(callPerson.phone)}>
-              <IconPhone size={14} /> Call the manager
-            </a>
-          </>
-        }
       />
 
       <div className="pt-stage-wrap ft-wrap">
-        {view === 'schedule' ? (
-          <ScheduleBoard
-            sections={sections}
-            startsAt={startsAt}
-            now={now}
-            onDutyCount={onDutyCount}
-            height={stageHeight}
-            boardRef={stageRef}
-          />
-        ) : (
         <div className="ft-stage" ref={stageRef} style={{ height: stageHeight }}>
-          <button type="button" className="ft-now-chip" onClick={() => setView('schedule')}>
+          <Link to="/portal/people/schedule" className="ft-now-chip">
             <span className="sc-dot" aria-hidden="true" />
-            {onDutyCount} on duty now · {clockLabel(now)}
-          </button>
+            {onDutyCount(now)} on duty now · {clockLabel(now)}
+          </Link>
           {/* the garden: wall and windows, hedge on its kerb, the lawn */}
           <div className="ft-wall" aria-hidden="true" />
           <div className="ft-hedge" aria-hidden="true" />
@@ -396,7 +326,6 @@ export default function People() {
             );
           })}
         </div>
-        )}
       </div>
 
       <div className="pt-mobile">
@@ -458,10 +387,6 @@ export default function People() {
             );
           })}
         </div>
-      </section>
-
-      <section className="pt-schedule" aria-label="Shifts">
-        <ScheduleBoard sections={sections} startsAt={startsAt} now={now} onDutyCount={onDutyCount} />
       </section>
     </div>
   );
