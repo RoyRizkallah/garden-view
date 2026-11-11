@@ -1,16 +1,26 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import { api, mediaUrl } from './api';
 import { IconArrowRight, IconChevronRight, IconPieChart } from '../components/Icons';
 
-type BudgetItem = { label: string; amount: number; note?: string };
-type BudgetPost = { no: number; title: string; kind: 'Variable' | 'Fixed' | 'Other'; items: BudgetItem[]; total: number };
+/** `amount` as approved, `current` this year (with the year's changes) */
+type BudgetItem = { label: string; amount: number; current: number; change: number; changeNote?: string; note?: string };
+type BudgetPost = {
+  no: number;
+  title: string;
+  kind: 'Variable' | 'Fixed' | 'Other';
+  items: BudgetItem[];
+  initial: number;
+  current: number;
+};
 type Budget = {
   year: number;
-  total: number;
+  initial: number;
+  current: number;
   variable: number;
   fixed: number;
   other: number;
+  changes: { change: number; note: string }[];
   posts: BudgetPost[];
   improvements: { years: string[]; totals: Record<string, number>; items: { label: string; byYear: Record<string, number> }[] };
 };
@@ -50,8 +60,10 @@ export default function BudgetPanel() {
       </div>
     );
   }
-  const posts = [...budget.posts].sort((a, b) => b.total - a.total);
-  const largest = posts[0]?.total ?? 1;
+  const posts = [...budget.posts].sort((a, b) => b.current - a.current);
+  const largest = posts[0]?.current ?? 1;
+  const increase = budget.current - budget.initial;
+  const signed = (value: number) => `${value > 0 ? '+' : '−'}${dollars.format(Math.abs(value))}`;
 
   return (
     <section className="rs-card bg-panel" aria-labelledby="budget-title">
@@ -62,34 +74,63 @@ export default function BudgetPanel() {
           </p>
           <h2 id="budget-title">Where the service charges go</h2>
           <p className="bg-lede">
-            The building’s running budget for the year. Your home’s share of it is on your{' '}
+            The building’s running budget: as first approved, and for this year. Your home’s share of it is on your{' '}
             <Link to="/portal/charges">Charges</Link> page.
           </p>
         </div>
-        <div className="bg-total">
-          <span>Total budget</span>
-          <strong>{dollars.format(budget.total)}</strong>
-          <span className="bg-split">
-            {dollars.format(budget.variable)} variable · {dollars.format(budget.fixed)} fixed
-            {budget.other > 0 && ` · ${dollars.format(budget.other)} other`}
-          </span>
+        <div className="bg-totals">
+          <div className="bg-total is-initial">
+            <span>Initial budget</span>
+            <strong>{dollars.format(budget.initial)}</strong>
+            <span className="bg-split">As approved</span>
+          </div>
+          <div className="bg-total">
+            <span>This year</span>
+            <strong>{dollars.format(budget.current)}</strong>
+            <span className="bg-split">
+              {increase !== 0
+                ? budget.changes.map((change) => `${signed(change.change)} · ${change.note}`).join(' · ')
+                : 'No change'}
+            </span>
+          </div>
         </div>
       </header>
 
+      <div className="bg-columns" aria-hidden="true">
+        <span />
+        <span />
+        <span className="bg-amount">Initial</span>
+        <span className="bg-amount">This year</span>
+        <span className="bg-share">Share</span>
+        <span />
+      </div>
       <ol className="bg-posts">
         {posts.map((post) => (
           <li key={post.no}>
-            <details className="bg-post">
-              <summary title={`${post.title}: ${dollars.format(post.total)}, ${percent(post.total, budget.total)} of the budget`}>
+            <details className={`bg-post${post.current !== post.initial ? ' is-changed' : ''}`}>
+              <summary
+                title={`${post.title}: initial ${dollars.format(post.initial)}, this year ${dollars.format(post.current)}, ${percent(post.current, budget.current)} of this year’s budget`}
+              >
                 <span className="bg-post-name">
                   {post.title}
                   <em>{post.kind}</em>
                 </span>
                 <span className="bg-bar" aria-hidden="true">
-                  <span style={{ width: `${(post.total / largest) * 100}%` }} />
+                  <span
+                    style={
+                      {
+                        width: `${(post.current / largest) * 100}%`,
+                        '--initial-share': `${(Math.min(post.initial, post.current) / post.current) * 100}%`,
+                      } as CSSProperties
+                    }
+                  />
                 </span>
-                <span className="bg-amount">{dollars.format(post.total)}</span>
-                <span className="bg-share">{percent(post.total, budget.total)}</span>
+                <span className="bg-amount is-initial">{dollars.format(post.initial)}</span>
+                <span className="bg-amount">
+                  {dollars.format(post.current)}
+                  {post.current !== post.initial && <em className="bg-change">{signed(post.current - post.initial)}</em>}
+                </span>
+                <span className="bg-share">{percent(post.current, budget.current)}</span>
                 <IconChevronRight size={14} className="bg-chevron" />
               </summary>
               <ul className="bg-items">
@@ -98,8 +139,10 @@ export default function BudgetPanel() {
                     <span>
                       {entry.label}
                       {entry.note && <em>{entry.note}</em>}
+                      {entry.changeNote && <em className="bg-change-note">{entry.changeNote}</em>}
                     </span>
-                    <span className="bg-amount">{dollars.format(entry.amount)}</span>
+                    <span className="bg-amount is-initial">{dollars.format(entry.amount)}</span>
+                    <span className="bg-amount">{dollars.format(entry.current)}</span>
                   </li>
                 ))}
               </ul>

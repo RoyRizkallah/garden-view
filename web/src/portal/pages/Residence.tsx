@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import Photo from '../../components/Photo';
 import ResidencePlan from '../../components/ResidencePlan';
-import { api, mediaUrl, type MyResidence } from '../api';
+import { api, type MyResidence } from '../api';
 import { useAuth } from '../AuthContext';
-import { SHOOT_CHAPTERS, formatDuration } from '../../data/photoshoot';
+import { SHOOT_CHAPTERS } from '../../data/photoshoot';
 import { floorsLabel } from '../../data/listings';
 import { matchResidence } from '../../data/useUnitPlan';
-import { IconLayers, IconImage, IconHome } from '../../components/Icons';
+import { IconLayers, IconHome } from '../../components/Icons';
 
 const HERO_SIZES = '(max-width: 1080px) calc(100vw - 40px), calc(100vw - 384px)';
 
@@ -31,7 +31,6 @@ export default function Residence() {
   const chapter = SHOOT_CHAPTERS.find((item) => item.id === `block-${block.toLowerCase()}`);
   const heroPhoto =
     chapter?.photos.find((photo) => photo.tag === 'Exterior')?.src ?? `/images/shoot/block-${block.toLowerCase()}-2.jpg`;
-  const blockPhotoCount = (chapter?.photos.length ?? 0) + (data?.blockImages.length ?? 0);
 
   return (
     <div className="rs-page">
@@ -70,22 +69,6 @@ export default function Residence() {
             </p>
           </div>
         </div>
-
-        <div className="rs-summary-item">
-          <span className="rs-summary-icon">
-            <IconImage size={17} />
-          </span>
-          <div>
-            <p className="rs-summary-label">Block {block}</p>
-            <p className="rs-summary-text">
-              {blockPhotoCount > 0
-                ? `${blockPhotoCount} photographs${
-                    chapter?.film ? ` and a ${formatDuration(chapter.film.duration)} film` : ''
-                  } of your block.`
-                : `Photographs of Block ${block} appear here.`}
-            </p>
-          </div>
-        </div>
       </div>
 
       {unit && matched && <ResidencePlan unit={unit} />}
@@ -106,71 +89,6 @@ export default function Residence() {
             </a>
           )}
         </div>
-      )}
-
-      {unit && (chapter || (data && data.blockImages.length > 0)) && (
-        <>
-          <div className="rs-section-head">
-            <h2>Block {unit.block}</h2>
-            <span style={{ fontSize: 12, color: 'var(--r-faint)' }}>Photographs &amp; film</span>
-          </div>
-
-          {chapter?.summary && (
-            <p className="rs-project-desc" style={{ marginTop: -6, marginBottom: 16 }}>
-              {chapter.summary}
-            </p>
-          )}
-
-          {chapter?.film ? (
-            <div className="rs-block">
-              <figure className="rs-film">
-                <video
-                  controls
-                  preload="none"
-                  playsInline
-                  poster={chapter.film.poster.replace(/\.jpg$/, '-1440.webp')}
-                >
-                  {chapter.film.sources.map((source) => (
-                    <source key={source.src} src={source.src} media={source.media} type="video/mp4" />
-                  ))}
-                </video>
-                <figcaption>
-                  Block {unit.block} on film · {formatDuration(chapter.film.duration)}
-                </figcaption>
-              </figure>
-
-              <div className="rs-photos">
-                {data?.blockImages.map((image) => (
-                  <figure key={image.id}>
-                    <img src={mediaUrl(image.url)} alt={image.caption ?? `Block ${image.block}`} loading="lazy" />
-                    {image.caption && <figcaption>{image.caption}</figcaption>}
-                  </figure>
-                ))}
-                {chapter?.photos.map((photo) => (
-                  <figure key={photo.src}>
-                    <Photo src={photo.src} alt={photo.title} sizes="(max-width: 780px) 45vw, 220px" />
-                    <figcaption>{photo.title}</figcaption>
-                  </figure>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className="rs-photos rs-photos-wide">
-              {data?.blockImages.map((image) => (
-                <figure key={image.id}>
-                  <img src={mediaUrl(image.url)} alt={image.caption ?? `Block ${image.block}`} loading="lazy" />
-                  {image.caption && <figcaption>{image.caption}</figcaption>}
-                </figure>
-              ))}
-              {chapter?.photos.map((photo) => (
-                <figure key={photo.src}>
-                  <Photo src={photo.src} alt={photo.title} sizes="(max-width: 780px) 45vw, 260px" />
-                  <figcaption>{photo.title}</figcaption>
-                </figure>
-              ))}
-            </div>
-          )}
-        </>
       )}
     </div>
   );

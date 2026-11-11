@@ -16,7 +16,6 @@ import {
   IconChevronRight,
   IconCalendar,
   IconUsers,
-  IconWrench,
   IconMenu,
   IconLeaf,
   IconClock,
@@ -43,7 +42,6 @@ const GROUPS: { label: string; links: NavItem[] }[] = [
     label: 'Your home',
     links: [
       { to: '/portal/residence', label: 'My Residence', icon: IconBuilding },
-      { to: '/portal/services', label: 'Home Services', short: 'Services', icon: IconWrench, primary: true },
       { to: '/portal/requests', label: 'Requests', icon: IconClipboard, primary: true },
       { to: '/portal/sell-rent', label: 'Sell & Rent', icon: IconTag },
     ],
@@ -52,7 +50,7 @@ const GROUPS: { label: string; links: NavItem[] }[] = [
     label: 'The building',
     links: [
       { to: '/portal/charges', label: 'Charges', icon: IconWallet, primary: true },
-      { to: '/portal/budget', label: 'Budget', icon: IconPieChart },
+      { to: '/portal/budget', label: 'Budget', icon: IconPieChart, primary: true },
       { to: '/portal/projects', label: 'Project Progress', icon: IconChart },
       { to: '/portal/voting', label: 'Voting', icon: IconBallot },
       { to: '/portal/meetings', label: 'Meetings', icon: IconCalendar },
@@ -72,7 +70,7 @@ const GROUPS: { label: string; links: NavItem[] }[] = [
 
 const LINKS = GROUPS.flatMap((group) => group.links);
 /** Mobile order: the four things a resident reaches for most, then More. */
-const PRIMARY = ['/portal', '/portal/charges', '/portal/requests', '/portal/services']
+const PRIMARY = ['/portal', '/portal/charges', '/portal/requests', '/portal/budget']
   .map((path) => LINKS.find((link) => link.to === path))
   .filter((link): link is NavItem => Boolean(link));
 /** the More sheet lists a section's own pages in place of the section */

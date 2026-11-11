@@ -1,5 +1,5 @@
 import { lazy, Suspense, type ComponentType, type LazyExoticComponent } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Navigate, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import Residences from './pages/Residences';
@@ -29,7 +29,6 @@ const PortalRequests = lazy(() => import('./portal/pages/Requests'));
 const PortalDocuments = lazy(() => import('./portal/pages/Documents'));
 const PortalResidence = lazy(() => import('./portal/pages/Residence'));
 const PortalSellRent = lazy(() => import('./portal/pages/SellRent'));
-const PortalServices = lazy(() => import('./portal/pages/Services'));
 const PortalMeetings = lazy(() => import('./portal/pages/Meetings'));
 const PortalPeople = lazy(() => import('./portal/pages/People'));
 const PortalPeopleSchedule = lazy(() => import('./portal/pages/PeopleSchedule'));
@@ -43,7 +42,6 @@ const AdminRequests = lazy(() => import('./portal/admin/Requests'));
 const AdminResidents = lazy(() => import('./portal/admin/Residents'));
 const AdminDocuments = lazy(() => import('./portal/admin/Documents'));
 const AdminInquiries = lazy(() => import('./portal/admin/Inquiries'));
-const AdminServices = lazy(() => import('./portal/admin/Services'));
 const AdminMeetings = lazy(() => import('./portal/admin/Meetings'));
 const AdminListings = lazy(() => import('./portal/admin/Listings'));
 const AdminPhotos = lazy(() => import('./portal/admin/Photos'));
@@ -81,10 +79,11 @@ function App() {
           <Route index element={deferred(PortalOverview)} />
           <Route path="charges" element={deferred(PortalCharges)} />
           <Route path="budget" element={deferred(PortalBudget)} />
+          {/* Home Services was removed; old links land on the overview */}
+          <Route path="services" element={<Navigate to="/portal" replace />} />
           <Route path="projects" element={deferred(PortalProjects)} />
           <Route path="voting" element={deferred(PortalVoting)} />
           <Route path="requests" element={deferred(PortalRequests)} />
-          <Route path="services" element={deferred(PortalServices)} />
           <Route path="meetings" element={deferred(PortalMeetings)} />
           <Route path="people" element={deferred(PortalPeople)} />
           <Route path="people/schedule" element={deferred(PortalPeopleSchedule)} />
@@ -107,7 +106,6 @@ function App() {
           <Route path="photos" element={deferred(AdminPhotos)} />
           <Route path="documents" element={deferred(AdminDocuments)} />
           <Route path="inquiries" element={deferred(AdminInquiries)} />
-          <Route path="services" element={deferred(AdminServices)} />
           <Route path="meetings" element={deferred(AdminMeetings)} />
           <Route path="profile" element={deferred(PortalProfile)} />
         </Route>
