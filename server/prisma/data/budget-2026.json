@@ -1,0 +1,374 @@
+{
+ "year": 2026,
+ "posts": [
+  {
+   "no": 1,
+   "title": "Maintenance contracts & spare parts",
+   "kind": "Variable",
+   "items": [
+    {
+     "label": "Chillers (Trane BVBA contract)",
+     "amount": 3000
+    },
+    {
+     "label": "Elevators (Mitsulift contract)",
+     "amount": 12000
+    },
+    {
+     "label": "Generators: maintenance",
+     "amount": 12000
+    },
+    {
+     "label": "Generators: oil & filters",
+     "amount": 20000
+    },
+    {
+     "label": "Plantations",
+     "amount": 2400
+    },
+    {
+     "label": "Pest control",
+     "amount": 1000
+    },
+    {
+     "label": "Pool / water treatment (Tawrid)",
+     "amount": 5000
+    },
+    {
+     "label": "CO2 system / fire extinguishers",
+     "amount": 3000
+    },
+    {
+     "label": "Electric works",
+     "amount": 2000
+    },
+    {
+     "label": "Mechanical works",
+     "amount": 8000
+    },
+    {
+     "label": "CCTV, videophone",
+     "amount": 1000
+    },
+    {
+     "label": "Spare parts (chillers and elevators)",
+     "amount": 7500
+    }
+   ]
+  },
+  {
+   "no": 2,
+   "title": "Electricity",
+   "kind": "Variable",
+   "items": [
+    {
+     "label": "EDL: common areas",
+     "amount": 50000
+    }
+   ]
+  },
+  {
+   "no": 3,
+   "title": "Fuel",
+   "kind": "Variable",
+   "items": [
+    {
+     "label": "Generator and boiler: common areas",
+     "amount": 125000
+    }
+   ]
+  },
+  {
+   "no": 4,
+   "title": "Water",
+   "kind": "Variable",
+   "items": [
+    {
+     "label": "Municipality",
+     "amount": 16000
+    },
+    {
+     "label": "Water tanks",
+     "amount": 14500
+    }
+   ]
+  },
+  {
+   "no": 5,
+   "title": "Consumables",
+   "kind": "Variable",
+   "items": [
+    {
+     "label": "Running costs",
+     "amount": 10000,
+     "note": "Pick-up, office expenses, TV, internet, potable water, cleaning materials and tools, work clothes, lamps, paint, bank commissions"
+    }
+   ]
+  },
+  {
+   "no": 6,
+   "title": "Unforeseen expenses",
+   "kind": "Variable",
+   "items": [
+    {
+     "label": "10% of total cost",
+     "amount": 50000
+    }
+   ]
+  },
+  {
+   "no": 7,
+   "title": "Security",
+   "kind": "Fixed",
+   "items": [
+    {
+     "label": "4 posts, 24/7",
+     "amount": 100400,
+     "note": "$700 a month × 12 guards"
+    }
+   ]
+  },
+  {
+   "no": 8,
+   "title": "Cleaning",
+   "kind": "Fixed",
+   "items": [
+    {
+     "label": "Workers",
+     "amount": 22500,
+     "note": "$600 a month × 3 workers × 12.5 months"
+    }
+   ]
+  },
+  {
+   "no": 9,
+   "title": "Insurance",
+   "kind": "Fixed",
+   "items": [
+    {
+     "label": "Fire insurance",
+     "amount": 8000
+    }
+   ]
+  },
+  {
+   "no": 10,
+   "title": "Property management & maintenance",
+   "kind": "Fixed",
+   "items": [
+    {
+     "label": "Elias Hanna, property manager",
+     "amount": 18000,
+     "note": "$1,500 a month"
+    },
+    {
+     "label": "Tima Hammoud, accounting and residents coordination",
+     "amount": 10200,
+     "note": "$850 a month"
+    },
+    {
+     "label": "Abed Saleh, technician",
+     "amount": 13200,
+     "note": "$1,100 a month"
+    },
+    {
+     "label": "Bachar, night shift",
+     "amount": 7800,
+     "note": "$650 a month"
+    },
+    {
+     "label": "Dana Mukhaiber, lawyer",
+     "amount": 3000
+    },
+    {
+     "label": "Auditor",
+     "amount": 4500
+    }
+   ]
+  },
+  {
+   "no": 11,
+   "title": "EDL collection",
+   "kind": "Other",
+   "items": [
+    {
+     "label": "Extra for EDL collection beyond 12 months",
+     "amount": 20000
+    }
+   ]
+  }
+ ],
+ "improvements": [
+  {
+   "label": "Repair of defective chiller",
+   "byYear": {
+    "2027": 13500
+   }
+  },
+  {
+   "label": "Repair of chiller pumps A & C",
+   "byYear": {
+    "2026": 5000
+   }
+  },
+  {
+   "label": "Water booster pump (Gazzaoui)",
+   "byYear": {
+    "2027": 3800
+   }
+  },
+  {
+   "label": "Epoxy flooring: repair defective areas",
+   "byYear": {
+    "2026": 5000
+   }
+  },
+  {
+   "label": "Lobby floor polish (B & C)",
+   "byYear": {
+    "2026": 1000
+   }
+  },
+  {
+   "label": "Paint lobbies",
+   "byYear": {
+    "2026": 2000
+   }
+  },
+  {
+   "label": "Polish elevator floors",
+   "byYear": {
+    "2026": 600
+   }
+  },
+  {
+   "label": "Fire-rated doors",
+   "byYear": {
+    "2027": 9000
+   }
+  },
+  {
+   "label": "Entrance door, Block C",
+   "byYear": {
+    "2026": 1300
+   }
+  },
+  {
+   "label": "Water infiltration, Block C",
+   "byYear": {
+    "2026": 600
+   }
+  },
+  {
+   "label": "Generator room ventilation",
+   "byYear": {
+    "2026": 10000
+   }
+  },
+  {
+   "label": "Boiler expansion tank",
+   "byYear": {
+    "2026": 1600
+   }
+  },
+  {
+   "label": "Control room A/C and paint",
+   "byYear": {
+    "2026": 2000
+   }
+  },
+  {
+   "label": "Generator 1 overhaul",
+   "byYear": {
+    "2027": 30000
+   }
+  },
+  {
+   "label": "Roof fans, Block C",
+   "byYear": {
+    "2026": 1500
+   }
+  },
+  {
+   "label": "Clear exhaust pipes: boiler & generator",
+   "byYear": {
+    "2026": 1000
+   }
+  },
+  {
+   "label": "New interphone, all blocks",
+   "byYear": {
+    "2026": 15000
+   }
+  },
+  {
+   "label": "Lift room sound insulation, Block A",
+   "byYear": {
+    "2027": 2500
+   }
+  },
+  {
+   "label": "Gym (A/C, paint and pool tiles)",
+   "byYear": {
+    "2027": 5000
+   }
+  },
+  {
+   "label": "Lights, whole building",
+   "byYear": {
+    "2026": 2000
+   }
+  },
+  {
+   "label": "Roof works (drains…)",
+   "byYear": {
+    "2026": 3000
+   }
+  },
+  {
+   "label": "Woodwork paint, all lobbies",
+   "byYear": {
+    "2027": 10000
+   }
+  },
+  {
+   "label": "Swimming pool filter",
+   "byYear": {
+    "2026": 800
+   }
+  },
+  {
+   "label": "Water filtration system",
+   "byYear": {
+    "2026": 2000
+   }
+  },
+  {
+   "label": "Municipality water valves",
+   "byYear": {
+    "2026": 500
+   }
+  },
+  {
+   "label": "Stone cladding cleaning",
+   "byYear": {
+    "2027": 6000
+   }
+  },
+  {
+   "label": "Others",
+   "byYear": {
+    "2026": 5100,
+    "2027": 5200
+   }
+  }
+ ],
+ "printedTotals": {
+  "operating": 530000,
+  "total": 550000,
+  "improvements": {
+   "2026": 60000,
+   "2027": 85000
+  }
+ }
+}
