@@ -8,6 +8,7 @@ import {
   IconChart,
   IconBallot,
   IconClipboard,
+  IconWrench,
   IconUsers,
   IconUser,
   IconMail,
@@ -40,6 +41,7 @@ const GROUPS: { label: string; links: LinkItem[] }[] = [
     links: [
       { to: '/admin', label: 'Overview', shortLabel: 'Overview', icon: IconHome, end: true, primary: true },
       { to: '/admin/requests', label: 'Requests', shortLabel: 'Requests', icon: IconClipboard, primary: true },
+      { to: '/admin/services', label: 'Services', shortLabel: 'Services', icon: IconWrench },
       { to: '/admin/inquiries', label: 'Inquiries', shortLabel: 'Inquiries', icon: IconMail },
     ],
   },

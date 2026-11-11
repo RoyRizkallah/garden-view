@@ -16,7 +16,7 @@ import {
   IconClipboard,
   IconDocument,
   IconCalendar,
-  IconPieChart,
+  IconWrench,
   IconArrowRight,
   IconCheck,
   IconLayers,
@@ -361,13 +361,13 @@ export default function Overview() {
             <span>Or plan a renovation</span>
           </span>
         </Link>
-        <Link to="/portal/budget">
+        <Link to="/portal/services">
           <span className="rs-quick-icon">
-            <IconPieChart size={17} />
+            <IconWrench size={17} />
           </span>
           <span>
-            <strong>Budget</strong>
-            <span>Where the maintenance goes</span>
+            <strong>Home services</strong>
+            <span>A plumber, an electrician</span>
           </span>
         </Link>
         <Link to="/portal/meetings">
