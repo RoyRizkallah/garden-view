@@ -3,10 +3,10 @@
 // The directory is stored encrypted in prisma/data/residents.seed. Coolify supplies
 // RESIDENTS_SEED_KEY at runtime. The key is not in this repository.
 import 'dotenv/config';
-import { createDecipheriv } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { prisma } from './db';
+import { openSealed } from './sealed';
 
 type ResidentSeed = {
   block: string;
@@ -26,13 +26,7 @@ type ResidentSeed = {
 };
 
 function decryptBundled(keyHex: string): string {
-  const file = path.join(process.cwd(), 'prisma', 'data', 'residents.seed');
-  const key = Buffer.from(keyHex, 'hex');
-  if (key.length !== 32) throw new Error('RESIDENTS_SEED_KEY must be 64 hex characters.');
-  const payload = Buffer.from(readFileSync(file, 'utf8').trim(), 'base64');
-  const decipher = createDecipheriv('aes-256-gcm', key, payload.subarray(0, 12));
-  decipher.setAuthTag(payload.subarray(12, 28));
-  return Buffer.concat([decipher.update(payload.subarray(28)), decipher.final()]).toString('utf8');
+  return openSealed(path.join(process.cwd(), 'prisma', 'data', 'residents.seed'), keyHex);
 }
 
 function seedText(): string | null {

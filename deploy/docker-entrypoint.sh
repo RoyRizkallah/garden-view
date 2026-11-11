@@ -20,4 +20,7 @@ node dist/seed-residents.js || echo "Resident seed failed. The website will stil
 # first admin from ADMIN_EMAIL / ADMIN_PASSWORD, only if the database has none yet
 node dist/bootstrap-admin.js
 
+# building documents that ship with the code (the budget), each published once
+node dist/seed-documents.js || echo "Document publishing failed. The website will still start."
+
 exec "$@"

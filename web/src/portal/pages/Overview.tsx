@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { api, type Overview as OverviewData } from '../api';
+import { api, currentInstallment, type HomeCharges, type Overview as OverviewData } from '../api';
 import { useAuth } from '../AuthContext';
 import { greetingName } from '../names';
 import { usd, shortDate, dayMonth, monthYear, closesIn } from '../format';
@@ -43,11 +43,19 @@ export default function Overview() {
   const [data, setData] = useState<OverviewData | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // the home's maintenance for the year (undefined while loading, null when not published)
+  const [homeCharges, setHomeCharges] = useState<HomeCharges | null | undefined>(undefined);
+  const thisHalf = currentInstallment(homeCharges);
+
   useEffect(() => {
     api
       .get<OverviewData>('/resident/overview')
       .then(setData)
       .catch((err) => setError(err.message));
+    api
+      .get<{ charges: HomeCharges | null }>('/resident/installments')
+      .then((res) => setHomeCharges(res.charges))
+      .catch(() => setHomeCharges(null));
   }, []);
 
   const residence = useMemo(
@@ -169,22 +177,24 @@ export default function Overview() {
 
       {/* the account in one line: three figures, each opening its page */}
       <div className="rs-ledger">
-        <Link to="/portal/charges" className={`rs-ledger-item${overdue > 0 ? ' is-alert' : balance <= 0 ? ' is-clear' : ''}`}>
-          <span className="rs-ledger-label">Balance due</span>
-          <span className="rs-ledger-value">{data ? usd.format(balance) : '—'}</span>
+        <Link to="/portal/charges" className="rs-ledger-item">
+          <span className="rs-ledger-label">Maintenance {homeCharges?.year ?? new Date().getFullYear()}</span>
+          <span className="rs-ledger-value">{homeCharges ? usd.format(homeCharges.total) : '—'}</span>
           <span className="rs-ledger-note">
-            {overdue > 0
-              ? `${overdue} ${overdue === 1 ? 'charge is' : 'charges are'} overdue`
-              : balance > 0
-                ? 'To building management'
-                : "You're up to date"}
+            {homeCharges
+              ? `Your share: ${homeCharges.sharePerThousand} / 1000`
+              : homeCharges === null
+                ? 'Not published yet'
+                : 'Loading'}
           </span>
         </Link>
         <Link to="/portal/charges" className="rs-ledger-item">
-          <span className="rs-ledger-label">Next payment</span>
-          <span className="rs-ledger-value">{next ? usd.format(next.amount) : '—'}</span>
+          <span className="rs-ledger-label">This half</span>
+          <span className="rs-ledger-value">{thisHalf ? usd.format(thisHalf.amount) : '—'}</span>
           <span className="rs-ledger-note">
-            {next ? `${monthYear(next.period)} · due ${dayMonth(next.dueDate)}` : 'No payment scheduled'}
+            {thisHalf
+              ? `${thisHalf.label} · ${dayMonth(thisHalf.from)} – ${dayMonth(thisHalf.to)}`
+              : 'No installment this half'}
           </span>
         </Link>
         <Link to="/portal/voting" className="rs-ledger-item">
@@ -195,7 +205,7 @@ export default function Overview() {
           </span>
         </Link>
         <Link to="/portal/charges" className="rs-ledger-link">
-          Your statement <IconArrowRight size={14} />
+          Your charges <IconArrowRight size={14} />
         </Link>
       </div>
 
@@ -227,7 +237,7 @@ export default function Overview() {
                 </span>
                 <div>
                   <strong>You&rsquo;re all caught up</strong>
-                  <p>Nothing to pay, no proposals waiting for your vote, and no open requests.</p>
+                  <p>No proposals waiting for your vote, and no open requests.</p>
                 </div>
               </div>
             )}

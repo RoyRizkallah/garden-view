@@ -22,6 +22,7 @@ const Login = lazy(() => import('./pages/Login'));
 const PortalLayout = lazy(() => import('./portal/PortalLayout'));
 const PortalOverview = lazy(() => import('./portal/pages/Overview'));
 const PortalCharges = lazy(() => import('./portal/pages/Charges'));
+const PortalBudget = lazy(() => import('./portal/pages/Budget'));
 const PortalProjects = lazy(() => import('./portal/pages/Projects'));
 const PortalVoting = lazy(() => import('./portal/pages/Voting'));
 const PortalRequests = lazy(() => import('./portal/pages/Requests'));
@@ -79,6 +80,7 @@ function App() {
         <Route path="/portal" element={deferred(PortalLayout)}>
           <Route index element={deferred(PortalOverview)} />
           <Route path="charges" element={deferred(PortalCharges)} />
+          <Route path="budget" element={deferred(PortalBudget)} />
           <Route path="projects" element={deferred(PortalProjects)} />
           <Route path="voting" element={deferred(PortalVoting)} />
           <Route path="requests" element={deferred(PortalRequests)} />

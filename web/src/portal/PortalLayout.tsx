@@ -20,6 +20,7 @@ import {
   IconMenu,
   IconLeaf,
   IconClock,
+  IconPieChart,
 } from '../components/Icons';
 
 type NavItem = {
@@ -50,7 +51,8 @@ const GROUPS: { label: string; links: NavItem[] }[] = [
   {
     label: 'The building',
     links: [
-      { to: '/portal/charges', label: 'Charges & Payments', short: 'Charges', icon: IconWallet, primary: true },
+      { to: '/portal/charges', label: 'Charges', icon: IconWallet, primary: true },
+      { to: '/portal/budget', label: 'Budget', icon: IconPieChart },
       { to: '/portal/projects', label: 'Project Progress', icon: IconChart },
       { to: '/portal/voting', label: 'Voting', icon: IconBallot },
       { to: '/portal/meetings', label: 'Meetings', icon: IconCalendar },

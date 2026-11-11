@@ -2,6 +2,8 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { prisma } from '../db';
 import { requireAuth, requireRole } from '../auth/middleware';
+import { budgetSummary } from '../budget';
+import { chargesFor } from '../installments';
 import {
   MAX_LISTING_PHOTOS,
   PhotoError,
@@ -80,6 +82,17 @@ residentRouter.get('/charges', async (req, res) => {
     orderBy: { dueDate: 'desc' },
   });
   res.json({ charges });
+});
+
+// this home's maintenance charge for the year and its two installments, from management's sheet
+residentRouter.get('/installments', async (req, res) => {
+  const unitId = await getUnitId(req.user!.accountId);
+  const unit = unitId ? await prisma.unit.findUnique({ where: { id: unitId }, select: { block: true, number: true } }) : null;
+  if (!unit) {
+    res.status(400).json({ error: 'No unit linked to this account' });
+    return;
+  }
+  res.json({ charges: chargesFor(unit.block, unit.number) });
 });
 
 residentRouter.get('/projects', async (_req, res) => {
@@ -189,6 +202,16 @@ residentRouter.post('/requests', async (req, res) => {
 residentRouter.get('/documents', async (_req, res) => {
   const documents = await prisma.document.findMany({ orderBy: { createdAt: 'desc' } });
   res.json({ documents });
+});
+
+// the building's budget: the same for every home, with the published PDF when there is one
+residentRouter.get('/budget', async (_req, res) => {
+  const document = await prisma.document.findFirst({
+    where: { category: 'Budget' },
+    orderBy: { createdAt: 'desc' },
+    select: { title: true, fileUrl: true },
+  });
+  res.json({ budget: budgetSummary(), document });
 });
 
 // ---------- My Residence ----------

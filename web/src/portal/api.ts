@@ -49,6 +49,16 @@ export type Charge = {
 
 export type AdminCharge = Charge & { unit: { block: string; number: string } };
 
+/** a home's maintenance for the year, from management's installments sheet (ISO dates) */
+export type Installment = { label: string; from: string; to: string; amount: number };
+export type HomeCharges = { year: number; sharePerThousand: number; total: number; installments: Installment[] };
+
+/** the installment whose half of the year today falls in */
+export const currentInstallment = (charges: HomeCharges | null | undefined): Installment | null => {
+  const today = new Date().toISOString().slice(0, 10);
+  return charges?.installments.find((item) => item.from <= today && today <= item.to) ?? null;
+};
+
 export type ProjectMilestone = {
   id: string;
   title: string;
