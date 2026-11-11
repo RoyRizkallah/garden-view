@@ -9,6 +9,7 @@ import { residentRouter } from './routes/resident';
 import { adminRouter } from './routes/admin';
 import { publicRouter } from './routes/public';
 import { UPLOADS_DIR } from './listingPhotos';
+import { requireAuth, requireRole } from './auth/middleware';
 
 const app = express();
 // behind the Caddy reverse proxy in production: trust its X-Forwarded-* headers
@@ -36,6 +37,18 @@ app.use('/api/resident/listing-requests', express.json({ limit: '40mb' }));
 app.use(['/api/admin/documents', '/api/admin/block-images'], express.json({ limit: '30mb' }));
 app.use(express.json());
 app.use(cookieParser());
+
+// building documents (budget, letters) can name people and amounts: only signed-in residents and
+// management may open them, and nothing keeps a copy. Ahead of the public /uploads below.
+app.use(
+  '/uploads/documents',
+  requireAuth,
+  requireRole('RESIDENT', 'ACCOUNTANT', 'ADMIN'),
+  express.static(path.join(UPLOADS_DIR, 'documents'), {
+    fallthrough: false,
+    setHeaders: (res) => res.setHeader('Cache-Control', 'private, no-store'),
+  }),
+);
 
 // owner-uploaded listing photos; names are random and never reused, so they can be cached hard
 app.use(

@@ -22,22 +22,26 @@ export function openSealed(file: string, keyHex: string): string {
 const cache = new Map<string, unknown>();
 
 /**
- * Reads a sealed JSON file from prisma/data once, with the server key. For local testing a plain
- * copy can be named by the environment variable `plainEnv` instead. Null when neither is available.
+ * Reads a data file from prisma/data once: `<base>.seed` when it exists and the server has the key,
+ * otherwise the plain `<base>.json`. For local testing, the environment variable `testEnv` can name
+ * another plain copy, which then wins. Null when none is available.
  */
-export function loadSealedJson<T>(name: string, plainEnv: string): T | null {
-  if (cache.has(name)) return cache.get(name) as T | null;
+export function loadDataJson<T>(base: string, testEnv: string): T | null {
+  if (cache.has(base)) return cache.get(base) as T | null;
   let value: T | null = null;
   try {
-    const sealed = path.join(process.cwd(), 'prisma', 'data', name);
+    const dir = path.join(process.cwd(), 'prisma', 'data');
+    const sealed = path.join(dir, `${base}.seed`);
+    const plain = path.join(dir, `${base}.json`);
     const key = process.env.RESIDENTS_SEED_KEY?.trim();
-    const plain = process.env[plainEnv]?.trim();
-    if (key && existsSync(sealed)) value = JSON.parse(openSealed(sealed, key)) as T;
-    else if (plain && existsSync(plain)) value = JSON.parse(readFileSync(plain, 'utf8')) as T;
+    const testFile = process.env[testEnv]?.trim();
+    if (testFile && existsSync(testFile)) value = JSON.parse(readFileSync(testFile, 'utf8')) as T;
+    else if (key && existsSync(sealed)) value = JSON.parse(openSealed(sealed, key)) as T;
+    else if (existsSync(plain)) value = JSON.parse(readFileSync(plain, 'utf8')) as T;
   } catch (err) {
-    console.error(`[sealed] could not open ${name}:`, err instanceof Error ? err.message : err);
+    console.error(`[data] could not read ${base}:`, err instanceof Error ? err.message : err);
   }
-  cache.set(name, value);
+  cache.set(base, value);
   return value;
 }
 

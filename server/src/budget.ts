@@ -1,10 +1,10 @@
 // The building's budget, as approved in "Budget 2026 & Leasehold Improvements" (the PDF residents
 // can open from Documents). It is the same for every home; each home's own charge is on its
-// Charges page. It names staff salaries, so the figures are kept sealed in
-// prisma/data/budget-2026.seed (opened with RESIDENTS_SEED_KEY) and served only to signed-in
+// Charges page. The figures are in prisma/data/budget-2026.json (or a sealed .seed copy when the
+// server has RESIDENTS_SEED_KEY). It names staff salaries, so it is served only to signed-in
 // residents. Amounts are in US dollars as on the sheet; totals are computed from the lines and
 // checked against the totals the sheet prints.
-import { loadSealedJson } from './sealed';
+import { loadDataJson } from './sealed';
 
 export type BudgetItem = { label: string; amount: number; note?: string };
 export type BudgetPost = { no: number; title: string; kind: 'Variable' | 'Fixed' | 'Other'; items: BudgetItem[] };
@@ -23,7 +23,7 @@ const sum = (values: number[]) => values.reduce((total, value) => total + value,
 
 /** The budget as residents see it, every total computed from the lines; null when it cannot be opened. */
 export function budgetSummary() {
-  const sheet = loadSealedJson<BudgetSheet>(`budget-${YEAR}.seed`, 'BUDGET_JSON_FILE');
+  const sheet = loadDataJson<BudgetSheet>(`budget-${YEAR}`, 'BUDGET_JSON_FILE');
   if (!sheet) return null;
   const posts = sheet.posts.map((post) => ({ ...post, total: sum(post.items.map((entry) => entry.amount)) }));
   const total = sum(posts.map((post) => post.total));
