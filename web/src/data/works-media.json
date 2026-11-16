@@ -1,0 +1,274 @@
+{
+ "chiller-pumps-before": {
+  "w": 1600,
+  "h": 1200
+ },
+ "chiller-pumps-after": {
+  "w": 1600,
+  "h": 1200
+ },
+ "chiller-pumps-old-motor": {
+  "w": 1599,
+  "h": 899
+ },
+ "chiller-pumps-new-motor": {
+  "w": 1200,
+  "h": 1600
+ },
+ "gen-radiator-1": {
+  "w": 960,
+  "h": 1280
+ },
+ "gen-radiator-1b": {
+  "w": 1280,
+  "h": 720
+ },
+ "gen-radiator-2": {
+  "w": 1200,
+  "h": 1600
+ },
+ "gen-radiator-3": {
+  "w": 1280,
+  "h": 1280
+ },
+ "gen-booster-before": {
+  "w": 1200,
+  "h": 1600
+ },
+ "gen-booster-after": {
+  "w": 1200,
+  "h": 1600
+ },
+ "gen-room-vent-before": {
+  "w": 1280,
+  "h": 960
+ },
+ "gen-room-vent-after": {
+  "w": 1200,
+  "h": 1600
+ },
+ "water-pumps-before": {
+  "w": 1200,
+  "h": 1600
+ },
+ "water-pumps-after": {
+  "w": 1200,
+  "h": 1600
+ },
+ "roof-fans-before": {
+  "w": 1280,
+  "h": 960
+ },
+ "roof-fans-after": {
+  "w": 1280,
+  "h": 960
+ },
+ "roof-fans-new": {
+  "w": 960,
+  "h": 1280
+ },
+ "roof-fans-duct": {
+  "w": 1280,
+  "h": 960
+ },
+ "gym-ac-fans-1": {
+  "w": 1200,
+  "h": 1600
+ },
+ "gym-ac-fans-2": {
+  "w": 1200,
+  "h": 1600
+ },
+ "pool-filter-before": {
+  "w": 1200,
+  "h": 1600
+ },
+ "pool-filter-after": {
+  "w": 1200,
+  "h": 1600
+ },
+ "pool-filter-pump": {
+  "w": 1200,
+  "h": 1600
+ },
+ "ac-block-c-before": {
+  "w": 960,
+  "h": 1280
+ },
+ "ac-block-c-after": {
+  "w": 1280,
+  "h": 960
+ },
+ "basement-b1-before": {
+  "w": 1200,
+  "h": 1600
+ },
+ "basement-b1-after": {
+  "w": 720,
+  "h": 1280
+ },
+ "basement-b2-before": {
+  "w": 1200,
+  "h": 1600
+ },
+ "basement-b2-after": {
+  "w": 720,
+  "h": 1280
+ },
+ "basement-b3-before": {
+  "w": 1200,
+  "h": 1600
+ },
+ "basement-b3-after": {
+  "w": 720,
+  "h": 1280
+ },
+ "basement-a-b1-before": {
+  "w": 1200,
+  "h": 1600
+ },
+ "basement-a-b1-after": {
+  "w": 1200,
+  "h": 1600
+ },
+ "elevator-a-before": {
+  "w": 1200,
+  "h": 1600
+ },
+ "elevator-a-after": {
+  "w": 1200,
+  "h": 1600
+ },
+ "elevator-b-before": {
+  "w": 1200,
+  "h": 1600
+ },
+ "elevator-b-after": {
+  "w": 720,
+  "h": 1280
+ },
+ "elevator-c-before": {
+  "w": 1200,
+  "h": 1600
+ },
+ "elevator-c-after": {
+  "w": 1200,
+  "h": 1600
+ },
+ "control-room-before": {
+  "w": 1600,
+  "h": 1200
+ },
+ "control-room-after": {
+  "w": 1280,
+  "h": 720
+ },
+ "block-a-hinge-before": {
+  "w": 1200,
+  "h": 1600
+ },
+ "block-a-hinge-after": {
+  "w": 1200,
+  "h": 1600
+ },
+ "block-a-ceiling-before": {
+  "w": 1600,
+  "h": 1200
+ },
+ "block-a-ceiling-after": {
+  "w": 1600,
+  "h": 1201
+ },
+ "block-a-floor-before": {
+  "w": 1200,
+  "h": 1600
+ },
+ "block-a-floor-after": {
+  "w": 1200,
+  "h": 1600
+ },
+ "block-b-walls-before": {
+  "w": 1200,
+  "h": 1600
+ },
+ "block-b-walls-after": {
+  "w": 1200,
+  "h": 1600
+ },
+ "block-b-ceiling-before": {
+  "w": 1600,
+  "h": 1200
+ },
+ "block-b-ceiling-after": {
+  "w": 720,
+  "h": 1280
+ },
+ "block-b-floor-before": {
+  "w": 1200,
+  "h": 1600
+ },
+ "block-b-floor-after": {
+  "w": 720,
+  "h": 1280
+ },
+ "block-c-glass-before": {
+  "w": 1200,
+  "h": 1600
+ },
+ "block-c-glass-during": {
+  "w": 1200,
+  "h": 1600
+ },
+ "block-c-glass-after": {
+  "w": 1600,
+  "h": 1200
+ },
+ "block-c-walls-before": {
+  "w": 1600,
+  "h": 1200
+ },
+ "block-c-walls-after": {
+  "w": 720,
+  "h": 1280
+ },
+ "block-c-lights-before": {
+  "w": 1200,
+  "h": 1600
+ },
+ "block-c-lights-after": {
+  "w": 1200,
+  "h": 1600
+ },
+ "block-c-floor-before": {
+  "w": 1200,
+  "h": 1600
+ },
+ "block-c-floor-after": {
+  "w": 1600,
+  "h": 1200
+ },
+ "outdoor-column-before": {
+  "w": 1280,
+  "h": 960
+ },
+ "outdoor-column-after": {
+  "w": 1280,
+  "h": 960
+ },
+ "outdoor-walk-before": {
+  "w": 960,
+  "h": 1280
+ },
+ "outdoor-walk-after": {
+  "w": 960,
+  "h": 1280
+ },
+ "outdoor-parking": {
+  "w": 1600,
+  "h": 1200
+ },
+ "outdoor-entrance": {
+  "w": 1600,
+  "h": 1200
+ }
+}

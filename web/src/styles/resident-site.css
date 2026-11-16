@@ -2804,3 +2804,255 @@
 .rs-shell .ch-installment.is-extra .ch-period {
   font-size: 13px;
 }
+
+/* ==========================================================================
+   Project progress: works done, before and after (photos from building management).
+   ========================================================================== */
+.rs-shell .wk {
+  margin-top: 4px;
+}
+.rs-shell .wk-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px 24px;
+  margin-bottom: 16px;
+}
+.rs-shell .wk-kicker {
+  margin: 0 0 4px;
+  color: var(--r-gold-ink);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.rs-shell .wk-head h2 {
+  margin: 0;
+  font-size: 24px;
+  font-stretch: 112%;
+}
+.rs-shell .wk-lede {
+  max-width: 560px;
+  margin: 6px 0 0;
+  color: var(--r-muted);
+  font-size: 14px;
+}
+.rs-shell .wk-head .rs-chip-row {
+  margin: 0;
+}
+.rs-shell .wk-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.rs-shell .wk-card {
+  padding: 20px 22px 22px;
+  border: 1px solid var(--r-line);
+  border-radius: 16px;
+  background: var(--r-surface);
+  box-shadow: var(--r-shadow);
+}
+.rs-shell .wk-card > header {
+  display: grid;
+  grid-template-columns: minmax(200px, 1fr) minmax(0, 2fr);
+  align-items: start;
+  gap: 6px 24px;
+  margin-bottom: 14px;
+}
+.rs-shell .wk-card h3 {
+  margin: 0;
+  font-size: 18px;
+  font-stretch: 112%;
+}
+.rs-shell .wk-meta {
+  margin: 3px 0 0;
+  color: var(--r-gold-ink);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.rs-shell .wk-summary {
+  margin: 0;
+  color: var(--r-ink-2);
+  font-size: 14.5px;
+}
+.rs-shell .wk-pairs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr));
+  gap: 14px 18px;
+}
+.rs-shell .wk-pair {
+  margin: 0;
+}
+.rs-shell .wk-pair-photos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+.rs-shell .wk-pair figcaption {
+  margin-top: 6px;
+  color: var(--r-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+.rs-shell .wk-thumb {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 10px;
+  background: var(--r-inset);
+  cursor: zoom-in;
+}
+.rs-shell .wk-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+.rs-shell .wk-thumb:hover img {
+  transform: scale(1.03);
+}
+.rs-shell .wk-thumb:focus-visible {
+  outline: 2px solid var(--r-gold);
+  outline-offset: 2px;
+}
+.rs-shell .wk-tag {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.rs-shell .wk-tag.is-before {
+  background: rgba(30, 33, 36, 0.72);
+  color: #fffdf8;
+}
+.rs-shell .wk-tag.is-after {
+  background: var(--r-gold);
+  color: #131310;
+}
+.rs-shell .wk-more {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 6px;
+  margin-top: 12px;
+}
+.rs-shell .wk-more.is-main {
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  margin-top: 0;
+}
+.rs-shell .wk-planned-head {
+  margin-top: 30px;
+}
+
+/* the enlarged photo */
+.wk-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: 56px 64px 24px;
+  background: rgba(13, 18, 15, 0.92);
+}
+.wk-viewer figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  max-width: 100%;
+  max-height: 100%;
+  margin: 0;
+}
+.wk-viewer img {
+  max-width: min(100%, 1600px);
+  max-height: calc(100vh - 140px);
+  width: auto;
+  height: auto;
+  border-radius: 10px;
+  object-fit: contain;
+}
+.wk-viewer figcaption {
+  display: flex;
+  gap: 14px;
+  color: #fffdf8;
+  font-size: 14px;
+  font-weight: 600;
+}
+.wk-viewer figcaption span {
+  color: rgba(255, 253, 248, 0.6);
+  font-weight: 500;
+}
+.wk-viewer button {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 253, 248, 0.12);
+  color: #fffdf8;
+  cursor: pointer;
+}
+.wk-viewer button:hover {
+  background: rgba(255, 253, 248, 0.24);
+}
+.wk-viewer-close {
+  top: 12px;
+  right: 14px;
+}
+.wk-viewer-step {
+  top: 50%;
+  transform: translateY(-50%);
+}
+.wk-viewer-step.is-prev {
+  left: 12px;
+}
+.wk-viewer-step.is-next {
+  right: 12px;
+}
+@media (max-width: 720px) {
+  .rs-shell .wk-card {
+    padding: 16px 14px 18px;
+  }
+  .rs-shell .wk-card > header {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .rs-shell .wk-more {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .wk-viewer {
+    padding: 56px 8px 16px;
+  }
+  .wk-viewer-step {
+    top: auto;
+    bottom: 14px;
+    transform: none;
+  }
+}
+/* on a wide screen the work's name and summary sit beside its photos, so a single pair fills the card */
+@media (min-width: 1000px) {
+  .rs-shell .wk-card {
+    display: grid;
+    grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+  }
+  .rs-shell .wk-card > header {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    margin-bottom: 0;
+  }
+  .rs-shell .wk-pairs {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr));
+  }
+}
+.rs-shell .wk-more.is-main {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}

@@ -1,0 +1,92 @@
+{
+  "_comment": "Works photos for the residents' Project Progress page: slug -> source file, relative to the folder passed to build_works.py (the client's 'D:/garden view'). Captions and grouping live in web/src/data/works.ts.",
+  "root": {
+    "m": "Maintenance works - 1St quater/Maintenance works - 1St quater",
+    "w": "Works/Works"
+  },
+  "photos": {
+    "chiller-pumps-before": "m/Chiller Pumps Block A/Chiller Pump A 5.jpeg",
+    "chiller-pumps-after": "m/Chiller Pumps Block A/Chiller Pump A Neww.jpeg",
+    "chiller-pumps-old-motor": "m/Chiller Pumps Block A/Chiller Pump A 2.jpeg",
+    "chiller-pumps-new-motor": "m/Chiller Pumps Block A/Chiller Pump New.jpeg",
+
+    "gen-radiator-1": "m/Generators/Radiators/Gen 1/Generator1 Radiator New 1.jpeg",
+    "gen-radiator-1b": "m/Generators/Radiators/Gen 1/Generator 1 Radiator New.jpeg",
+    "gen-radiator-2": "m/Generators/Radiators/Gen 2/Generator 2 Radiator New.jpeg",
+    "gen-radiator-3": "m/Generators/Radiators/Gen 3/Generator3 Radiator1.jpeg",
+
+    "gen-booster-before": "m/Generators/Radiators/Gen 3/Water Booster Pump Old.jpeg",
+    "gen-booster-after": "m/Generators/Radiators/Gen 3/Water Booster Gen3 Pump New.jpeg",
+
+    "gen-room-vent-before": "m/Generators/Ventilation Gen Room/Generator room ventilation (Before).jpg",
+    "gen-room-vent-after": "m/Generators/Ventilation Gen Room/Generator room ventilation (After).jpg",
+
+    "water-pumps-before": "m/Water filtrationn system/Water Pump Before.jpg",
+    "water-pumps-after": "m/Water filtrationn system/Water Pump B2 (After).jpg",
+
+    "roof-fans-before": "m/WhatsApp Image 2026-06-12 at 11.49.08 AM.jpeg",
+    "roof-fans-after": "m/WhatsApp Image 2026-06-12 at 11.49.12 AM.jpeg",
+    "roof-fans-new": "m/WhatsApp Image 2026-06-12 at 11.49.06 AM.jpeg",
+    "roof-fans-duct": "m/WhatsApp Image 2026-06-12 at 11.49.08 AM (1).jpeg",
+
+    "gym-ac-fans-1": "m/GYM AC Fan/AC Gym Fan 2.jpeg",
+    "gym-ac-fans-2": "m/GYM AC Fan/AC Gym Fan.jpeg",
+
+    "pool-filter-before": "m/WhatsApp Image 2026-07-20 at 11.04.22 AM (3).jpeg",
+    "pool-filter-after": "m/WhatsApp Image 2026-07-20 at 11.04.21 AM.jpeg",
+    "pool-filter-pump": "m/WhatsApp Image 2026-07-20 at 11.04.22 AM.jpeg",
+
+    "ac-block-c-before": "w/AC Block C Before.jpeg",
+    "ac-block-c-after": "w/AC Block C After 2.jpeg",
+
+    "basement-b1-before": "w/B1,2,3/B1 Before.jpeg",
+    "basement-b1-after": "w/B1,2,3/B1 After (2).jpeg",
+    "basement-b2-before": "w/B1,2,3/B2 Before.jpeg",
+    "basement-b2-after": "w/B1,2,3/B2 Af.jpeg",
+    "basement-b3-before": "w/B1,2,3/B3 Before.jpeg",
+    "basement-b3-after": "w/B1,2,3/B3 After 3.jpeg",
+    "basement-a-b1-before": "w/Block A/B1 Block A Before.jpeg",
+    "basement-a-b1-after": "w/New folder/B1 Block A After.jpeg",
+
+    "elevator-a-before": "w/Block A/WhatsApp Image 2026-10-01 at 12.11.02 PM (1).jpeg",
+    "elevator-a-after": "w/Block A/WhatsApp Image 2026-10-01 at 1.06.17 PM (1).jpeg",
+    "elevator-b-before": "w/Block B/WhatsApp Image 2026-10-01 at 11.31.46 AM.jpeg",
+    "elevator-b-after": "w/Block B/WhatsApp Image 2026-10-01 at 11.36.52 AM.jpeg",
+    "elevator-c-before": "w/Block C/Before Block C 1Elevator.jpeg",
+    "elevator-c-after": "w/Block C/Block C Elevator 2After.jpeg",
+
+    "control-room-before": "w/Block B/Contol Room Before.jpeg",
+    "control-room-after": "w/New folder/Contol Room After.jpeg",
+
+    "block-a-hinge-before": "w/Block A/PHOTO-2026-10-05-12-23-05.jpg",
+    "block-a-hinge-after": "w/Block A/PHOTO-2026-10-05-12-23-04.jpg",
+    "block-a-ceiling-before": "w/Block A/WhatsApp Image 2026-10-01 at 12.11.02 PM.jpeg",
+    "block-a-ceiling-after": "w/Block A/WhatsApp Image 2026-10-01 at 1.10.58 PM (1).jpeg",
+    "block-a-floor-before": "w/Block A/WhatsApp Image 2026-10-01 at 1.01.08 PM.jpeg",
+    "block-a-floor-after": "w/New folder/WhatsApp Image 2026-10-01 at 1.00.20 PM (1).jpeg",
+
+    "block-b-walls-before": "w/Block B/WhatsApp Image 2026-10-01 at 11.22.08 AM (4).jpeg",
+    "block-b-walls-after": "w/Block B/WhatsApp Image 2026-10-01 at 11.22.08 AM (3).jpeg",
+    "block-b-ceiling-before": "w/Block B/WhatsApp Image 2026-10-01 at 11.29.25 AM (1).jpeg",
+    "block-b-ceiling-after": "w/New folder/WhatsApp Image 2026-10-01 at 11.38.11 AM (1).jpeg",
+    "block-b-floor-before": "w/Block B/WhatsApp Image 2026-10-01 at 11.33.44 AM.jpeg",
+    "block-b-floor-after": "w/New folder/WhatsApp Image 2026-10-01 at 11.38.11 AM (2).jpeg",
+
+    "block-c-glass-before": "w/Block C/Entrance Block C Before.jpeg",
+    "block-c-glass-during": "w/Block C/Facade Glass Removed Block C.jpeg",
+    "block-c-glass-after": "w/Block C/Block C Facade.jpeg",
+    "block-c-walls-before": "w/Block C/Painting Block C before.jpeg",
+    "block-c-walls-after": "w/Block C/Block C wall painting After.jpeg",
+    "block-c-lights-before": "w/Block C/Lightning Block C.jpeg",
+    "block-c-lights-after": "w/Block C/Lights After Block C.jpeg",
+    "block-c-floor-before": "w/Block C/Floor Block c.jpeg",
+    "block-c-floor-after": "w/Block C/Floor Block C AFter.jpeg",
+
+    "outdoor-column-before": "w/Out Doors Cleanings/Wall Before.jpeg",
+    "outdoor-column-after": "w/Out Doors Cleanings/After Cleaning 3.jpeg",
+    "outdoor-walk-before": "w/Out Doors Cleanings/Cleaning Before.jpeg",
+    "outdoor-walk-after": "w/Out Doors Cleanings/Cleaning After.jpeg",
+    "outdoor-parking": "w/Out Doors Cleanings/Parking Cleaning.jpeg",
+    "outdoor-entrance": "w/Out Doors Cleanings/WhatsApp Image 2026-08-21 at 4.56.41 PM (1).jpeg"
+  }
+}

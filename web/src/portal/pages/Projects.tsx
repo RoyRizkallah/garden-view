@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { api, type Project } from '../api';
 import { usd, shortDate } from '../format';
 import PageHeader from '../PageHeader';
+import WorksShowcase from '../WorksShowcase';
 import CircularProgress from '../CircularProgress';
 import Photo from '../../components/Photo';
 import { IconCalendar, IconCheck, IconWallet, IconUsers, IconChart } from '../../components/Icons';
@@ -45,8 +46,14 @@ export default function ProjectsPage() {
       <PageHeader
         kicker="Project progress"
         title="Building projects"
-        lede="Maintenance and improvement works across Garden View — what is planned, what is underway, and when it finishes."
+        lede="Maintenance and improvement works across Garden View: what has been done, before and after, and what is planned or underway."
       />
+
+      <WorksShowcase />
+
+      <div className="rs-section-head wk-planned-head">
+        <h2>Planned and underway</h2>
+      </div>
 
       {error && (
         <div className="rs-note">
@@ -189,10 +196,10 @@ export default function ProjectsPage() {
             <span className="rs-empty-icon">
               <IconChart size={20} />
             </span>
-            <h2>No building projects right now</h2>
+            <h2>Nothing planned or underway right now</h2>
             <p>
-              Maintenance and improvement works appear here with their progress, budget and expected
-              completion, so you can follow them from start to finish.
+              New works appear here with their progress, budget and expected completion, so you can follow them
+              from start to finish.
             </p>
           </div>
         )}
